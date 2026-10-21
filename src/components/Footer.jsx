@@ -60,7 +60,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link to="/dashboard" className="footer-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                  Student Vault Access <ArrowUpRight size={13} color="var(--red-primary)" />
+                  Social Freedom Hub Access <ArrowUpRight size={13} color="var(--red-primary)" />
                 </Link>
               </li>
             </ul>

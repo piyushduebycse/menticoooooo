@@ -1,4 +1,5 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -27,6 +28,7 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
   appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || '',
 };
 
 export const isRealFirebaseConfigured = Boolean(
@@ -38,12 +40,20 @@ export const isRealFirebaseConfigured = Boolean(
 let app = null;
 let auth = null;
 let db = null;
+let analytics = null;
 
 if (isRealFirebaseConfigured) {
   try {
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     auth = getAuth(app);
     db = getFirestore(app);
+    if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
+      isSupported().then((supported) => {
+        if (supported && app) {
+          analytics = getAnalytics(app);
+        }
+      }).catch(() => {});
+    }
   } catch (err) {
     console.warn('[Firebase] Initialization error, falling back to simulated engine:', err);
   }
@@ -130,8 +140,21 @@ export const firebaseAuthService = {
   // Email / Password Login
   login: async (email, password) => {
     if (isRealFirebaseConfigured && auth) {
-      const credential = await signInWithEmailAndPassword(auth, email, password);
-      return credential.user;
+      try {
+        const credential = await signInWithEmailAndPassword(auth, email, password);
+        return credential.user;
+      } catch (err) {
+        if (err.code === 'auth/api-key-not-valid' || err.message?.includes('api-key-not-valid')) {
+          throw new Error('Firebase API Key in .env is invalid. Please copy the complete Web API Key from Firebase Console (Project Settings > General > Web API Key).');
+        }
+        if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+          throw new Error('Invalid email or password. If you do not have an account yet, switch to Register.');
+        }
+        if (err.code === 'auth/operation-not-allowed') {
+          throw new Error('Email/Password sign-in is disabled in Firebase Console. Enable it under Authentication > Sign-in method.');
+        }
+        throw err;
+      }
     }
 
     await new Promise((resolve) => setTimeout(resolve, 800));
@@ -154,18 +177,34 @@ export const firebaseAuthService = {
   // Signup
   signup: async (name, email, password) => {
     if (isRealFirebaseConfigured && auth) {
-      const credential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(credential.user, { displayName: name });
-      if (db) {
-        await setDoc(doc(db, 'users', credential.user.uid), {
-          displayName: name,
-          email,
-          createdAt: serverTimestamp(),
-          hasPurchasedPdf: false,
-          role: 'Mentico Student',
-        });
+      try {
+        const credential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(credential.user, { displayName: name });
+        if (db) {
+          await setDoc(doc(db, 'users', credential.user.uid), {
+            displayName: name,
+            email,
+            createdAt: serverTimestamp(),
+            hasPurchasedPdf: false,
+            role: 'Mentico Student',
+          });
+        }
+        return credential.user;
+      } catch (err) {
+        if (err.code === 'auth/api-key-not-valid' || err.message?.includes('api-key-not-valid')) {
+          throw new Error('Firebase API Key in .env is invalid. Please copy the complete Web API Key from Firebase Console (Project Settings > General > Web API Key).');
+        }
+        if (err.code === 'auth/email-already-in-use') {
+          throw new Error('This email is already registered. Please switch to Member Login.');
+        }
+        if (err.code === 'auth/weak-password') {
+          throw new Error('Password should be at least 6 characters.');
+        }
+        if (err.code === 'auth/operation-not-allowed') {
+          throw new Error('Email/Password sign-in is disabled in Firebase Console. Enable it under Authentication > Sign-in method.');
+        }
+        throw err;
       }
-      return credential.user;
     }
 
     await new Promise((resolve) => setTimeout(resolve, 800));
@@ -195,9 +234,19 @@ export const firebaseAuthService = {
   // Google Login
   loginGoogle: async () => {
     if (isRealFirebaseConfigured && auth) {
-      const provider = new GoogleAuthProvider();
-      const credential = await signInWithPopup(auth, provider);
-      return credential.user;
+      try {
+        const provider = new GoogleAuthProvider();
+        const credential = await signInWithPopup(auth, provider);
+        return credential.user;
+      } catch (err) {
+        if (err.code === 'auth/api-key-not-valid' || err.message?.includes('api-key-not-valid')) {
+          throw new Error('Firebase API Key in .env is invalid. Please copy the complete Web API Key from Firebase Console (Project Settings > General > Web API Key).');
+        }
+        if (err.code === 'auth/popup-closed-by-user') {
+          throw new Error('Google sign-in popup was closed before completing.');
+        }
+        throw err;
+      }
     }
 
     await new Promise((resolve) => setTimeout(resolve, 600));
@@ -308,4 +357,4 @@ export const firebaseAuthService = {
   },
 };
 
-export { auth, db };
+export { auth, db, analytics };

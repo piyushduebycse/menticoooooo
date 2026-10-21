@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState('login'); // 'login' | 'signup'
+  const [authRedirectPath, setAuthRedirectPath] = useState(null);
 
   useEffect(() => {
     const unsubscribe = firebaseAuthService.onAuthChange((currentUser) => {
@@ -70,8 +71,9 @@ export function AuthProvider({ children }) {
     return await firebaseAuthService.saveSupportTicket(ticketData);
   };
 
-  const openAuthModal = (tab = 'login') => {
+  const openAuthModal = (tab = 'login', redirectPath = null) => {
     setAuthModalTab(tab);
+    setAuthRedirectPath(redirectPath);
     setIsAuthModalOpen(true);
   };
 
@@ -94,6 +96,8 @@ export function AuthProvider({ children }) {
         isRealFirebase: isRealFirebaseConfigured,
         isAuthModalOpen,
         authModalTab,
+        authRedirectPath,
+        setAuthRedirectPath,
         openAuthModal,
         closeAuthModal,
       }}

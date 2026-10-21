@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, Lock, Mail, User, ShieldCheck, ArrowRight, Zap, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Spinner from './Spinner';
 
 export default function AuthModal() {
-  const { isAuthModalOpen, closeAuthModal, authModalTab, login, signup, loginDemo, loginGoogle } = useAuth();
+  const navigate = useNavigate();
+  const {
+    isAuthModalOpen,
+    closeAuthModal,
+    authModalTab,
+    authRedirectPath,
+    setAuthRedirectPath,
+    login,
+    signup,
+    loginDemo,
+    loginGoogle,
+  } = useAuth();
   const [tab, setTab] = useState(authModalTab || 'login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,6 +26,15 @@ export default function AuthModal() {
   const [error, setError] = useState('');
 
   if (!isAuthModalOpen) return null;
+
+  const onAuthSuccess = () => {
+    const target = authRedirectPath;
+    closeAuthModal();
+    if (target) {
+      setAuthRedirectPath(null);
+      navigate(target);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,7 +53,7 @@ export default function AuthModal() {
         }
         await signup(name, email, password);
       }
-      closeAuthModal();
+      onAuthSuccess();
     } catch (err) {
       setError(err.message || 'Authentication failed. Please verify credentials.');
     } finally {
@@ -45,7 +66,7 @@ export default function AuthModal() {
     setIsDemoLoading(true);
     try {
       await loginDemo();
-      closeAuthModal();
+      onAuthSuccess();
     } catch (err) {
       setError(err.message || 'Demo student access initialization failed.');
     } finally {
@@ -58,7 +79,7 @@ export default function AuthModal() {
     setIsLoading(true);
     try {
       await loginGoogle();
-      closeAuthModal();
+      onAuthSuccess();
     } catch (err) {
       setError(err.message || 'Google authentication failed.');
     } finally {
@@ -298,7 +319,7 @@ export default function AuthModal() {
               <Spinner size="sm" color="white" text={tab === 'login' ? 'Logging in...' : 'Enrolling...'} />
             ) : (
               <>
-                <span>{tab === 'login' ? 'Access Student Vault' : 'Create Free Account'}</span>
+                <span>{tab === 'login' ? 'Access Social Freedom Hub' : 'Create Free Account'}</span>
                 <ArrowRight size={16} />
               </>
             )}

@@ -20,6 +20,7 @@ dist-ssr
 
 # Root level temporary files
 /*.pdf
+/*.mp4
 
 # Editor directories and files
 .vscode/*

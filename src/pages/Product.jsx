@@ -56,17 +56,19 @@ export default function Product() {
   };
 
   const handlePurchase = async () => {
-    setIsPurchasing(true);
     setCouponError('');
+
+    if (!user) {
+      // User must be authenticated to purchase
+      openAuthModal('signup', '/product');
+      return;
+    }
+
+    setIsPurchasing(true);
 
     try {
       // Simulate gateway authorization delay
       await new Promise((resolve) => setTimeout(resolve, 1400));
-
-      if (!user) {
-        // Automatically activate demo youth learner session
-        await loginDemo();
-      }
 
       await recordPurchase({
         amount: currentPrice,
@@ -439,6 +441,35 @@ export default function Product() {
                 </div>
               </form>
 
+              {user?.hasPurchasedPdf && (
+                <div
+                  style={{
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    border: '1px solid rgba(34, 197, 94, 0.3)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '0.85rem 1rem',
+                    marginBottom: '1.25rem',
+                    textAlign: 'center',
+                  }}
+                >
+                  <div style={{ color: '#22c55e', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
+                    <CheckCircle2 size={16} />
+                    <span>Active License Detected</span>
+                  </div>
+                  <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '0.65rem' }}>
+                    You already have lifetime access to the Social Freedom Hub with this account.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/dashboard')}
+                    className="btn btn-secondary btn-sm"
+                    style={{ width: '100%', borderColor: '#22c55e', color: '#22c55e' }}
+                  >
+                    Open Social Freedom Hub →
+                  </button>
+                </div>
+              )}
+
               {/* Primary Purchase CTA with Loading Spinner */}
               <button
                 type="button"
@@ -453,7 +484,7 @@ export default function Product() {
                 ) : purchaseSuccess ? (
                   <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <CheckCircle2 size={18} />
-                    <span>Enrolled! Redirecting to Student Vault...</span>
+                    <span>Enrolled! Redirecting to Social Freedom Hub...</span>
                   </span>
                 ) : (
                   <>

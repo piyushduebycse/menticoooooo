@@ -59,12 +59,12 @@ export default function ProtectedRoute({ children }) {
             </div>
 
             <div className="badge-red" style={{ marginBottom: '1rem' }}>
-              MENTICO STUDENT VAULT // PROTECTED
+              MENTICO SOCIAL FREEDOM HUB // PROTECTED
             </div>
 
-            <h2 style={{ marginBottom: '1rem' }}>Student Login Required</h2>
+            <h2 style={{ marginBottom: '1rem' }}>Member Login Required</h2>
             <p style={{ maxWidth: '480px', margin: '0 auto 2rem', fontSize: '0.98rem' }}>
-              The Student Vault contains your downloadable 180-page Mentico Mastery Blueprint (PDF),
+              The Social Freedom Hub contains your downloadable 180-page Mentico Mastery Blueprint (PDF),
               audio speech drills, 30-day confidence challenge, and relationship frameworks.
             </p>
 

@@ -21,7 +21,7 @@ export default function Navbar() {
     { label: 'About', path: '/about' },
     { label: "What's Inside", path: '/product' },
     {
-      label: 'Student Vault',
+      label: 'Social Freedom Hub',
       path: '/dashboard',
       isProtected: true,
     },
@@ -59,7 +59,7 @@ export default function Navbar() {
                       padding: '2px',
                       color: user ? 'var(--red-primary)' : 'var(--text-muted)',
                     }}
-                    title={user ? 'Vault Unlocked' : 'Student Access Only'}
+                    title={user ? 'Hub Unlocked' : 'Member Access Only'}
                   >
                     {user ? <Unlock size={12} /> : <Lock size={12} />}
                   </span>
