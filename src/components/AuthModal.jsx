@@ -16,6 +16,8 @@ export default function AuthModal() {
     signup,
     loginDemo,
     loginGoogle,
+    loginGoogleRedirect,
+    resetPassword,
   } = useAuth();
   const [tab, setTab] = useState(authModalTab || 'login');
   const [email, setEmail] = useState('');
@@ -23,37 +25,54 @@ export default function AuthModal() {
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isDemoLoading, setIsDemoLoading] = useState(false);
+  const [isRedirectLoading, setIsRedirectLoading] = useState(false);
+  const [isPopupBlocked, setIsPopupBlocked] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   if (!isAuthModalOpen) return null;
 
-  const onAuthSuccess = () => {
+  const onAuthSuccess = (authUser) => {
     const target = authRedirectPath;
     closeAuthModal();
     if (target) {
       setAuthRedirectPath(null);
       navigate(target);
+    } else if (authUser?.hasPurchased) {
+      navigate('/library');
+    } else {
+      navigate('/purchase');
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setIsLoading(true);
 
     try {
+      let loggedUser;
       if (tab === 'login') {
         if (!email || !password) {
           throw new Error('Please fill in both email and password.');
         }
-        await login(email, password);
-      } else {
+        loggedUser = await login(email, password);
+      } else if (tab === 'signup') {
         if (!name || !email || !password) {
           throw new Error('Please complete all registration fields.');
         }
-        await signup(name, email, password);
+        loggedUser = await signup(name, email, password);
+      } else if (tab === 'forgot') {
+        if (!email) {
+          throw new Error('Please enter your email address.');
+        }
+        await resetPassword(email);
+        setSuccessMessage('Password reset link sent! Check your inbox.');
+        setIsLoading(false);
+        return;
       }
-      onAuthSuccess();
+      onAuthSuccess(loggedUser);
     } catch (err) {
       setError(err.message || 'Authentication failed. Please verify credentials.');
     } finally {
@@ -65,8 +84,8 @@ export default function AuthModal() {
     setError('');
     setIsDemoLoading(true);
     try {
-      await loginDemo();
-      onAuthSuccess();
+      const demo = await loginDemo();
+      onAuthSuccess(demo);
     } catch (err) {
       setError(err.message || 'Demo student access initialization failed.');
     } finally {
@@ -76,14 +95,30 @@ export default function AuthModal() {
 
   const handleGoogleLogin = async () => {
     setError('');
+    setIsPopupBlocked(false);
     setIsLoading(true);
     try {
-      await loginGoogle();
-      onAuthSuccess();
+      const gUser = await loginGoogle();
+      onAuthSuccess(gUser);
     } catch (err) {
-      setError(err.message || 'Google authentication failed.');
+      if (err.code === 'auth/popup-blocked' || err.message?.includes('popup-blocked') || err.message?.includes('Pop-up was blocked')) {
+        setIsPopupBlocked(true);
+      } else {
+        setError(err.message || 'Google authentication failed.');
+      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleGoogleRedirectLogin = async () => {
+    setError('');
+    setIsRedirectLoading(true);
+    try {
+      await loginGoogleRedirect();
+    } catch (err) {
+      setError(err.message || 'Could not initiate redirect sign-in.');
+      setIsRedirectLoading(false);
     }
   };
 
@@ -121,7 +156,7 @@ export default function AuthModal() {
           </h3>
           <p style={{ fontSize: '0.86rem' }}>
             {tab === 'login'
-              ? 'Sign in to access your confidence blueprints, speech drills & audio vaults'
+              ? 'Sign in to access your confidence blueprints, speech drills & field manual'
               : 'Empowering young Indians (18-30) with unshakeable confidence'}
           </p>
         </div>
@@ -207,7 +242,61 @@ export default function AuthModal() {
           </button>
         </div>
 
-        {error && (
+        {successMessage && (
+          <div
+            style={{
+              backgroundColor: 'rgba(34, 197, 94, 0.1)',
+              border: '1px solid rgba(34, 197, 94, 0.3)',
+              color: '#22c55e',
+              borderRadius: 'var(--radius-sm)',
+              padding: '0.65rem 0.85rem',
+              fontSize: '0.82rem',
+              marginBottom: '1rem',
+              fontWeight: 600,
+            }}
+          >
+            {successMessage}
+          </div>
+        )}
+
+        {isPopupBlocked && (
+          <div
+            style={{
+              backgroundColor: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '0.85rem',
+              marginBottom: '1rem',
+              fontSize: '0.82rem',
+            }}
+          >
+            <div style={{ fontWeight: 600, color: 'var(--red-primary)', marginBottom: '0.35rem' }}>
+              Pop-up was blocked by browser
+            </div>
+            <div style={{ color: 'var(--text-muted)', fontSize: '0.78rem', lineHeight: '1.35', marginBottom: '0.65rem' }}>
+              1. Look at the right side of your URL bar for the pop-up icon and select <strong>"Always allow"</strong>.<br />
+              2. Or proceed directly using the button below:
+            </div>
+            <button
+              type="button"
+              onClick={handleGoogleRedirectLogin}
+              disabled={isRedirectLoading}
+              className="btn btn-secondary"
+              style={{
+                width: '100%',
+                fontSize: '0.78rem',
+                padding: '0.5rem 0.75rem',
+                color: 'var(--red-primary)',
+                borderColor: 'var(--red-primary)',
+                fontWeight: 600,
+              }}
+            >
+              {isRedirectLoading ? 'Redirecting...' : 'Sign in with Google via Redirect →'}
+            </button>
+          </div>
+        )}
+
+        {error && !isPopupBlocked && (
           <div
             style={{
               backgroundColor: 'var(--red-subtle)',
@@ -282,32 +371,53 @@ export default function AuthModal() {
             </div>
           </div>
 
-          <div className="form-group">
-            <label className="form-label" htmlFor="modal-password">
-              Password
-            </label>
-            <div style={{ position: 'relative' }}>
-              <input
-                id="modal-password"
-                type="password"
-                className="form-input"
-                placeholder="••••••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-              <Lock
-                size={16}
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: 'var(--text-muted)',
-                }}
-              />
+          {tab !== 'forgot' && (
+            <div className="form-group">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label className="form-label" htmlFor="modal-password">
+                  Password
+                </label>
+                {tab === 'login' && (
+                  <button
+                    type="button"
+                    onClick={() => { setTab('forgot'); setError(''); setSuccessMessage(''); }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'var(--red-primary)',
+                      fontSize: '0.75rem',
+                      cursor: 'pointer',
+                      padding: 0,
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
+              <div style={{ position: 'relative' }}>
+                <input
+                  id="modal-password"
+                  type="password"
+                  className="form-input"
+                  placeholder="••••••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <Lock
+                  size={16}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--text-muted)',
+                  }}
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           <button
             type="submit"
@@ -316,15 +426,38 @@ export default function AuthModal() {
             disabled={isLoading || isDemoLoading}
           >
             {isLoading ? (
-              <Spinner size="sm" color="white" text={tab === 'login' ? 'Logging in...' : 'Enrolling...'} />
+              <Spinner size="sm" color="white" text={tab === 'login' ? 'Logging in...' : tab === 'signup' ? 'Enrolling...' : 'Sending link...'} />
             ) : (
               <>
-                <span>{tab === 'login' ? 'Access Social Freedom Hub' : 'Create Free Account'}</span>
+                <span>
+                  {tab === 'login' && 'Sign In to Mentico'}
+                  {tab === 'signup' && 'Create Account & Continue'}
+                  {tab === 'forgot' && 'Send Password Reset Email'}
+                </span>
                 <ArrowRight size={16} />
               </>
             )}
           </button>
         </form>
+
+        {tab === 'forgot' && (
+          <div style={{ textAlign: 'center', marginTop: '0.85rem' }}>
+            <button
+              type="button"
+              onClick={() => { setTab('login'); setError(''); setSuccessMessage(''); }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+              }}
+            >
+              ← Back to Member Login
+            </button>
+          </div>
+        )}
 
         {/* Google Authentication */}
         <div style={{ marginTop: '1.25rem', textAlign: 'center' }}>
@@ -346,6 +479,7 @@ export default function AuthModal() {
 
           <button
             type="button"
+            id="btn-google-login"
             className="btn btn-secondary"
             onClick={handleGoogleLogin}
             disabled={isLoading || isDemoLoading}

@@ -8,7 +8,11 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   updateProfile,
+  sendPasswordResetEmail,
+  sendEmailVerification,
 } from 'firebase/auth';
 import {
   getFirestore,
@@ -53,6 +57,36 @@ if (isRealFirebaseConfigured) {
           analytics = getAnalytics(app);
         }
       }).catch(() => {});
+    }
+
+    // Process returning Google Redirect sign-in flow
+    if (typeof window !== 'undefined' && auth) {
+      getRedirectResult(auth)
+        .then(async (credential) => {
+          if (credential?.user && db) {
+            try {
+              const userRef = doc(db, 'users', credential.user.uid);
+              const userSnap = await getDoc(userRef);
+              if (!userSnap.exists()) {
+                await setDoc(userRef, {
+                  displayName: credential.user.displayName || 'Mentico Student',
+                  email: credential.user.email,
+                  createdAt: serverTimestamp(),
+                  hasPurchased: false,
+                  hasPurchasedPdf: false,
+                  role: 'Mentico Student',
+                });
+              }
+            } catch (e) {
+              console.warn('[Firebase] Firestore user profile sync error on redirect:', e);
+            }
+          }
+        })
+        .catch((err) => {
+          if (err?.code && err.code !== 'auth/null-user') {
+            console.warn('[Firebase] getRedirectResult notice:', err.message);
+          }
+        });
     }
   } catch (err) {
     console.warn('[Firebase] Initialization error, falling back to simulated engine:', err);
@@ -101,12 +135,15 @@ export const firebaseAuthService = {
           } catch (e) {
             console.error('Error fetching firestore user profile:', e);
           }
+          const hasPurchased = Boolean(extraData.hasPurchased ?? extraData.hasPurchasedPdf ?? false);
           callback({
             uid: firebaseUser.uid,
             email: firebaseUser.email,
-            displayName: firebaseUser.displayName || firebaseUser.email.split('@')[0],
-            hasPurchasedPdf: extraData.hasPurchasedPdf ?? true,
-            licenseKey: extraData.licenseKey || 'MENTICO-IN-7701-VIP',
+            emailVerified: Boolean(firebaseUser.emailVerified),
+            displayName: firebaseUser.displayName || extraData.displayName || firebaseUser.email.split('@')[0],
+            hasPurchased,
+            hasPurchasedPdf: hasPurchased,
+            licenseKey: extraData.licenseKey || (hasPurchased ? 'MENTICO-IN-7701-VIP' : null),
             ...extraData,
           });
         } else {
@@ -185,6 +222,7 @@ export const firebaseAuthService = {
             displayName: name,
             email,
             createdAt: serverTimestamp(),
+            hasPurchased: false,
             hasPurchasedPdf: false,
             role: 'Mentico Student',
           });
@@ -236,33 +274,63 @@ export const firebaseAuthService = {
     if (isRealFirebaseConfigured && auth) {
       try {
         const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
         const credential = await signInWithPopup(auth, provider);
+
+        // Sync new Google user to Firestore if not already registered
+        if (db && credential?.user) {
+          try {
+            const userRef = doc(db, 'users', credential.user.uid);
+            const userSnap = await getDoc(userRef);
+            if (!userSnap.exists()) {
+              await setDoc(userRef, {
+                displayName: credential.user.displayName || 'Mentico Student',
+                email: credential.user.email,
+                createdAt: serverTimestamp(),
+                hasPurchased: false,
+                hasPurchasedPdf: false,
+                role: 'Mentico Student',
+              });
+            }
+          } catch (e) {
+            console.warn('Firestore user profile sync error:', e);
+          }
+        }
         return credential.user;
       } catch (err) {
+        if (err.code === 'auth/popup-blocked') {
+          const customErr = new Error('Pop-up was blocked by your browser. Please allow pop-ups for this site in your browser address bar, or click "Continue with Google (Redirect)".');
+          customErr.code = 'auth/popup-blocked';
+          throw customErr;
+        }
         if (err.code === 'auth/api-key-not-valid' || err.message?.includes('api-key-not-valid')) {
           throw new Error('Firebase API Key in .env is invalid. Please copy the complete Web API Key from Firebase Console (Project Settings > General > Web API Key).');
         }
         if (err.code === 'auth/popup-closed-by-user') {
           throw new Error('Google sign-in popup was closed before completing.');
         }
+        if (err.code === 'auth/unauthorized-domain') {
+          const currentHost = typeof window !== 'undefined' ? window.location.hostname : 'your domain';
+          throw new Error(`Domain "${currentHost}" is not authorized in Firebase. Please add "${currentHost}" in Firebase Console > Authentication > Settings > Authorized domains.`);
+        }
+        if (err.code === 'auth/operation-not-allowed') {
+          throw new Error('Google Sign-In is disabled in Firebase Console. Enable it under Firebase Console > Authentication > Sign-in method.');
+        }
         throw err;
       }
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    const mockUser = {
-      uid: 'google_user_' + Date.now(),
-      email: 'ananya.sharma@gmail.com',
-      displayName: 'Ananya Sharma (22, Delhi NCR)',
-      role: 'Mentico Member',
-      hasPurchasedPdf: true,
-      licenseKey: 'MENTICO-IN-5102-G',
-      purchaseDate: new Date().toISOString(),
-      downloadCount: 2,
-    };
-    localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(mockUser));
-    window.dispatchEvent(new Event('storage'));
-    return mockUser;
+    throw new Error('Real Firebase credentials not found. If running on Vercel or production, please add your VITE_FIREBASE_* environment variables in your deployment dashboard.');
+  },
+
+  // Google Login via Full-Page Redirect (Bypasses browser popup blockers completely)
+  loginGoogleRedirect: async () => {
+    if (isRealFirebaseConfigured && auth) {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      return await signInWithRedirect(auth, provider);
+    }
+    throw new Error('Real Firebase credentials not found.');
   },
 
   // Logout
@@ -274,13 +342,73 @@ export const firebaseAuthService = {
     window.dispatchEvent(new Event('storage'));
   },
 
+  // Password Reset
+  resetPassword: async (email) => {
+    if (isRealFirebaseConfigured && auth) {
+      try {
+        await sendPasswordResetEmail(auth, email);
+        return true;
+      } catch (err) {
+        if (err.code === 'auth/user-not-found') {
+          throw new Error('No account found with this email address.');
+        }
+        if (err.code === 'auth/invalid-email') {
+          throw new Error('Please enter a valid email address.');
+        }
+        throw err;
+      }
+    }
+    await new Promise((r) => setTimeout(r, 600));
+    return true;
+  },
+
+  // Email Verification
+  sendVerificationEmail: async () => {
+    if (isRealFirebaseConfigured && auth?.currentUser) {
+      await sendEmailVerification(auth.currentUser);
+      return true;
+    }
+    return true;
+  },
+
+  // Get Client Firebase ID Token for Bearer Authorization headers
+  getIdToken: async (forceRefresh = false) => {
+    if (isRealFirebaseConfigured && auth?.currentUser) {
+      return await auth.currentUser.getIdToken(forceRefresh);
+    }
+    return 'demo_client_id_token_' + Date.now();
+  },
+
+  // Refresh user data from Firestore
+  refreshUser: async () => {
+    if (isRealFirebaseConfigured && auth?.currentUser) {
+      await auth.currentUser.reload();
+      if (db) {
+        const userDocRef = doc(db, 'users', auth.currentUser.uid);
+        const snapshot = await getDoc(userDocRef);
+        const extraData = snapshot.exists() ? snapshot.data() : {};
+        const hasPurchased = Boolean(extraData.hasPurchased ?? extraData.hasPurchasedPdf ?? false);
+        return {
+          uid: auth.currentUser.uid,
+          email: auth.currentUser.email,
+          emailVerified: Boolean(auth.currentUser.emailVerified),
+          displayName: auth.currentUser.displayName || extraData.displayName || auth.currentUser.email.split('@')[0],
+          hasPurchased,
+          hasPurchasedPdf: hasPurchased,
+          ...extraData,
+        };
+      }
+    }
+    return null;
+  },
+
   // Record Purchase in Firestore / LocalStorage
   recordPurchase: async (userId, productDetails) => {
     const purchaseData = {
       userId,
-      productName: 'The Mentico 3-in-1 Mastery Blueprint (PDF + Audio Vault)',
-      productType: 'Confidence, Public Speaking & Relationship Master Program',
-      amount: productDetails.amount ?? 1999,
+      productName: 'Mentico - Social Freedom Field Manual (PDF)',
+      productType: 'Confidence, Public Speaking & Social Courage Manual',
+      amount: productDetails.amount ?? 499,
       currency: 'INR',
       licenseKey: 'MENTICO-IN-' + Math.floor(1000 + Math.random() * 9000) + '-LIC',
       status: 'completed',

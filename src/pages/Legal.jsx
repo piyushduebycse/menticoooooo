@@ -85,7 +85,7 @@ export default function Legal() {
 
               <h2 style={{ fontSize: '1.6rem', marginBottom: '1rem' }}>1. Scope of Digital License</h2>
               <p style={{ marginBottom: '1.25rem', fontSize: '0.95rem' }}>
-                When you enroll in <em>The Mentico Mastery Blueprint (PDF + Audio Vault)</em>, you are
+                When you enroll in <em>The Mentico Social Freedom Field Manual (PDF)</em>, you are
                 granted a personal, non-transferable single-user license to access, download, and retain
                 the educational materials for your personal self-improvement, campus prep, and career growth.
               </p>

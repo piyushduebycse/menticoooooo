@@ -47,9 +47,33 @@ export function AuthProvider({ children }) {
     return gUser;
   };
 
+  const loginGoogleRedirect = async () => {
+    return await firebaseAuthService.loginGoogleRedirect();
+  };
+
   const logout = async () => {
     await firebaseAuthService.logout();
     setUser(null);
+  };
+
+  const resetPassword = async (email) => {
+    return await firebaseAuthService.resetPassword(email);
+  };
+
+  const sendVerificationEmail = async () => {
+    return await firebaseAuthService.sendVerificationEmail();
+  };
+
+  const getIdToken = async (forceRefresh = false) => {
+    return await firebaseAuthService.getIdToken(forceRefresh);
+  };
+
+  const refreshUser = async () => {
+    const updated = await firebaseAuthService.refreshUser();
+    if (updated) {
+      setUser(updated);
+    }
+    return updated;
   };
 
   const recordPurchase = async (details = {}) => {
@@ -60,6 +84,7 @@ export function AuthProvider({ children }) {
     // Refresh user state
     setUser(prev => ({
       ...prev,
+      hasPurchased: true,
       hasPurchasedPdf: true,
       licenseKey: order.licenseKey,
       purchaseDate: order.timestamp,
@@ -90,7 +115,12 @@ export function AuthProvider({ children }) {
         signup,
         loginDemo,
         loginGoogle,
+        loginGoogleRedirect,
         logout,
+        resetPassword,
+        sendVerificationEmail,
+        getIdToken,
+        refreshUser,
         recordPurchase,
         submitTicket,
         isRealFirebase: isRealFirebaseConfigured,

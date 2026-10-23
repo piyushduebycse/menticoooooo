@@ -44,7 +44,7 @@ export default function About() {
       title: 'Founder & Head Mentor, Mentico',
       org: 'Over 25,000+ Young Indians Empowered',
       description:
-        'Launched the 3-in-1 Mentico Mastery Blueprint (PDF + Audio Vault), distilling a decade of real stage work into actionable daily exercises for youth aged 18–30.',
+        'Launched the Mentico Social Freedom Field Manual (PDF), distilling a decade of real stage work into actionable daily exercises for youth aged 18–30.',
     },
   ];
 
@@ -412,8 +412,8 @@ export default function About() {
               </div>
             </div>
 
-            <Link to="/product" className="btn btn-primary">
-              <span>Join The Program (₹1,999)</span>
+            <Link to="/purchase" className="btn btn-primary">
+              <span>Get The Field Manual (₹499)</span>
               <ArrowRight size={16} />
             </Link>
           </div>

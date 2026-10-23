@@ -4,13 +4,10 @@ import {
   FileText,
   CheckCircle2,
   Lock,
-  Play,
-  Pause,
   ExternalLink,
   Key,
   RefreshCw,
   Sparkles,
-  Headphones,
   CheckSquare,
   Square,
   Mic,
@@ -30,11 +27,6 @@ export default function Dashboard() {
   const { user } = useAuth();
   const [isFetchingData, setIsFetchingData] = useState(true);
   const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(false);
-
-  // Audio Player State for Mentico Speech & Confidence Drills
-  const [activeAudioIndex, setActiveAudioIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [audioProgress, setAudioProgress] = useState(40);
 
   // 30-Day Indian Youth Confidence & Speaking Checklist
   const [checklist, setChecklist] = useState([
@@ -69,13 +61,6 @@ export default function Dashboard() {
 
   const completedCount = checklist.filter(c => c.completed).length;
   const progressPercent = Math.round((completedCount / checklist.length) * 100);
-
-  const audioTracks = [
-    { title: 'Drill 01: Diaphragm Vocal Projection & Tone Calibration', duration: '14:20', topic: 'Speaking Fundamentals' },
-    { title: 'Drill 02: 60-Second Anxiety Eraser Before Going On Stage', duration: '08:45', topic: 'Panic & Shivering Control' },
-    { title: 'Drill 03: Cracking College Viva & High-Stakes Interview Panels', duration: '22:15', topic: 'Academic & Career' },
-    { title: 'Drill 04: The Art of Charismatic Conversation & Social Warmth', duration: '18:50', topic: 'Social & Relationships' },
-  ];
 
   if (isFetchingData) {
     return (
@@ -210,10 +195,10 @@ export default function Dashboard() {
 
           <div className="card card-solid" style={{ padding: '1.25rem' }}>
             <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-              AUDIO PRACTICE VAULT
+              FIELD MANUAL
             </div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>4 Key Masterclasses</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Guided by Aryan Sharma</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>16 Core Modules</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>180 Comprehensive Pages</div>
           </div>
 
           <div className="card card-solid" style={{ padding: '1.25rem' }}>
@@ -473,122 +458,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ==================================================================
-            AUDIO MASTERCLASS PLAYER
-            ================================================================== */}
-        <div className="card" style={{ marginBottom: '4rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div
-                style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--red-subtle)',
-                  border: '1px solid var(--red-subtle-border)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'var(--red-primary)',
-                }}
-              >
-                <Headphones size={20} />
-              </div>
-              <div>
-                <h3 style={{ fontSize: '1.3rem' }}>Mentico Guided Speech Audio Drills</h3>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  Interactive voice recordings & stage psychology by Aryan Sharma
-                </div>
-              </div>
-            </div>
-            <span className="badge-mono" style={{ fontSize: '0.72rem' }}>4 SESSIONS LOADED</span>
-          </div>
-
-          {/* Interactive Player Console */}
-          <div
-            style={{
-              padding: '1.5rem',
-              backgroundColor: 'var(--bg-surface)',
-              border: '1px solid var(--border-main)',
-              borderRadius: 'var(--radius-md)',
-              marginBottom: '1.5rem',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--red-primary)', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
-                  NOW PLAYING // SESSION 0{activeAudioIndex + 1}
-                </div>
-                <div style={{ fontSize: '1.05rem', fontWeight: 700 }}>
-                  {audioTracks[activeAudioIndex].title}
-                </div>
-              </div>
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                {audioTracks[activeAudioIndex].duration}
-              </div>
-            </div>
-
-            {/* Play/Pause Button + Scrub Bar */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <button
-                type="button"
-                className="btn btn-primary btn-sm btn-icon-only"
-                style={{ width: '40px', height: '40px', borderRadius: '50%' }}
-                onClick={() => setIsPlaying(!isPlaying)}
-                title={isPlaying ? 'Pause Audio' : 'Play Audio'}
-              >
-                {isPlaying ? <Pause size={18} /> : <Play size={18} style={{ marginLeft: '2px' }} />}
-              </button>
-
-              <div style={{ flex: 1 }}>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={audioProgress}
-                  onChange={(e) => setAudioProgress(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: 'var(--red-primary)', cursor: 'pointer' }}
-                />
-              </div>
-
-              <span style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
-                {isPlaying ? 'PLAYING' : 'READY'}
-              </span>
-            </div>
-          </div>
-
-          {/* Track List */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem' }}>
-            {audioTracks.map((track, i) => (
-              <div
-                key={i}
-                onClick={() => {
-                  setActiveAudioIndex(i);
-                  setIsPlaying(true);
-                }}
-                style={{
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-sm)',
-                  backgroundColor: activeAudioIndex === i ? 'var(--red-subtle)' : 'var(--bg-surface)',
-                  border: activeAudioIndex === i ? '1px solid var(--red-primary)' : '1px solid var(--border-subtle)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '0.75rem',
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-main)' }}>{track.title}</div>
-                  <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>{track.topic}</div>
-                </div>
-                <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--red-primary)' }}>
-                  {track.duration}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* ==================================================================

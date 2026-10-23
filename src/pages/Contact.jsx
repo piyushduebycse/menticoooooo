@@ -42,7 +42,7 @@ export default function Contact() {
 
       const ticket = await submitTicket({
         ...formData,
-        userId: user?.uid || 'guest_student',
+        userId: user?.uid || 'guest_member',
       });
 
       setSubmittedTicket(ticket);
@@ -56,7 +56,7 @@ export default function Contact() {
   const faqs = [
     {
       q: 'I am naturally an introvert and feel intense stage fright. Can Mentico help me?',
-      a: 'Yes, 100%. Over 65% of our 25,000+ enrolled students identify as introverts. Mentico does not try to turn you into a loud, obnoxious extrovert; we teach you how to channel your quiet focus into grounded, magnetic authority and calm speaking presence.',
+      a: 'Yes, 100%. Over 65% of our 25,000+ enrolled Socialhub identify as introverts. Mentico does not try to turn you into a loud, obnoxious extrovert; we teach you how to channel your quiet focus into grounded, magnetic authority and calm speaking presence.',
     },
     {
       q: 'My English is not super fluent. Is this program suitable for Hinglish / Indian accents?',
@@ -64,11 +64,11 @@ export default function Contact() {
     },
     {
       q: 'How quickly do I get access to the 180-page PDF and audio sessions?',
-      a: 'Immediately upon completing your checkout (or using a student access code like MENTICO100), your license key is generated on the spot and you are redirected straight into your Social Freedom Hub.',
+      a: 'Immediately upon completing your checkout (or using a Socialhub access code like MENTICO100), your license key is generated on the spot and you are redirected straight into your Social Freedom Hub.',
     },
     {
       q: 'Can I invite Aryan Sharma to speak at our college fest or company bootcamp?',
-      a: 'Yes. Select "College Fest & Campus Speech Workshop" in the form above and include your college name, expected audience size, and tentative dates. Our student outreach team responds within 24 hours.',
+      a: 'Yes. Select "College Fest & Campus Speech Workshop" in the form above and include your college name, expected audience size, and tentative dates. Our Member outreach team responds within 24 hours.',
     },
     {
       q: 'What is Mentico’s 30-Day Money-Back Guarantee?',
@@ -82,7 +82,7 @@ export default function Contact() {
         {/* Header */}
         <div style={{ textAlign: 'center', maxWidth: '750px', margin: '0 auto 4rem' }}>
           <div className="badge-red" style={{ marginBottom: '1.25rem' }}>
-            MENTICO STUDENT CONCIERGE & DESK
+            MENTICO Member CONCIERGE & DESK
           </div>
           <h1 style={{ fontSize: '2.8rem', marginBottom: '1rem' }}>
             We’re Here To Back You Up
@@ -176,7 +176,7 @@ export default function Contact() {
             ) : (
               <form onSubmit={handleSubmit}>
                 <div style={{ marginBottom: '1.5rem' }}>
-                  <h3 style={{ fontSize: '1.4rem', marginBottom: '0.35rem' }}>Student & Campus Desk</h3>
+                  <h3 style={{ fontSize: '1.4rem', marginBottom: '0.35rem' }}>Member & Campus Desk</h3>
                   <p style={{ fontSize: '0.88rem' }}>
                     Average response time for enrolled Mentico members: Under 4 hours.
                   </p>
@@ -304,7 +304,7 @@ export default function Contact() {
                     <Mail size={18} />
                   </div>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>Student Support Email</div>
+                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>member Support Email</div>
                     <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
                       support@mentico.in
                     </div>

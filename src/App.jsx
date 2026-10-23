@@ -7,13 +7,14 @@ import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import ProtectedRoute from './components/ProtectedRoute';
 
-// 6 Core Pages
+// 7 Core Pages
 import Home from './pages/Home';
 import About from './pages/About';
 import Product from './pages/Product';
 import Dashboard from './pages/Dashboard';
 import Contact from './pages/Contact';
 import Legal from './pages/Legal';
+import Login from './pages/Login';
 
 // Scroll to top helper on route navigation
 function ScrollToTop() {
@@ -36,18 +37,36 @@ function AppLayout() {
       <main className={isLandingPage ? 'landing-main-content' : 'main-content'}>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/about" element={<About />} />
-          <Route path="/product" element={<Product />} />
+          
+          {/* Purchase Route (requires authentication, redirects unauthenticated to /login?redirect=/purchase) */}
           <Route
-            path="/dashboard"
+            path="/purchase"
             element={
               <ProtectedRoute>
+                <Product />
+              </ProtectedRoute>
+            }
+          />
+          {/* Backward-compatibility alias for /product */}
+          <Route path="/product" element={<Navigate to="/purchase" replace />} />
+
+          {/* Library Download Route (requires authentication AND active purchase) */}
+          <Route
+            path="/library"
+            element={
+              <ProtectedRoute requirePurchase={true}>
                 <Dashboard />
               </ProtectedRoute>
             }
           />
+          {/* Backward-compatibility alias for /dashboard */}
+          <Route path="/dashboard" element={<Navigate to="/library" replace />} />
+
           <Route path="/contact" element={<Contact />} />
           <Route path="/legal" element={<Legal />} />
+
           {/* Fallback route */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

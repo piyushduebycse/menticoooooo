@@ -6,7 +6,7 @@ import '../landing.css';
 export default function Home() {
   const navigate = useNavigate();
   const { user, openAuthModal } = useAuth();
-  
+
   const [isPaused, setIsPaused] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('top');
@@ -101,11 +101,11 @@ export default function Home() {
 
   const handlePurchaseClick = () => {
     if (!user) {
-      // Step 1: User is not authenticated -> prompt sign up / login with post-auth redirect to /product
-      openAuthModal('signup', '/product');
+      navigate('/login?redirect=%2Fpurchase');
+    } else if (user.hasPurchased) {
+      navigate('/library');
     } else {
-      // Step 2: User is authenticated -> navigate to purchase / manual enrollment page
-      navigate('/product');
+      navigate('/purchase');
     }
   };
 
@@ -122,11 +122,10 @@ export default function Home() {
     <div className="landing-page-root bg-grain-overlay antialiased">
       {/* Fixed Luxury Navigation Header */}
       <header
-        className={`fixed left-0 right-0 top-0 z-50 border-b transition-colors duration-300 ${
-          scrolled
-            ? 'border-white/10 bg-ink/85 backdrop-blur-md'
-            : 'border-transparent bg-transparent'
-        }`}
+        className={`fixed left-0 right-0 top-0 z-50 border-b transition-colors duration-300 ${scrolled
+          ? 'border-white/10 bg-ink/85 backdrop-blur-md'
+          : 'border-transparent bg-transparent'
+          }`}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <a
@@ -152,15 +151,13 @@ export default function Home() {
                   key={item.href}
                   href={item.href}
                   onClick={(e) => handleNavClick(e, item.href)}
-                  className={`relative pb-1 transition-colors ${
-                    isActive ? 'text-paper' : 'text-muted hover:text-paper'
-                  }`}
+                  className={`relative pb-1 transition-colors ${isActive ? 'text-paper' : 'text-muted hover:text-paper'
+                    }`}
                 >
                   {item.label}
                   <span
-                    className={`absolute inset-x-0 -bottom-0.5 h-[2px] rounded-full bg-brass transition-opacity ${
-                      isActive ? 'opacity-100' : 'opacity-0'
-                    }`}
+                    className={`absolute inset-x-0 -bottom-0.5 h-[2px] rounded-full bg-brass transition-opacity ${isActive ? 'opacity-100' : 'opacity-0'
+                      }`}
                   />
                 </a>
               );
@@ -245,9 +242,8 @@ export default function Home() {
           id="top"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          className={`relative isolate min-h-[680px] overflow-hidden px-6 pb-24 pt-40 ${
-            isPaused ? 'is-paused' : ''
-          }`}
+          className={`relative isolate min-h-[680px] overflow-hidden px-6 pb-24 pt-40 ${isPaused ? 'is-paused' : ''
+            }`}
         >
           {/* Background Video with Mouse Parallax */}
           <div
@@ -292,7 +288,7 @@ export default function Home() {
           {/* Hero Content */}
           <div className="relative z-10 mx-auto max-w-3xl text-center">
             <h1 className="mx-auto max-w-[700px] text-[clamp(40px,5vw,50px)] font-bold leading-[1.15] tracking-[-1px] text-white text-balance">
-              You do not need a <span className="text-caramel">new personality</span>.
+              Stop letting fear <span className="text-caramel">Decide how you live</span>.
             </h1>
             <p className="mx-auto mt-6 max-w-xl text-[25px] font-semibold text-white">
               You need the courage to stop hiding the one you already have.
@@ -818,6 +814,16 @@ export default function Home() {
               <div className="rounded-3xl border border-white/10 bg-charcoal/70 p-10 text-center">
                 <p className="text-xs uppercase tracking-[0.2em] text-brass">Complete Edition</p>
                 <h2 className="mt-4 font-serif text-3xl font-bold text-paper">Get Social Freedom</h2>
+                
+                {/* Price Display */}
+                <div className="mt-4 flex items-baseline justify-center gap-3">
+                  <span className="font-serif text-4xl font-bold text-paper">₹499</span>
+                  <span className="text-lg text-muted line-through">₹999</span>
+                  <span className="rounded-full bg-brass/10 border border-brass/30 px-2.5 py-0.5 text-xs font-semibold text-brass-light">
+                    50% OFF
+                  </span>
+                </div>
+
                 <p className="mt-3 font-serif text-sm italic text-muted">
                   The transformation begins when the page ends.
                 </p>

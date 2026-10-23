@@ -22,9 +22,11 @@ import {
 import { useAuth } from '../context/AuthContext';
 import Spinner from '../components/Spinner';
 import ProtectedPdfReader from '../components/ProtectedPdfReader';
+import { openRazorpayCheckout } from '../services/razorpay';
+import confetti from 'canvas-confetti';
 
 export default function Product() {
-  const { user, recordPurchase, openAuthModal, loginDemo } = useAuth();
+  const { user, getIdToken, refreshUser, recordPurchase, openAuthModal, loginDemo } = useAuth();
   const navigate = useNavigate();
 
   const [activePreviewTab, setActivePreviewTab] = useState('toc');
@@ -36,7 +38,8 @@ export default function Product() {
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
 
-  const basePrice = 1999; // in INR
+  const originalPrice = 999; // in INR (original price)
+  const basePrice = Number(import.meta.env.VITE_PRODUCT_PRICE_INR || 499); // ₹499 only
   const currentPrice = discountApplied ? Math.round(basePrice * (1 - discountPercent / 100)) : basePrice;
 
   const handleApplyCoupon = (e) => {
@@ -60,27 +63,107 @@ export default function Product() {
 
     if (!user) {
       // User must be authenticated to purchase
-      openAuthModal('signup', '/product');
+      navigate('/login?redirect=%2Fpurchase');
+      return;
+    }
+
+    if (user?.hasPurchased) {
+      navigate('/library');
       return;
     }
 
     setIsPurchasing(true);
 
     try {
-      // Simulate gateway authorization delay
-      await new Promise((resolve) => setTimeout(resolve, 1400));
+      // 1. If 100% coupon applied (Free student test license)
+      if (currentPrice === 0) {
+        await recordPurchase({
+          amount: 0,
+          couponCode: couponCode.toUpperCase(),
+        });
+        if (typeof refreshUser === 'function') {
+          await refreshUser();
+        }
+        setPurchaseSuccess(true);
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+        setTimeout(() => {
+          navigate('/library');
+        }, 1000);
+        return;
+      }
 
-      await recordPurchase({
-        amount: currentPrice,
-        couponCode: discountApplied ? couponCode.toUpperCase() : null,
+      // 2. Paid Flow via Razorpay (₹499 INR)
+      const token = await getIdToken(true);
+      if (!token) {
+        throw new Error('Authentication session expired. Please sign in again.');
+      }
+
+      // Step A: Create order on serverless endpoint
+      const orderRes = await fetch('/api/razorpay/create-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      setPurchaseSuccess(true);
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 900);
+      const orderData = await orderRes.json();
+
+      if (!orderRes.ok || !orderData.success) {
+        if (orderData.code === 'razorpay/not-configured') {
+          throw new Error('Razorpay keys not configured yet. Please add your RAZORPAY_KEY_ID & RAZORPAY_KEY_SECRET to your environment. (Or use student code MENTICO100 for instant test access).');
+        }
+        throw new Error(orderData.error || 'Could not initiate payment order.');
+      }
+
+      if (orderData.alreadyPurchased) {
+        navigate('/library');
+        return;
+      }
+
+      // Step B: Open Razorpay Checkout modal
+      await openRazorpayCheckout({
+        order: orderData,
+        user,
+        onSuccess: async (paymentResponse) => {
+          // Step C: Verify payment signature on server
+          const verifyRes = await fetch('/api/razorpay/verify-payment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              orderId: paymentResponse.razorpay_order_id,
+              paymentId: paymentResponse.razorpay_payment_id,
+              signature: paymentResponse.razorpay_signature,
+            }),
+          });
+
+          const verifyData = await verifyRes.json();
+          if (!verifyRes.ok || !verifyData.success) {
+            throw new Error(verifyData.error || 'Payment verification failed.');
+          }
+
+          if (typeof refreshUser === 'function') {
+            await refreshUser();
+          }
+
+          setPurchaseSuccess(true);
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+          setTimeout(() => {
+            navigate('/library');
+          }, 1200);
+        },
+        onFailure: (err) => {
+          if (err.message && !err.message.includes('closed before completion')) {
+            setCouponError(err.message);
+          }
+        },
+      });
     } catch (err) {
-      setCouponError(err.message || 'Payment processing failed. Please try again.');
+      console.error('[Purchase Error]:', err);
+      setCouponError(err.message || 'Payment initiation failed. Please try again.');
     } finally {
       setIsPurchasing(false);
     }
@@ -152,7 +235,7 @@ export default function Product() {
           </h1>
           <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)' }}>
             The complete 12.6 MB self-transformation manual covering <strong>Confidence Building</strong>,{' '}
-            <strong>Public Speaking Mastery</strong>, and <strong>Relationship Dynamics</strong> + 30 Audio Drills.
+            <strong>Public Speaking Mastery</strong>, and <strong>Relationship Dynamics</strong>.
           </p>
         </div>
 
@@ -210,9 +293,9 @@ export default function Product() {
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Mobile & Laptop</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>AUDIO VAULT</div>
-                  <div style={{ fontWeight: 800, fontSize: '1.1rem' }}>30 Drills</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Vocal Warmups</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>PAGES</div>
+                  <div style={{ fontWeight: 800, fontSize: '1.1rem' }}>180 Pages</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Field Manual</div>
                 </div>
                 <div>
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>COMMUNITY</div>
@@ -228,7 +311,7 @@ export default function Product() {
                   'Confidence Building Framework: Overcoming social anxiety & stage shivering',
                   'Public Speaking & Stage Presence: Keynotes, college viva & group discussions',
                   'Relationship & Dating Dynamics: Natural small talk & charisma cheatsheets',
-                  '30 Audio Speech Drills narrated by Aryan Sharma (with integrated web player)',
+                  '30 Actionable Speech Drills & Daily Exercises (Illustrated inside the PDF)',
                   'Printable 30-Day Daily Habit Tracker & Speech Evaluation Scorecard',
                 ].map((item, i) => (
                   <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
@@ -380,7 +463,7 @@ export default function Product() {
 
               <h3 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>The Mentico Blueprint</h3>
               <p style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                Unlock the complete 12.6 MB manual, audio drills, and interactive vault instantly.
+                Unlock the complete 180-page manual, action frameworks, and live exercises instantly.
               </p>
 
               {/* Price display in INR */}
@@ -399,10 +482,10 @@ export default function Product() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <span style={{ textDecoration: 'line-through', color: 'var(--text-muted)', fontSize: '1.1rem' }}>
-                    ₹4,999
+                    ₹{originalPrice.toLocaleString('en-IN')}
                   </span>
                   <span style={{ fontSize: '0.75rem', color: 'var(--red-primary)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
-                    {discountApplied ? `${discountPercent}% OFF APPLIED` : '60% YOUTH LAUNCH DISCOUNT'}
+                    {discountApplied ? `${discountPercent}% OFF APPLIED` : '50% SPECIAL LAUNCH DISCOUNT'}
                   </span>
                 </div>
               </div>
@@ -575,9 +658,9 @@ export default function Product() {
         <div className="mobile-pinned-pricing-box">
           <div className="mobile-pinned-price-line">
             <span className="mobile-pinned-price">₹{currentPrice.toLocaleString('en-IN')}</span>
-            <span className="mobile-pinned-original-price">₹4,999</span>
+            <span className="mobile-pinned-original-price">₹{originalPrice.toLocaleString('en-IN')}</span>
             <span className="mobile-pinned-badge">
-              {discountApplied ? `${discountPercent}% OFF` : '60% OFF'}
+              {discountApplied ? `${discountPercent}% OFF` : '50% OFF'}
             </span>
           </div>
           <div className="mobile-pinned-sublabel">

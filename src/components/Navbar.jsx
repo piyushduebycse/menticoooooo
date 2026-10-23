@@ -19,10 +19,10 @@ export default function Navbar() {
 
   const navItems = [
     { label: 'About', path: '/about' },
-    { label: "What's Inside", path: '/product' },
+    { label: 'The Manual', path: '/purchase' },
     {
-      label: 'Social Freedom Hub',
-      path: '/dashboard',
+      label: 'Library',
+      path: '/library',
       isProtected: true,
     },
     { label: 'Contact & FAQs', path: '/contact' },
@@ -78,21 +78,21 @@ export default function Navbar() {
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <Link
-                to="/dashboard"
+                to={user.hasPurchased ? '/library' : '/purchase'}
                 className="btn btn-secondary btn-sm"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
-                title="Go to Student Dashboard"
+                title={user.hasPurchased ? 'Open Library' : 'Complete Purchase'}
               >
                 <div
                   style={{
                     width: '8px',
                     height: '8px',
                     borderRadius: '50%',
-                    backgroundColor: 'var(--red-primary)',
+                    backgroundColor: user.hasPurchased ? '#22c55e' : 'var(--red-primary)',
                   }}
                 />
                 <span style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {user.displayName?.split(' ')[0] || 'Student'}
+                  {user.displayName?.split(' ')[0] || 'Member'}
                 </span>
               </Link>
               <button
@@ -108,7 +108,14 @@ export default function Navbar() {
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Link
-                to="/product"
+                to="/login"
+                className="btn btn-secondary btn-sm"
+                style={{ fontSize: '0.82rem', padding: '0.45rem 0.85rem' }}
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/purchase"
                 className="btn btn-primary btn-sm nav-cta-desktop"
                 style={{
                   backgroundColor: 'var(--red-primary)',
@@ -118,7 +125,7 @@ export default function Navbar() {
                   borderRadius: 'var(--radius-full)',
                 }}
               >
-                <span>Get the Book</span>
+                <span>Get the Manual</span>
                 <ArrowRight size={14} />
               </Link>
             </div>
