@@ -12,16 +12,16 @@ export function getRazorpayClient() {
     return razorpayInstance;
   }
 
-  const key_id = process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID;
+  const key_id = process.env.RAZORPAY_KEY_ID;
   const key_secret = process.env.RAZORPAY_KEY_SECRET;
 
   if (!key_id || !key_secret) {
-    console.warn('[Razorpay] RAZORPAY_KEY_ID and/or RAZORPAY_KEY_SECRET are not configured.');
+    throw new Error('Razorpay server credentials are not configured.');
   }
 
   razorpayInstance = new Razorpay({
-    key_id: key_id || '',
-    key_secret: key_secret || '',
+    key_id,
+    key_secret,
   });
 
   return razorpayInstance;
@@ -42,10 +42,7 @@ export function verifyRazorpayPaymentSignature({ orderId, paymentId, signature }
     .update(`${orderId}|${paymentId}`)
     .digest('hex');
 
-  return crypto.timingSafeEqual(
-    Buffer.from(generatedSignature, 'utf-8'),
-    Buffer.from(signature, 'utf-8')
-  );
+  return safeSignatureMatch(generatedSignature, signature);
 }
 
 /**
@@ -62,8 +59,10 @@ export function verifyRazorpayWebhookSignature(rawBody, signature, secret) {
     .update(rawBody)
     .digest('hex');
 
-  return crypto.timingSafeEqual(
-    Buffer.from(expectedSignature, 'utf-8'),
-    Buffer.from(signature, 'utf-8')
-  );
+  return safeSignatureMatch(expectedSignature, signature);
+}
+
+function safeSignatureMatch(expected, actual) {
+  if (typeof actual !== 'string' || !/^[a-f0-9]{64}$/i.test(actual)) return false;
+  return crypto.timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(actual, 'hex'));
 }

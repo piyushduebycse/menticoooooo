@@ -76,22 +76,6 @@ export function AuthProvider({ children }) {
     return updated;
   };
 
-  const recordPurchase = async (details = {}) => {
-    if (!user) {
-      throw new Error('Must be logged in to record purchase');
-    }
-    const order = await firebaseAuthService.recordPurchase(user.uid, details);
-    // Refresh user state
-    setUser(prev => ({
-      ...prev,
-      hasPurchased: true,
-      hasPurchasedPdf: true,
-      licenseKey: order.licenseKey,
-      purchaseDate: order.timestamp,
-    }));
-    return order;
-  };
-
   const submitTicket = async (ticketData) => {
     return await firebaseAuthService.saveSupportTicket(ticketData);
   };
@@ -121,7 +105,6 @@ export function AuthProvider({ children }) {
         sendVerificationEmail,
         getIdToken,
         refreshUser,
-        recordPurchase,
         submitTicket,
         isRealFirebase: isRealFirebaseConfigured,
         isAuthModalOpen,

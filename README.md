@@ -67,6 +67,14 @@ npm run dev
 
 Visit `http://localhost:5173` in your browser.
 
+### Razorpay checkout setup
+
+The checkout uses server-created Razorpay orders. Copy `.env.example` to `.env` and configure real Firebase Web and Admin credentials, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET`. Keep `PRODUCT_PRICE_INR` (server charge) and `VITE_PRODUCT_PRICE_INR` (display price) equal. Use Razorpay test keys for test payments and live keys only after testing the full flow.
+
+Deploy [Firestore rules](firestore.rules) to the Firebase project so browsers cannot set their own purchase entitlement. Enable automatic payment capture in Razorpay. On the Razorpay dashboard, register `https://<your-domain>/api/razorpay/webhook` and subscribe to `payment.captured`; use the same webhook secret in the server environment. Deploy all server variables to Vercel as well as your local `.env`. Run `npm test`, `npm run lint`, and `npm run build` before release.
+
+Demo accounts and sample checkout codes do not activate paid access. A real Firebase session is required for payments. The current full PDF remains under `public/`, so its direct URL is still accessible; move it to private storage with an authenticated delivery route before selling access to the file itself.
+
 ### Building for Production
 
 ```bash

@@ -97,7 +97,6 @@ if (isRealFirebaseConfigured) {
    Simulated Storage Engine (Guarantees 100% operational demo out-of-the-box)
    ========================================================================== */
 const STORAGE_KEY_USER = 'mentico_auth_user';
-const STORAGE_KEY_PURCHASES = 'mentico_purchases';
 const STORAGE_KEY_TICKETS = 'mentico_contact_tickets';
 
 // Default Demo Indian Youth User (18-30 target demographic)
@@ -400,61 +399,6 @@ export const firebaseAuthService = {
       }
     }
     return null;
-  },
-
-  // Record Purchase in Firestore / LocalStorage
-  recordPurchase: async (userId, productDetails) => {
-    const purchaseData = {
-      userId,
-      productName: 'Mentico - Social Freedom Field Manual (PDF)',
-      productType: 'Confidence, Public Speaking & Social Courage Manual',
-      amount: productDetails.amount ?? 499,
-      currency: 'INR',
-      licenseKey: 'MENTICO-IN-' + Math.floor(1000 + Math.random() * 9000) + '-LIC',
-      status: 'completed',
-      timestamp: new Date().toISOString(),
-    };
-
-    if (isRealFirebaseConfigured && db && userId) {
-      try {
-        await addDoc(collection(db, 'orders'), {
-          ...purchaseData,
-          createdAt: serverTimestamp(),
-        });
-        await setDoc(
-          doc(db, 'users', userId),
-          {
-            hasPurchasedPdf: true,
-            licenseKey: purchaseData.licenseKey,
-            lastOrderDate: serverTimestamp(),
-          },
-          { merge: true }
-        );
-      } catch (err) {
-        console.warn('Firestore order write error:', err);
-      }
-    }
-
-    // Update Local User state
-    const stored = localStorage.getItem(STORAGE_KEY_USER);
-    if (stored) {
-      try {
-        const u = JSON.parse(stored);
-        u.hasPurchasedPdf = true;
-        u.licenseKey = purchaseData.licenseKey;
-        u.purchaseDate = purchaseData.timestamp;
-        localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(u));
-        window.dispatchEvent(new Event('storage'));
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    const purchases = JSON.parse(localStorage.getItem(STORAGE_KEY_PURCHASES) || '[]');
-    purchases.push(purchaseData);
-    localStorage.setItem(STORAGE_KEY_PURCHASES, JSON.stringify(purchases));
-
-    return purchaseData;
   },
 
   // Record Support Form Ticket

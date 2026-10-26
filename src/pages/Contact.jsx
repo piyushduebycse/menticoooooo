@@ -64,7 +64,7 @@ export default function Contact() {
     },
     {
       q: 'How quickly do I get access to the 180-page PDF and audio sessions?',
-      a: 'Immediately upon completing your checkout (or using a Socialhub access code like MENTICO100), your license key is generated on the spot and you are redirected straight into your Social Freedom Hub.',
+      a: 'Once your Razorpay payment is captured and verified, your license is activated and you can open your Social Freedom Hub.',
     },
     {
       q: 'Can I invite Aryan Sharma to speak at our college fest or company bootcamp?',

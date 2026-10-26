@@ -16,6 +16,7 @@ export function loadRazorpayScript() {
       script.onload = () => resolve(true);
       script.onerror = () => {
         console.error('Failed to load Razorpay Checkout script.');
+        scriptPromise = null;
         resolve(false);
       };
       document.body.appendChild(script);
@@ -43,7 +44,7 @@ export async function openRazorpayCheckout({ order, user, onSuccess, onFailure }
 
   return new Promise((resolve, reject) => {
     const options = {
-      key: order.keyId || import.meta.env.VITE_RAZORPAY_KEY_ID,
+      key: order.keyId,
       amount: order.amount,
       currency: order.currency || 'INR',
       name: 'Mentico',

@@ -24,7 +24,8 @@ function vercelApiDevPlugin() {
             for await (const chunk of req) {
               buffers.push(chunk);
             }
-            const rawBody = Buffer.concat(buffers).toString();
+            req.rawBody = Buffer.concat(buffers);
+            const rawBody = req.rawBody.toString();
             try {
               req.body = rawBody ? JSON.parse(rawBody) : {};
             } catch {

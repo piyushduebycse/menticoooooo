@@ -26,13 +26,10 @@ import { openRazorpayCheckout } from '../services/razorpay';
 import confetti from 'canvas-confetti';
 
 export default function Product() {
-  const { user, getIdToken, refreshUser, recordPurchase, openAuthModal, loginDemo } = useAuth();
+  const { user, getIdToken, refreshUser } = useAuth();
   const navigate = useNavigate();
 
   const [activePreviewTab, setActivePreviewTab] = useState('toc');
-  const [couponCode, setCouponCode] = useState('');
-  const [discountApplied, setDiscountApplied] = useState(false);
-  const [discountPercent, setDiscountPercent] = useState(0);
   const [couponError, setCouponError] = useState('');
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
@@ -40,23 +37,7 @@ export default function Product() {
 
   const originalPrice = 999; // in INR (original price)
   const basePrice = Number(import.meta.env.VITE_PRODUCT_PRICE_INR || 499); // ₹499 only
-  const currentPrice = discountApplied ? Math.round(basePrice * (1 - discountPercent / 100)) : basePrice;
-
-  const handleApplyCoupon = (e) => {
-    e.preventDefault();
-    setCouponError('');
-    const code = couponCode.trim().toUpperCase();
-
-    if (code === 'MENTICO100' || code === 'EXEC100') {
-      setDiscountApplied(true);
-      setDiscountPercent(100);
-    } else if (code === 'YOUTH50' || code === 'VIP50') {
-      setDiscountApplied(true);
-      setDiscountPercent(50);
-    } else {
-      setCouponError('Invalid coupon code. Try "MENTICO100" for 100% off student test license or "YOUTH50".');
-    }
-  };
+  const currentPrice = basePrice;
 
   const handlePurchase = async () => {
     setCouponError('');
@@ -75,24 +56,7 @@ export default function Product() {
     setIsPurchasing(true);
 
     try {
-      // 1. If 100% coupon applied (Free student test license)
-      if (currentPrice === 0) {
-        await recordPurchase({
-          amount: 0,
-          couponCode: couponCode.toUpperCase(),
-        });
-        if (typeof refreshUser === 'function') {
-          await refreshUser();
-        }
-        setPurchaseSuccess(true);
-        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
-        setTimeout(() => {
-          navigate('/library');
-        }, 1000);
-        return;
-      }
-
-      // 2. Paid Flow via Razorpay (₹499 INR)
+      // Paid flow via Razorpay
       const token = await getIdToken(true);
       if (!token) {
         throw new Error('Authentication session expired. Please sign in again.');
@@ -105,13 +69,14 @@ export default function Product() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({ displayedAmountInPaise: Math.round(currentPrice * 100) }),
       });
 
       const orderData = await orderRes.json();
 
       if (!orderRes.ok || !orderData.success) {
         if (orderData.code === 'razorpay/not-configured') {
-          throw new Error('Razorpay keys not configured yet. Please add your RAZORPAY_KEY_ID & RAZORPAY_KEY_SECRET to your environment. (Or use student code MENTICO100 for instant test access).');
+          throw new Error('Checkout is not configured yet. Please contact support.');
         }
         throw new Error(orderData.error || 'Could not initiate payment order.');
       }
@@ -485,44 +450,16 @@ export default function Product() {
                     ₹{originalPrice.toLocaleString('en-IN')}
                   </span>
                   <span style={{ fontSize: '0.75rem', color: 'var(--red-primary)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
-                    {discountApplied ? `${discountPercent}% OFF APPLIED` : '50% SPECIAL LAUNCH DISCOUNT'}
+                    50% SPECIAL LAUNCH DISCOUNT
                   </span>
                 </div>
               </div>
 
-              {/* Coupon Code Input */}
-              <form onSubmit={handleApplyCoupon} style={{ marginBottom: '1.5rem' }}>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="Coupon code (e.g. MENTICO100)"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    style={{ fontSize: '0.85rem', padding: '0.65rem 0.85rem' }}
-                  />
-                  <button
-                    type="submit"
-                    className="btn btn-secondary btn-sm"
-                    style={{ whiteSpace: 'nowrap' }}
-                  >
-                    Apply
-                  </button>
+              {couponError && (
+                <div role="alert" style={{ color: 'var(--red-primary)', fontSize: '0.8rem', marginBottom: '1rem', fontWeight: 600 }}>
+                  {couponError}
                 </div>
-                {couponError && (
-                  <div style={{ color: 'var(--red-primary)', fontSize: '0.75rem', marginTop: '0.35rem', fontWeight: 600 }}>
-                    {couponError}
-                  </div>
-                )}
-                {discountApplied && (
-                  <div style={{ color: 'var(--red-primary)', fontSize: '0.75rem', marginTop: '0.35rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    <CheckCircle2 size={13} /> Code applied! Final investment: ₹{currentPrice}
-                  </div>
-                )}
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>
-                  Tip: Use code <strong>MENTICO100</strong> for 100% off instant student test access.
-                </div>
-              </form>
+              )}
 
               {user?.hasPurchasedPdf && (
                 <div
@@ -572,7 +509,7 @@ export default function Product() {
                 ) : (
                   <>
                     <Download size={18} />
-                    <span>{currentPrice === 0 ? 'Activate Free Student License' : `Get Instant Access (₹${currentPrice})`}</span>
+                    <span>Get Instant Access (₹{currentPrice})</span>
                     <ArrowRight size={18} />
                   </>
                 )}
@@ -660,7 +597,7 @@ export default function Product() {
             <span className="mobile-pinned-price">₹{currentPrice.toLocaleString('en-IN')}</span>
             <span className="mobile-pinned-original-price">₹{originalPrice.toLocaleString('en-IN')}</span>
             <span className="mobile-pinned-badge">
-              {discountApplied ? `${discountPercent}% OFF` : '50% OFF'}
+              50% OFF
             </span>
           </div>
           <div className="mobile-pinned-sublabel">

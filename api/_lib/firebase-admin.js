@@ -86,8 +86,8 @@ export function getFirebaseAdmin() {
         storageBucket,
       });
     } catch (err) {
-      console.warn('[Firebase Admin] Initialization with cert failed, falling back:', err.message);
-      adminApp = initializeApp({ projectId, storageBucket });
+      console.error('[Firebase Admin] Service account initialization failed:', err);
+      throw err;
     }
   } else {
     try {
@@ -112,8 +112,8 @@ export function getFirebaseAdmin() {
     try {
       adminDb = getFirestore(adminApp);
     } catch (err) {
-      console.warn('[Firebase Admin] Firestore init fallback to memory stub:', err.message);
-      adminDb = createSafeFirestoreStub();
+      console.error('[Firebase Admin] Firestore initialization failed:', err);
+      throw err;
     }
   } else {
     adminDb = createSafeFirestoreStub();

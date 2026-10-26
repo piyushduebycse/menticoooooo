@@ -1,6 +1,6 @@
 import { verifyAuthUser } from '../_lib/server-auth.js';
 import { getRazorpayClient } from '../_lib/razorpay-admin.js';
-import { getFirebaseAdmin } from '../_lib/firebase-admin.js';
+import { requirePaymentDatabase } from '../_lib/payment-fulfillment.js';
 
 /**
  * POST /api/razorpay/create-order
@@ -26,10 +26,16 @@ export default async function handler(req, res) {
   }
 
   // 3. Price resolution: Default ₹499 INR = 49900 paise
-  const priceINR = Number(process.env.VITE_PRODUCT_PRICE_INR || process.env.PRODUCT_PRICE_INR || 499);
+  const priceINR = Number(process.env.PRODUCT_PRICE_INR || 499);
   const amountInPaise = Math.round(priceINR * 100);
+  if (!Number.isFinite(priceINR) || amountInPaise < 100 || !Number.isSafeInteger(amountInPaise)) {
+    return res.status(500).json({ success: false, error: 'Product price is misconfigured.' });
+  }
+  if (req.body?.displayedAmountInPaise !== amountInPaise) {
+    return res.status(409).json({ success: false, error: 'Checkout price changed. Please refresh the page before paying.' });
+  }
 
-  const keyId = process.env.VITE_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
+  const keyId = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
   if (!keyId || !keySecret || keyId.includes('YOUR_KEY_ID')) {
@@ -41,6 +47,7 @@ export default async function handler(req, res) {
   }
 
   try {
+    const { adminDb, FieldValue } = requirePaymentDatabase();
     const razorpay = getRazorpayClient();
     const receiptId = `rcpt_${authUser.uid.slice(0, 10)}_${Date.now()}`;
 
@@ -57,23 +64,18 @@ export default async function handler(req, res) {
     });
 
     // Save order in Firestore under 'purchases' collection with status 'created'
-    const { adminDb, FieldValue } = getFirebaseAdmin();
-    try {
-      await adminDb.collection('purchases').doc(order.id).set({
-        orderId: order.id,
-        receipt: receiptId,
-        userId: authUser.uid,
-        userEmail: authUser.email || '',
-        amount: priceINR,
-        amountInPaise,
-        currency: 'INR',
-        status: 'created',
-        productName: 'Mentico - Social Freedom (PDF Field Manual)',
-        createdAt: FieldValue.serverTimestamp(),
-      });
-    } catch (dbErr) {
-      console.warn('[Razorpay Order] Firestore write warning:', dbErr.message);
-    }
+    await adminDb.collection('purchases').doc(order.id).set({
+      orderId: order.id,
+      receipt: receiptId,
+      userId: authUser.uid,
+      userEmail: authUser.email || '',
+      amount: priceINR,
+      amountInPaise,
+      currency: 'INR',
+      status: 'created',
+      productName: 'Mentico - Social Freedom (PDF Field Manual)',
+      createdAt: FieldValue.serverTimestamp(),
+    });
 
     return res.status(200).json({
       success: true,
@@ -91,7 +93,7 @@ export default async function handler(req, res) {
     console.error('[Razorpay Create Order Error]:', err);
     return res.status(500).json({
       success: false,
-      error: err.error?.description || err.message || 'Failed to create Razorpay payment order.',
+      error: 'Could not create payment order. Please try again or contact support.',
     });
   }
 }
