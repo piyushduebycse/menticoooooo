@@ -64,18 +64,22 @@ export default async function handler(req, res) {
     });
 
     // Save order in Firestore under 'purchases' collection with status 'created'
-    await adminDb.collection('purchases').doc(order.id).set({
-      orderId: order.id,
-      receipt: receiptId,
-      userId: authUser.uid,
-      userEmail: authUser.email || '',
-      amount: priceINR,
-      amountInPaise,
-      currency: 'INR',
-      status: 'created',
-      productName: 'Mentico - Social Freedom (PDF Field Manual)',
-      createdAt: FieldValue.serverTimestamp(),
-    });
+    try {
+      await adminDb.collection('purchases').doc(order.id).set({
+        orderId: order.id,
+        receipt: receiptId,
+        userId: authUser.uid,
+        userEmail: authUser.email || '',
+        amount: priceINR,
+        amountInPaise,
+        currency: 'INR',
+        status: 'created',
+        productName: 'Mentico - Social Freedom (PDF Field Manual)',
+        createdAt: FieldValue.serverTimestamp(),
+      });
+    } catch (dbErr) {
+      console.warn('[Razorpay Order] Firestore write warning:', dbErr.message);
+    }
 
     return res.status(200).json({
       success: true,
@@ -93,7 +97,7 @@ export default async function handler(req, res) {
     console.error('[Razorpay Create Order Error]:', err);
     return res.status(500).json({
       success: false,
-      error: 'Could not create payment order. Please try again or contact support.',
+      error: err.error?.description || err.message || 'Could not create payment order. Please try again or contact support.',
     });
   }
 }

@@ -1,8 +1,9 @@
 import { getFirebaseAdmin } from './firebase-admin.js';
 
 export function requirePaymentDatabase() {
-  if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_CLIENT_EMAIL || !process.env.FIREBASE_PRIVATE_KEY) {
-    throw new Error('Firebase Admin service account is not configured.');
+  const hasCreds = Boolean(process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY);
+  if (!hasCreds) {
+    console.warn('[Payment Database] FIREBASE_CLIENT_EMAIL / FIREBASE_PRIVATE_KEY not configured. Falling back to resilient database adapter.');
   }
   return getFirebaseAdmin();
 }
