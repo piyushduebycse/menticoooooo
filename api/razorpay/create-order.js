@@ -25,8 +25,8 @@ export default async function handler(req, res) {
     });
   }
 
-  // 3. Price resolution: Default ₹499 INR = 49900 paise
-  const priceINR = Number(process.env.PRODUCT_PRICE_INR || 499);
+  // 3. Price resolution: Default ₹1 INR = 100 paise for live test mode
+  const priceINR = Number(process.env.PRODUCT_PRICE_INR || process.env.VITE_PRODUCT_PRICE_INR || 1);
   const amountInPaise = Math.round(priceINR * 100);
   if (!Number.isFinite(priceINR) || amountInPaise < 100 || !Number.isSafeInteger(amountInPaise)) {
     return res.status(500).json({ success: false, error: 'Product price is misconfigured.' });

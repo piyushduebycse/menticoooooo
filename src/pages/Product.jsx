@@ -36,7 +36,7 @@ export default function Product() {
   const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
 
   const originalPrice = 999; // in INR (original price)
-  const basePrice = Number(import.meta.env.VITE_PRODUCT_PRICE_INR || 499); // ₹499 only
+  const basePrice = Number(import.meta.env.VITE_PRODUCT_PRICE_INR || 1); // ₹1 test price
   const currentPrice = basePrice;
 
   const handlePurchase = async () => {
