@@ -35,8 +35,8 @@ export default async function handler(req, res) {
     return res.status(409).json({ success: false, error: 'Checkout price changed. Please refresh the page before paying.' });
   }
 
-  const keyId = process.env.RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  const keyId = (process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID || '').trim();
+  const keySecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
 
   if (!keyId || !keySecret || keyId.includes('YOUR_KEY_ID')) {
     return res.status(500).json({

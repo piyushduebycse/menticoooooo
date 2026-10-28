@@ -72,7 +72,14 @@ export default function Product() {
         body: JSON.stringify({ displayedAmountInPaise: Math.round(currentPrice * 100) }),
       });
 
-      const orderData = await orderRes.json();
+      let orderData;
+      const orderContentType = orderRes.headers.get('content-type') || '';
+      if (orderContentType.includes('application/json')) {
+        orderData = await orderRes.json();
+      } else {
+        const textError = await orderRes.text();
+        throw new Error(textError || `Order creation failed (Server HTTP ${orderRes.status}).`);
+      }
 
       if (!orderRes.ok || !orderData.success) {
         if (orderData.code === 'razorpay/not-configured') {
@@ -105,7 +112,15 @@ export default function Product() {
             }),
           });
 
-          const verifyData = await verifyRes.json();
+          let verifyData;
+          const verifyContentType = verifyRes.headers.get('content-type') || '';
+          if (verifyContentType.includes('application/json')) {
+            verifyData = await verifyRes.json();
+          } else {
+            const textError = await verifyRes.text();
+            throw new Error(textError || `Payment verification failed (Server HTTP ${verifyRes.status}).`);
+          }
+
           if (!verifyRes.ok || !verifyData.success) {
             throw new Error(verifyData.error || 'Payment verification failed.');
           }

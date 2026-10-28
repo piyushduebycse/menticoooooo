@@ -12,8 +12,8 @@ export function getRazorpayClient() {
     return razorpayInstance;
   }
 
-  const key_id = process.env.RAZORPAY_KEY_ID;
-  const key_secret = process.env.RAZORPAY_KEY_SECRET;
+  const key_id = (process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID || '').trim();
+  const key_secret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
 
   if (!key_id || !key_secret) {
     throw new Error('Razorpay server credentials are not configured.');
@@ -32,7 +32,7 @@ export function getRazorpayClient() {
  * HMAC SHA256 of (order_id + "|" + payment_id) with secret
  */
 export function verifyRazorpayPaymentSignature({ orderId, paymentId, signature }) {
-  const secret = process.env.RAZORPAY_KEY_SECRET || '';
+  const secret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
   if (!secret) {
     throw new Error('Server RAZORPAY_KEY_SECRET is not configured.');
   }
@@ -49,7 +49,7 @@ export function verifyRazorpayPaymentSignature({ orderId, paymentId, signature }
  * Verify Razorpay Webhook Signature
  */
 export function verifyRazorpayWebhookSignature(rawBody, signature, secret) {
-  const webhookSecret = secret || process.env.RAZORPAY_WEBHOOK_SECRET;
+  const webhookSecret = (secret || process.env.RAZORPAY_WEBHOOK_SECRET || '').trim();
   if (!webhookSecret) {
     throw new Error('Server RAZORPAY_WEBHOOK_SECRET is not configured.');
   }
