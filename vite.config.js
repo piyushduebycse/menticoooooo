@@ -69,6 +69,31 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react(), vercelApiDevPlugin()],
+    build: {
+      target: 'es2020',
+      cssCodeSplit: true,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('pdfjs-dist')) {
+                return 'vendor-pdfjs';
+              }
+              if (id.includes('firebase')) {
+                return 'vendor-firebase';
+              }
+              if (id.includes('lucide-react')) {
+                return 'vendor-icons';
+              }
+              if (id.includes('react-dom') || id.includes('react-router-dom') || id.includes('/react/')) {
+                return 'vendor-react';
+              }
+            }
+          },
+        },
+      },
+      chunkSizeWarningLimit: 800,
+    },
     server: {
       port: 5173,
       host: '127.0.0.1',
