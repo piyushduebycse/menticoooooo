@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Spinner from '../components/Spinner';
-import ProtectedPdfReader from '../components/ProtectedPdfReader';
+import PdfHighlightsModal from '../components/PdfHighlightsModal';
 import { openRazorpayCheckout } from '../services/razorpay';
 import { trackCheckoutInitiated, trackPurchaseSuccess } from '../services/analytics';
 import confetti from 'canvas-confetti';
@@ -34,7 +34,7 @@ export default function Product() {
   const [couponError, setCouponError] = useState('');
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
-  const [isPdfPreviewOpen, setIsPdfPreviewOpen] = useState(false);
+  const [isHighlightModalOpen, setIsHighlightModalOpen] = useState(false);
 
   const originalPrice = 999; // in INR (original price)
   const basePrice = Number(import.meta.env.VITE_PRODUCT_PRICE_INR || 1); // ₹1 test price
@@ -266,18 +266,7 @@ export default function Product() {
                 </div>
               </div>
 
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-                  gap: '1rem',
-                  padding: '1.25rem',
-                  backgroundColor: 'var(--bg-surface)',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--border-main)',
-                  marginBottom: '1.5rem',
-                }}
-              >
+              <div className="product-specs-grid">
                 <div>
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>FILE SIZE</div>
                   <div style={{ fontWeight: 800, fontSize: '1.1rem' }}>12.6 MB</div>
@@ -320,22 +309,22 @@ export default function Product() {
 
             {/* Interactive PDF Sneak Peek */}
             <div className="card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div className="sneak-peek-header">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <Eye size={18} color="var(--red-primary)" />
-                  <h4 style={{ fontSize: '1.1rem' }}>Blueprint Sample Sneak Peek</h4>
+                  <h4 style={{ fontSize: '1.1rem', margin: 0 }}>Blueprint Sample Sneak Peek</h4>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     className="btn btn-secondary btn-sm"
-                    onClick={() => setIsPdfPreviewOpen(true)}
+                    onClick={() => setIsHighlightModalOpen(true)}
                     style={{ fontSize: '0.78rem', padding: '0.35rem 0.75rem' }}
                   >
                     <Eye size={14} color="var(--red-primary)" />
-                    <span>Preview Live PDF</span>
+                    <span>Preview Highlights</span>
                   </button>
-                  <span className="badge-mono" style={{ fontSize: '0.72rem' }}>VERIFIED EXCERPTS</span>
+                  <span className="badge-mono" style={{ fontSize: '0.72rem' }}>OFFICIAL EXCERPT</span>
                 </div>
               </div>
 
@@ -446,8 +435,8 @@ export default function Product() {
               className="card card-red-accent product-checkout-card"
               id="checkout-card"
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                <span className="badge-red">STUDENT & YOUTH PRICING</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                <span className="badge-red" style={{ fontSize: '0.72rem' }}>STUDENT & YOUTH PRICING</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: 'var(--red-primary)', fontSize: '0.85rem' }}>
                   <Star size={14} fill="currentColor" />
                   <Star size={14} fill="currentColor" />
@@ -473,7 +462,7 @@ export default function Product() {
                   borderBottom: '1px solid var(--border-subtle)',
                 }}
               >
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: '2.8rem', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1 }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem, 8vw, 2.8rem)', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1 }}>
                   ₹{currentPrice.toLocaleString('en-IN')}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -539,7 +528,7 @@ export default function Product() {
                   </span>
                 ) : (
                   <>
-                    <Download size={18} />
+                    <BookOpen size={18} />
                     <span>Get Instant Access (₹{currentPrice})</span>
                     <ArrowRight size={18} />
                   </>
@@ -670,15 +659,15 @@ export default function Product() {
       </div>
 
       {/* ==================================================================
-          IN-APP PDF PREVIEW MODAL (PREVIEW THE REAL 12.6 MB PDF)
+          CURATED BLUEPRINT HIGHLIGHTS MODAL (PRE-PURCHASE PREVIEW)
           ================================================================== */}
-      {isPdfPreviewOpen && (
-        <ProtectedPdfReader
-          pdfUrl="/Mentico_Mastery_Blueprint.pdf"
-          user={user}
-          onClose={() => setIsPdfPreviewOpen(false)}
-        />
-      )}
+      <PdfHighlightsModal
+        isOpen={isHighlightModalOpen}
+        onClose={() => setIsHighlightModalOpen(false)}
+        onUnlock={handlePurchase}
+        currentPrice={currentPrice}
+        originalPrice={originalPrice}
+      />
     </div>
   );
 }

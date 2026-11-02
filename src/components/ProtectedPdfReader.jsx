@@ -27,8 +27,17 @@ export default function ProtectedPdfReader({
 }) {
   const [pdfDoc, setPdfDoc] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(90);
-  const [scale, setScale] = useState(1.15);
+  const getInitialScale = () => {
+    if (typeof window !== 'undefined') {
+      const w = window.innerWidth;
+      if (w < 480) return 0.55;
+      if (w < 768) return 0.75;
+      if (w < 1024) return 0.95;
+    }
+    return 1.15;
+  };
+
+  const [scale, setScale] = useState(getInitialScale);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -243,6 +252,7 @@ export default function ProtectedPdfReader({
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
           <div
+            className="reader-drm-badge"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -258,7 +268,7 @@ export default function ProtectedPdfReader({
             }}
           >
             <Lock size={12} />
-            <span>SITE-ONLY ACCESS • DRM ACTIVE</span>
+            <span>PROTECTED DRM</span>
           </div>
 
           <button
@@ -458,24 +468,23 @@ export default function ProtectedPdfReader({
 
         {/* Load Error Fallback */}
         {loadError && !isLoading && (
-          <div style={{ margin: 'auto', textAlign: 'center', color: '#F87171', padding: '3rem' }}>
+          <div style={{ margin: 'auto', textAlign: 'center', color: '#F87171', padding: '3rem 1.5rem' }}>
             <AlertTriangle size={36} style={{ margin: '0 auto 1rem' }} />
             <div style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem', color: '#FFFFFF' }}>
-              Web Reader Notice
+              Reader Decryption Notice
             </div>
             <p style={{ fontSize: '0.85rem', color: '#9CA3AF', marginBottom: '1.5rem', maxWidth: '400px', margin: '0 auto 1.5rem' }}>
-              Your Mentico license is active. If your browser cannot render the canvas reader, you can open the official PDF file directly:
+              Your Mentico license is active. Access is strictly delivered via this protected DRM environment. Click below to reload the reader.
             </p>
-            <a
-              href={pdfUrl}
-              download="Mentico_Mastery_Blueprint.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
               className="btn btn-primary"
               style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800 }}
             >
-              <span>Download / Open Official PDF</span>
-            </a>
+              <RotateCw size={16} />
+              <span>Reload Protected Reader</span>
+            </button>
           </div>
         )}
 

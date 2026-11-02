@@ -180,14 +180,7 @@ export default function Dashboard() {
         {/* ==================================================================
             QUICK STATS SUMMARY CARDS
             ================================================================== */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-            gap: '1.25rem',
-            marginBottom: '2.5rem',
-          }}
-        >
+        <div className="dashboard-stats-grid">
           <div className="card card-solid" style={{ padding: '1.25rem' }}>
             <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
               BLUEPRINT DELIVERABLE
@@ -224,17 +217,9 @@ export default function Dashboard() {
         </div>
 
         {/* ==================================================================
-            MAIN CONTENT SPLIT: LEFT (PRIMARY PDF DOWNLOAD) & RIGHT (CHECKLIST)
+            MAIN CONTENT SPLIT: LEFT (PRIMARY PDF READER) & RIGHT (CHECKLIST)
             ================================================================== */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1.4fr 1fr',
-            gap: '2rem',
-            alignItems: 'start',
-            marginBottom: '4rem',
-          }}
-        >
+        <div className="dashboard-main-grid">
           {/* Left Column: PDF Download Center */}
           <div className="card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -247,20 +232,8 @@ export default function Dashboard() {
               </span>
             </div>
 
-            {/* Featured PDF Download Showcase */}
-            <div
-              style={{
-                padding: '2rem',
-                backgroundColor: 'var(--bg-surface)',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--border-main)',
-                marginBottom: '2rem',
-                display: 'flex',
-                gap: '1.75rem',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-              }}
-            >
+            {/* Featured PDF Protected Reader Showcase */}
+            <div className="deliverable-card-inner">
               {/* PDF Document Icon Visual */}
               <div
                 style={{
@@ -303,31 +276,17 @@ export default function Dashboard() {
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  {/* Primary CTA Button: Launch Protected Reader */}
+                  {/* Primary Protected Reader Button */}
                   <button
                     type="button"
                     className="btn btn-primary"
                     onClick={() => setIsPdfViewerOpen(true)}
                     id="dashboard-open-reader-btn"
-                    style={{ flex: 1, minWidth: '220px', padding: '0.9rem 1.5rem', fontWeight: 800 }}
+                    style={{ flex: 1, minWidth: '220px', padding: '0.95rem 1.5rem', fontWeight: 800 }}
                   >
                     <BookOpen size={18} />
                     <span>Open Protected Web Reader</span>
                   </button>
-
-                  {/* Secondary Direct Download Link */}
-                  <a
-                    href="/Mentico_Mastery_Blueprint.pdf"
-                    download="Mentico_Mastery_Blueprint.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-secondary"
-                    id="dashboard-download-pdf-btn"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.9rem 1.25rem', fontWeight: 700 }}
-                  >
-                    <Download size={18} />
-                    <span>Download PDF</span>
-                  </a>
 
                   <div
                     style={{
@@ -360,10 +319,12 @@ export default function Dashboard() {
                   borderRadius: 'var(--radius-md)',
                   backgroundColor: 'var(--bg-surface)',
                   border: '1px solid var(--border-subtle)',
+                  flexWrap: 'wrap',
+                  gap: '0.75rem',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <FileText size={18} color="var(--red-primary)" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
+                  <FileText size={18} color="var(--red-primary)" style={{ flexShrink: 0 }} />
                   <div>
                     <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>GD & Campus Placement Cheat Sheets</div>
                     <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>15 Powerful Group Discussion Openers • Inside Blueprint</div>
@@ -389,10 +350,12 @@ export default function Dashboard() {
                   borderRadius: 'var(--radius-md)',
                   backgroundColor: 'var(--bg-surface)',
                   border: '1px solid var(--border-subtle)',
+                  flexWrap: 'wrap',
+                  gap: '0.75rem',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <Heart size={18} color="var(--red-primary)" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
+                  <Heart size={18} color="var(--red-primary)" style={{ flexShrink: 0 }} />
                   <div>
                     <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>Social Charisma & Small Talk Framework</div>
                     <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>Never run out of things to say • Inside Blueprint</div>
