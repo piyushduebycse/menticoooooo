@@ -11,10 +11,13 @@ import {
   Sparkles,
   Users,
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import Spinner from '../components/Spinner';
 
 export default function About() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf);
   const [isConsultLoading, setIsConsultLoading] = useState(false);
 
   const milestones = [
@@ -89,15 +92,7 @@ export default function About() {
         {/* ==================================================================
             INSTRUCTOR BIO & HERO DOSSIER
             ================================================================== */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1.3fr',
-            gap: '3.5rem',
-            alignItems: 'center',
-            marginBottom: '6rem',
-          }}
-        >
+        <div className="about-hero-grid">
           {/* Left Column: Portrait Card */}
           <div>
             <div
@@ -185,7 +180,7 @@ export default function About() {
             <div className="badge-red" style={{ marginBottom: '1.25rem' }}>
               MENTOR PROFILE & MISSION
             </div>
-            <h1 style={{ fontSize: '2.8rem', marginBottom: '1.25rem' }}>
+            <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.8rem)', lineHeight: 1.25, marginBottom: '1.25rem' }}>
               "I Used To Freeze On Stage. If I Could Transform, So Can You."
             </h1>
             <p style={{ fontSize: '1.08rem', lineHeight: 1.7, marginBottom: '1.25rem' }}>
@@ -214,10 +209,21 @@ export default function About() {
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <Link to="/product" className="btn btn-primary">
-                <span>Explore The Mentico Blueprint</span>
-                <ArrowRight size={16} />
-              </Link>
+              {hasPurchased ? (
+                <Link
+                  to="/library?openPdf=true"
+                  className="btn btn-primary"
+                  style={{ backgroundColor: '#16a34a', borderColor: '#16a34a' }}
+                >
+                  <span>Read the Book (Web Reader)</span>
+                  <ArrowRight size={16} />
+                </Link>
+              ) : (
+                <Link to="/purchase" className="btn btn-primary">
+                  <span>Explore The Mentico Manual</span>
+                  <ArrowRight size={16} />
+                </Link>
+              )}
               <button
                 type="button"
                 className="btn btn-secondary"
@@ -300,10 +306,11 @@ export default function About() {
             <p>From stuttering through college vivas to commanding stages of thousands.</p>
           </div>
 
-          <div style={{ position: 'relative', borderLeft: '2px solid var(--border-main)', paddingLeft: '2rem', marginLeft: '1rem' }}>
+          <div className="timeline-mobile-wrap" style={{ position: 'relative', borderLeft: '2px solid var(--border-main)', paddingLeft: '2rem', marginLeft: '1rem' }}>
             {milestones.map((item, idx) => (
               <div key={idx} style={{ marginBottom: '3rem', position: 'relative' }}>
                 <div
+                  className="timeline-mobile-dot"
                   style={{
                     position: 'absolute',
                     left: '-2.65rem',
@@ -374,7 +381,7 @@ export default function About() {
           style={{
             maxWidth: '820px',
             margin: '0 auto',
-            padding: '3.5rem',
+            padding: 'clamp(1.5rem, 4vw, 3.5rem)',
             backgroundColor: 'var(--bg-surface)',
             border: '1px solid var(--border-main)',
           }}
@@ -382,7 +389,7 @@ export default function About() {
           <div style={{ fontSize: '0.85rem', fontFamily: 'var(--font-mono)', color: 'var(--red-primary)', marginBottom: '1rem' }}>
             DIRECT NOTE // ARYAN SHARMA
           </div>
-          <h3 style={{ fontSize: '1.7rem', marginBottom: '1.25rem' }}>
+          <h3 style={{ fontSize: 'clamp(1.3rem, 4vw, 1.7rem)', marginBottom: '1.25rem' }}>
             "You don’t have to stay the quiet, overlooked person in the corner."
           </h3>
           <p style={{ fontSize: '1rem', lineHeight: 1.7, marginBottom: '1rem' }}>
@@ -412,10 +419,21 @@ export default function About() {
               </div>
             </div>
 
-            <Link to="/purchase" className="btn btn-primary">
-              <span>Get The Field Manual (₹499)</span>
-              <ArrowRight size={16} />
-            </Link>
+            {hasPurchased ? (
+              <Link
+                to="/library?openPdf=true"
+                className="btn btn-primary"
+                style={{ backgroundColor: '#16a34a', borderColor: '#16a34a' }}
+              >
+                <span>Read The Book (Web Reader)</span>
+                <ArrowRight size={16} />
+              </Link>
+            ) : (
+              <Link to="/purchase" className="btn btn-primary">
+                <span>Get The Field Manual (₹499)</span>
+                <ArrowRight size={16} />
+              </Link>
+            )}
           </div>
         </div>
       </div>

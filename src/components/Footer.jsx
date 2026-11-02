@@ -5,8 +5,9 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
 export default function Footer() {
-  const { isRealFirebase } = useAuth();
+  const { isRealFirebase, user } = useAuth();
   const { isDark } = useTheme();
+  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf);
 
   return (
     <footer className="footer">
@@ -56,11 +57,20 @@ export default function Footer() {
                 <Link to="/" className="footer-link">Relationship & Social Dynamics</Link>
               </li>
               <li>
-                <Link to="/product" className="footer-link">Mentico Mastery PDF Blueprint</Link>
+                <Link
+                  to={hasPurchased ? '/library?openPdf=true' : '/purchase'}
+                  className="footer-link"
+                >
+                  {hasPurchased ? 'Read the Book (Web Reader)' : 'Mentico Mastery PDF Blueprint'}
+                </Link>
               </li>
               <li>
-                <Link to="/dashboard" className="footer-link" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                  Social Freedom Hub Access <ArrowUpRight size={13} color="var(--red-primary)" />
+                <Link
+                  to={hasPurchased ? '/library' : '/purchase'}
+                  className="footer-link"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                >
+                  {hasPurchased ? 'Social Freedom Member Hub' : 'Member Access'} <ArrowUpRight size={13} color="var(--red-primary)" />
                 </Link>
               </li>
             </ul>

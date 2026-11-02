@@ -124,9 +124,9 @@ export default function Login() {
   };
 
   return (
-    <div className="section" style={{ minHeight: '82vh', display: 'flex', alignItems: 'center', paddingTop: '4rem', paddingBottom: '4rem' }}>
+    <div className="section" style={{ minHeight: '82vh', display: 'flex', alignItems: 'center', paddingTop: 'clamp(2rem, 5vw, 4rem)', paddingBottom: 'clamp(2rem, 5vw, 4rem)' }}>
       <div className="container-narrow" style={{ maxWidth: '480px' }}>
-        <div className="card" style={{ padding: '2.5rem 2rem', boxShadow: 'var(--shadow-lg)' }}>
+        <div className="card" style={{ padding: 'clamp(1.5rem, 5vw, 2.5rem) clamp(1rem, 4vw, 2rem)', boxShadow: 'var(--shadow-lg)' }}>
           {/* Header Icon */}
           <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
             <div

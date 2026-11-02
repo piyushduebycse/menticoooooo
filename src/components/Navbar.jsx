@@ -11,6 +11,8 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
+  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf);
+
   const handleLogout = async () => {
     await logout();
     setMobileMenuOpen(false);
@@ -19,7 +21,10 @@ export default function Navbar() {
 
   const navItems = [
     { label: 'About', path: '/about' },
-    { label: 'The Manual', path: '/purchase' },
+    {
+      label: hasPurchased ? 'Read the Book' : 'The Manual',
+      path: hasPurchased ? '/library?openPdf=true' : '/purchase',
+    },
     {
       label: 'Library',
       path: '/library',
@@ -69,32 +74,50 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* Nav Actions: Day/Night Toggle + "Get the Book" CTA */}
+        {/* Nav Actions: Day/Night Toggle + CTA */}
         <div className="nav-actions">
           {/* Day/Night Theme Toggle */}
           <ThemeToggle />
 
           {/* User Account or Blueprint CTA Button */}
           {user ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
               <Link
-                to={user.hasPurchased ? '/library' : '/purchase'}
+                to={hasPurchased ? '/library' : '/purchase'}
                 className="btn btn-secondary btn-sm"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
-                title={user.hasPurchased ? 'Open Library' : 'Complete Purchase'}
+                title={hasPurchased ? 'Open Library' : 'Complete Purchase'}
               >
                 <div
                   style={{
                     width: '8px',
                     height: '8px',
                     borderRadius: '50%',
-                    backgroundColor: user.hasPurchased ? '#22c55e' : 'var(--red-primary)',
+                    backgroundColor: hasPurchased ? '#22c55e' : 'var(--red-primary)',
                   }}
                 />
-                <span style={{ maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <span style={{ maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {user.displayName?.split(' ')[0] || 'Member'}
                 </span>
               </Link>
+
+              {/* Show 'Read the Book' or 'Get the Manual' */}
+              <Link
+                to={hasPurchased ? '/library?openPdf=true' : '/purchase'}
+                className="btn btn-primary btn-sm nav-cta-desktop"
+                style={{
+                  backgroundColor: hasPurchased ? '#16a34a' : 'var(--red-primary)',
+                  borderColor: hasPurchased ? '#16a34a' : 'var(--red-primary)',
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  padding: '0.45rem 1rem',
+                  borderRadius: 'var(--radius-full)',
+                }}
+              >
+                <span>{hasPurchased ? 'Read the Book' : 'Get the Manual'}</span>
+                <ArrowRight size={14} />
+              </Link>
+
               <button
                 type="button"
                 className="btn btn-secondary btn-sm btn-icon-only"
@@ -146,13 +169,13 @@ export default function Navbar() {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div className="mobile-drawer">
-          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             <li key="/">
               <NavLink
                 to="/"
                 onClick={() => setMobileMenuOpen(false)}
                 className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                style={{ fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0' }}
+                style={{ fontSize: '1.05rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.45rem 0' }}
               >
                 <span>Home</span>
               </NavLink>
@@ -163,7 +186,7 @@ export default function Navbar() {
                   to={item.path}
                   onClick={() => setMobileMenuOpen(false)}
                   className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                  style={{ fontSize: '1.1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0' }}
+                  style={{ fontSize: '1.05rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.45rem 0' }}
                 >
                   <span>{item.label}</span>
                   {item.isProtected && (
@@ -176,10 +199,10 @@ export default function Navbar() {
             ))}
           </ul>
 
-          <div style={{ borderTop: '1px solid var(--border-main)', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {user ? (
+          <div style={{ borderTop: '1px solid var(--border-main)', paddingTop: '1.25rem', marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+            {user && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.88rem', color: 'var(--text-secondary)' }}>
+                <span style={{ fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
                   Logged in as <strong>{user.email}</strong>
                 </span>
                 <button
@@ -190,15 +213,26 @@ export default function Navbar() {
                   Sign Out
                 </button>
               </div>
-            ) : (
-              <Link
-                to="/product"
-                className="btn btn-primary"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Get the Book Now
-              </Link>
             )}
+
+            {/* Prominent CTA in mobile drawer */}
+            <Link
+              to={hasPurchased ? '/library?openPdf=true' : '/purchase'}
+              className="btn btn-primary"
+              onClick={() => setMobileMenuOpen(false)}
+              style={{
+                width: '100%',
+                backgroundColor: hasPurchased ? '#16a34a' : 'var(--red-primary)',
+                borderColor: hasPurchased ? '#16a34a' : 'var(--red-primary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                padding: '0.75rem',
+              }}
+            >
+              <span>{hasPurchased ? 'Read the Book →' : 'Get the Manual Now'}</span>
+            </Link>
           </div>
         </div>
       )}

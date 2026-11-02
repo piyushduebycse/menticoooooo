@@ -30,6 +30,8 @@ export default function Product() {
   const { user, getIdToken, refreshUser, markPurchased } = useAuth();
   const navigate = useNavigate();
 
+  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf);
+
   const [activePreviewTab, setActivePreviewTab] = useState('toc');
   const [couponError, setCouponError] = useState('');
   const [isPurchasing, setIsPurchasing] = useState(false);
@@ -49,7 +51,7 @@ export default function Product() {
       return;
     }
 
-    if (user?.hasPurchased || user?.hasPurchasedPdf) {
+    if (hasPurchased) {
       navigate('/library?openPdf=true', { state: { openPdf: true } });
       return;
     }
@@ -435,114 +437,159 @@ export default function Product() {
               className="card card-red-accent product-checkout-card"
               id="checkout-card"
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <span className="badge-red" style={{ fontSize: '0.72rem' }}>STUDENT & YOUTH PRICING</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: 'var(--red-primary)', fontSize: '0.85rem' }}>
-                  <Star size={14} fill="currentColor" />
-                  <Star size={14} fill="currentColor" />
-                  <Star size={14} fill="currentColor" />
-                  <Star size={14} fill="currentColor" />
-                  <Star size={14} fill="currentColor" />
-                </div>
-              </div>
-
-              <h3 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>The Mentico Blueprint</h3>
-              <p style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                Unlock the complete 180-page manual, action frameworks, and live exercises instantly.
-              </p>
-
-              {/* Price display in INR */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  gap: '0.75rem',
-                  marginBottom: '1.5rem',
-                  paddingBottom: '1.25rem',
-                  borderBottom: '1px solid var(--border-subtle)',
-                }}
-              >
-                <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem, 8vw, 2.8rem)', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1 }}>
-                  ₹{currentPrice.toLocaleString('en-IN')}
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ textDecoration: 'line-through', color: 'var(--text-muted)', fontSize: '1.1rem' }}>
-                    ₹{originalPrice.toLocaleString('en-IN')}
-                  </span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--red-primary)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
-                    50% SPECIAL LAUNCH DISCOUNT
-                  </span>
-                </div>
-              </div>
-
-              {couponError && (
-                <div role="alert" style={{ color: 'var(--red-primary)', fontSize: '0.8rem', marginBottom: '1rem', fontWeight: 600 }}>
-                  {couponError}
-                </div>
-              )}
-
-              {user?.hasPurchasedPdf && (
-                <div
-                  style={{
-                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
-                    border: '1px solid rgba(34, 197, 94, 0.3)',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '0.85rem 1rem',
-                    marginBottom: '1.25rem',
-                    textAlign: 'center',
-                  }}
-                >
-                  <div style={{ color: '#22c55e', fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
-                    <CheckCircle2 size={16} />
-                    <span>Active License Detected</span>
+              {hasPurchased ? (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <span className="badge-mono" style={{ fontSize: '0.72rem', borderColor: '#22c55e', color: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.08)' }}>
+                      ✓ ACTIVE MEMBER // FULL ACCESS
+                    </span>
+                    <span style={{ fontSize: '0.78rem', color: '#22c55e', fontWeight: 700 }}>
+                      LICENSE ACTIVE
+                    </span>
                   </div>
-                  <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginBottom: '0.65rem' }}>
-                    You already have lifetime access to the Social Freedom Hub with this account.
+
+                  <h3 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>You Own This Manual</h3>
+                  <p style={{ fontSize: '0.9rem', marginBottom: '1.5rem', color: 'var(--text-secondary)' }}>
+                    Your student license grants full lifetime access to the complete 180-page manual, vocal drills, and speech frameworks.
                   </p>
+
+                  <div
+                    style={{
+                      backgroundColor: 'rgba(34, 197, 94, 0.08)',
+                      border: '1px solid rgba(34, 197, 94, 0.25)',
+                      borderRadius: 'var(--radius-md)',
+                      padding: '1.25rem',
+                      marginBottom: '1.5rem',
+                      textAlign: 'center',
+                    }}
+                  >
+                    <div style={{ color: '#22c55e', fontWeight: 700, fontSize: '0.95rem', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}>
+                      <CheckCircle2 size={18} />
+                      <span>Protected Web Reader Unlocked</span>
+                    </div>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '0.35rem 0 0' }}>
+                      Student ID: <code style={{ color: 'var(--text-main)', fontWeight: 700 }}>{user?.licenseKey || 'MENTICO-IN-VIP'}</code>
+                    </p>
+                  </div>
+
+                  {/* Primary CTA: Read the Book */}
                   <button
                     type="button"
+                    className="btn btn-primary btn-lg"
+                    style={{
+                      width: '100%',
+                      marginBottom: '0.85rem',
+                      backgroundColor: '#16a34a',
+                      borderColor: '#16a34a',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                    }}
                     onClick={() => navigate('/library?openPdf=true', { state: { openPdf: true } })}
-                    className="btn btn-secondary btn-sm"
-                    style={{ width: '100%', borderColor: '#22c55e', color: '#22c55e' }}
+                    id="btn-read-the-book-checkout"
                   >
-                    Open PDF Reader & Manual →
-                  </button>
-                </div>
-              )}
-
-              {/* Primary Purchase CTA with Loading Spinner */}
-              <button
-                type="button"
-                className="btn btn-primary btn-lg"
-                style={{ width: '100%', marginBottom: '1rem' }}
-                onClick={handlePurchase}
-                disabled={isPurchasing || purchaseSuccess}
-                id="btn-purchase-blueprint"
-              >
-                {isPurchasing ? (
-                  <Spinner size="sm" color="white" text="Activating Student Membership..." />
-                ) : purchaseSuccess ? (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <CheckCircle2 size={18} />
-                    <span>Enrolled! Redirecting to Social Freedom Hub...</span>
-                  </span>
-                ) : (
-                  <>
-                    <BookOpen size={18} />
-                    <span>Get Instant Access (₹{currentPrice})</span>
+                    <BookOpen size={20} />
+                    <span>Read the Book (Web Reader)</span>
                     <ArrowRight size={18} />
-                  </>
-                )}
-              </button>
+                  </button>
 
-              {user ? (
-                <div style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-                  Logged in as: <strong style={{ color: 'var(--text-main)' }}>{user.email}</strong>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    style={{ width: '100%', marginBottom: '1.25rem' }}
+                    onClick={() => navigate('/library')}
+                  >
+                    <span>Open Social Freedom Hub</span>
+                  </button>
+
+                  <div style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                    Signed in as: <strong style={{ color: 'var(--text-main)' }}>{user?.email}</strong>
+                  </div>
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-                  Instant digital credentials delivered immediately upon enrollment.
-                </div>
+                <>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <span className="badge-red" style={{ fontSize: '0.72rem' }}>STUDENT & YOUTH PRICING</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '3px', color: 'var(--red-primary)', fontSize: '0.85rem' }}>
+                      <Star size={14} fill="currentColor" />
+                      <Star size={14} fill="currentColor" />
+                      <Star size={14} fill="currentColor" />
+                      <Star size={14} fill="currentColor" />
+                      <Star size={14} fill="currentColor" />
+                    </div>
+                  </div>
+
+                  <h3 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>The Mentico Blueprint</h3>
+                  <p style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                    Unlock the complete 180-page manual, action frameworks, and live exercises instantly.
+                  </p>
+
+                  {/* Price display in INR */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'baseline',
+                      gap: '0.75rem',
+                      marginBottom: '1.5rem',
+                      paddingBottom: '1.25rem',
+                      borderBottom: '1px solid var(--border-subtle)',
+                    }}
+                  >
+                    <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem, 8vw, 2.8rem)', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1 }}>
+                      ₹{currentPrice.toLocaleString('en-IN')}
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ textDecoration: 'line-through', color: 'var(--text-muted)', fontSize: '1.1rem' }}>
+                        ₹{originalPrice.toLocaleString('en-IN')}
+                      </span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--red-primary)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
+                        50% SPECIAL LAUNCH DISCOUNT
+                      </span>
+                    </div>
+                  </div>
+
+                  {couponError && (
+                    <div role="alert" style={{ color: 'var(--red-primary)', fontSize: '0.8rem', marginBottom: '1rem', fontWeight: 600 }}>
+                      {couponError}
+                    </div>
+                  )}
+
+                  {/* Primary Purchase CTA with Loading Spinner */}
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-lg"
+                    style={{ width: '100%', marginBottom: '1rem' }}
+                    onClick={handlePurchase}
+                    disabled={isPurchasing || purchaseSuccess}
+                    id="btn-purchase-blueprint"
+                  >
+                    {isPurchasing ? (
+                      <Spinner size="sm" color="white" text="Activating Student Membership..." />
+                    ) : purchaseSuccess ? (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <CheckCircle2 size={18} />
+                        <span>Enrolled! Redirecting to Social Freedom Hub...</span>
+                      </span>
+                    ) : (
+                      <>
+                        <BookOpen size={18} />
+                        <span>Get Instant Access (₹{currentPrice})</span>
+                        <ArrowRight size={18} />
+                      </>
+                    )}
+                  </button>
+
+                  {user ? (
+                    <div style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                      Logged in as: <strong style={{ color: 'var(--text-main)' }}>{user.email}</strong>
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                      Instant digital credentials delivered immediately upon enrollment.
+                    </div>
+                  )}
+                </>
               )}
 
               {/* Guarantee / Security badge */}
@@ -612,50 +659,77 @@ export default function Product() {
           Sticks to the bottom of the viewport on mobile devices
           ================================================================== */}
       <div className="mobile-pinned-bottom-bar" id="mobile-bottom-bar">
-        <div className="mobile-pinned-pricing-box">
-          <div className="mobile-pinned-price-line">
-            <span className="mobile-pinned-price">₹{currentPrice.toLocaleString('en-IN')}</span>
-            <span className="mobile-pinned-original-price">₹{originalPrice.toLocaleString('en-IN')}</span>
-            <span className="mobile-pinned-badge">
-              50% OFF
-            </span>
-          </div>
-          <div className="mobile-pinned-sublabel">
-            Instant Access // 12.6 MB Blueprint
-          </div>
-        </div>
+        {hasPurchased ? (
+          <>
+            <div className="mobile-pinned-pricing-box">
+              <div className="mobile-pinned-price-line" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#22c55e', display: 'inline-block' }} />
+                <span style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-main)' }}>Active Member</span>
+              </div>
+              <div className="mobile-pinned-sublabel" style={{ color: '#16a34a', fontWeight: 600 }}>
+                Web Reader Unlocked
+              </div>
+            </div>
 
-        <button
-          type="button"
-          className="btn btn-primary mobile-pinned-cta-btn"
-          onClick={() => {
-            const card = document.getElementById('checkout-card');
-            if (card) {
-              const rect = card.getBoundingClientRect();
-              const isCardInView = rect.top >= -50 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) + 150;
-              if (isCardInView && !isPurchasing) {
-                handlePurchase();
-              } else {
-                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-              }
-            } else {
-              handlePurchase();
-            }
-          }}
-          disabled={isPurchasing || purchaseSuccess}
-          id="btn-mobile-pinned-cta"
-        >
-          {isPurchasing ? (
-            <Spinner size="sm" color="white" text="" />
-          ) : purchaseSuccess ? (
-            <span>Redirecting...</span>
-          ) : (
-            <>
-              <span>{currentPrice === 0 ? 'Claim Free' : 'Get the Book'}</span>
+            <button
+              type="button"
+              className="btn btn-primary mobile-pinned-cta-btn"
+              style={{ backgroundColor: '#16a34a', borderColor: '#16a34a' }}
+              onClick={() => navigate('/library?openPdf=true', { state: { openPdf: true } })}
+              id="btn-mobile-pinned-cta"
+            >
+              <span>Read the Book</span>
               <ArrowRight size={16} />
-            </>
-          )}
-        </button>
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="mobile-pinned-pricing-box">
+              <div className="mobile-pinned-price-line">
+                <span className="mobile-pinned-price">₹{currentPrice.toLocaleString('en-IN')}</span>
+                <span className="mobile-pinned-original-price">₹{originalPrice.toLocaleString('en-IN')}</span>
+                <span className="mobile-pinned-badge">
+                  50% OFF
+                </span>
+              </div>
+              <div className="mobile-pinned-sublabel">
+                Instant Access // 12.6 MB Blueprint
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="btn btn-primary mobile-pinned-cta-btn"
+              onClick={() => {
+                const card = document.getElementById('checkout-card');
+                if (card) {
+                  const rect = card.getBoundingClientRect();
+                  const isCardInView = rect.top >= -50 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) + 150;
+                  if (isCardInView && !isPurchasing) {
+                    handlePurchase();
+                  } else {
+                    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }
+                } else {
+                  handlePurchase();
+                }
+              }}
+              disabled={isPurchasing || purchaseSuccess}
+              id="btn-mobile-pinned-cta"
+            >
+              {isPurchasing ? (
+                <Spinner size="sm" color="white" text="" />
+              ) : purchaseSuccess ? (
+                <span>Redirecting...</span>
+              ) : (
+                <>
+                  <span>{currentPrice === 0 ? 'Claim Free' : 'Get the Book'}</span>
+                  <ArrowRight size={16} />
+                </>
+              )}
+            </button>
+          </>
+        )}
       </div>
 
       {/* ==================================================================

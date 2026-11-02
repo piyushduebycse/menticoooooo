@@ -84,7 +84,7 @@ export default function Contact() {
           <div className="badge-red" style={{ marginBottom: '1.25rem' }}>
             MENTICO Member CONCIERGE & DESK
           </div>
-          <h1 style={{ fontSize: '2.8rem', marginBottom: '1rem' }}>
+          <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.8rem)', lineHeight: 1.25, marginBottom: '1rem' }}>
             We’re Here To Back You Up
           </h1>
           <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>
@@ -94,15 +94,7 @@ export default function Contact() {
         </div>
 
         {/* Main Grid: Form on Left, Concierge info on Right */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1.3fr 1fr',
-            gap: '3.5rem',
-            alignItems: 'start',
-            marginBottom: '6rem',
-          }}
-        >
+        <div className="contact-main-grid">
           {/* Left Column: Support Form */}
           <div className="card card-red-accent">
             {submittedTicket ? (
@@ -212,7 +204,7 @@ export default function Contact() {
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="contact-form-row">
                   <div className="form-group">
                     <label className="form-label" htmlFor="contact-type">
                       Topic of Inquiry

@@ -16,7 +16,7 @@ export default function Legal() {
           <div className="badge-red" style={{ marginBottom: '1.25rem' }}>
             MENTICO POLICIES & STUDENT RIGHTS
           </div>
-          <h1 style={{ fontSize: '2.6rem', marginBottom: '0.75rem' }}>
+          <h1 style={{ fontSize: 'clamp(1.6rem, 5vw, 2.6rem)', lineHeight: 1.25, marginBottom: '0.75rem' }}>
             Terms, Privacy & Student Protections
           </h1>
           <p style={{ fontSize: '0.98rem', color: 'var(--text-secondary)' }}>
@@ -26,6 +26,7 @@ export default function Legal() {
 
         {/* Tab Navigation */}
         <div
+          className="legal-tab-bar"
           style={{
             display: 'flex',
             gap: '0.5rem',
@@ -33,6 +34,8 @@ export default function Legal() {
             paddingBottom: '0.75rem',
             marginBottom: '2.5rem',
             overflowX: 'auto',
+            flexWrap: 'wrap',
+            alignItems: 'center',
           }}
         >
           {[
@@ -73,7 +76,7 @@ export default function Legal() {
         </div>
 
         {/* Tab Contents Card */}
-        <div className="card" style={{ padding: '3rem 2.5rem', lineHeight: 1.8 }}>
+        <div className="card" style={{ padding: 'clamp(1.25rem, 4vw, 3rem) clamp(1rem, 3vw, 2.5rem)', lineHeight: 1.8 }}>
           {/* ================================================================
               TAB 1: PROGRAM TERMS
               ================================================================ */}

@@ -90,10 +90,10 @@ export default function Dashboard() {
             DASHBOARD HEADER: STUDENT STATUS & LICENSE KEY
             ================================================================== */}
         <div
-          className="card card-red-accent"
+          className="card card-red-accent dashboard-header-card"
           style={{
             marginBottom: '2rem',
-            padding: '2.25rem',
+            padding: 'clamp(1.25rem, 3.5vw, 2.25rem)',
             display: 'flex',
             flexDirection: 'column',
             gap: '1.25rem',
@@ -149,6 +149,7 @@ export default function Dashboard() {
 
           {/* Quick Metrics Sub-strip */}
           <div
+            className="dashboard-metrics-strip"
             style={{
               borderTop: '1px solid var(--border-subtle)',
               paddingTop: '1rem',
@@ -156,12 +157,12 @@ export default function Dashboard() {
               alignItems: 'center',
               justifyContent: 'space-between',
               flexWrap: 'wrap',
-              gap: '1.5rem',
+              gap: '1rem',
               fontSize: '0.85rem',
               color: 'var(--text-muted)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
               <Key size={15} color="var(--red-primary)" />
               <span>Student ID:</span>
               <code style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-main)', fontWeight: 700 }}>

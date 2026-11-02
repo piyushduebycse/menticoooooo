@@ -88,6 +88,8 @@ export default function Home() {
     }
   };
 
+  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf);
+
   const handleNavClick = (e, href) => {
     if (href.startsWith('#')) {
       e.preventDefault();
@@ -96,14 +98,17 @@ export default function Home() {
       if (targetEl) {
         targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
+    } else if (href.startsWith('/')) {
+      e.preventDefault();
+      navigate(href);
     }
   };
 
   const handlePurchaseClick = () => {
     if (!user) {
       navigate('/login?redirect=%2Fpurchase');
-    } else if (user.hasPurchased) {
-      navigate('/library');
+    } else if (hasPurchased) {
+      navigate('/library?openPdf=true');
     } else {
       navigate('/purchase');
     }
@@ -115,7 +120,10 @@ export default function Home() {
     { label: 'The Story', href: '#founder' },
     { label: "Who It's For", href: '#who' },
     { label: 'Results', href: '#testimonials' },
-    { label: 'Get The Manual', href: '#pricing' },
+    {
+      label: hasPurchased ? 'Read The Book' : 'Get The Manual',
+      href: hasPurchased ? '/library?openPdf=true' : '#pricing',
+    },
   ];
 
   return (
@@ -166,13 +174,24 @@ export default function Home() {
 
           {/* Header Action Button */}
           <div className="flex items-center gap-3">
-            <a
-              href="#pricing"
-              onClick={(e) => handleNavClick(e, '#pricing')}
-              className="hidden rounded-full border border-brass/60 px-5 py-2 text-sm font-bold text-brass-light transition hover:bg-brass hover:text-ink sm:block"
-            >
-              Start Now
-            </a>
+            {hasPurchased ? (
+              <button
+                type="button"
+                onClick={() => navigate('/library?openPdf=true')}
+                className="hidden rounded-full border border-brass/60 px-5 py-2 text-sm font-bold text-brass-light transition hover:bg-brass hover:text-ink sm:inline-flex items-center gap-1.5"
+              >
+                <span>Read the Book</span>
+                <span>→</span>
+              </button>
+            ) : (
+              <a
+                href="#pricing"
+                onClick={(e) => handleNavClick(e, '#pricing')}
+                className="hidden rounded-full border border-brass/60 px-5 py-2 text-sm font-bold text-brass-light transition hover:bg-brass hover:text-ink sm:block"
+              >
+                Start Now
+              </a>
+            )}
 
             {/* Mobile Menu Toggle Button */}
             <button
@@ -206,12 +225,24 @@ export default function Home() {
                 </a>
               ))}
               <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-3">
-                {user ? (
+                {hasPurchased ? (
                   <button
                     type="button"
                     onClick={() => {
                       setMobileMenuOpen(false);
-                      navigate('/dashboard');
+                      navigate('/library?openPdf=true');
+                    }}
+                    className="w-full rounded-full bg-brass py-3 text-center text-sm font-bold text-ink flex items-center justify-center gap-2"
+                  >
+                    <span>Read The Book</span>
+                    <span>→</span>
+                  </button>
+                ) : user ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      navigate('/library');
                     }}
                     className="w-full rounded-full border border-brass/60 py-3 text-center text-sm font-bold text-brass-light hover:bg-brass hover:text-ink"
                   >
@@ -287,29 +318,40 @@ export default function Home() {
 
           {/* Hero Content */}
           <div className="relative z-10 mx-auto max-w-3xl text-center">
-            <h1 className="mx-auto max-w-[700px] text-[clamp(40px,5vw,50px)] font-bold leading-[1.15] tracking-[-1px] text-white text-balance">
+            <h1 className="mx-auto max-w-[700px] text-[clamp(30px,5vw,50px)] font-bold leading-[1.18] tracking-[-1px] text-white text-balance">
               Stop letting fear <span className="text-caramel">Decide how you live</span>.
             </h1>
-            <p className="mx-auto mt-6 max-w-xl text-[25px] font-semibold text-white">
+            <p className="mx-auto mt-6 max-w-xl text-[clamp(18px,4vw,25px)] font-semibold text-white">
               You need the courage to stop hiding the one you already have.
             </p>
-            <p className="mx-auto mt-8 max-w-2xl text-balance text-[20px] font-normal leading-relaxed text-muted">
+            <p className="mx-auto mt-8 max-w-2xl text-balance text-[clamp(15px,3.5vw,20px)] font-normal leading-relaxed text-muted">
               Stop letting fear, overthinking and rejection control your social life. Mentico's{' '}
               <span className="font-bold text-brass">Social Freedom</span> is a field manual for social confidence, connection and courage - built from{' '}
               <span className="font-bold text-brass">real evidence, not scripts</span>.
             </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <a
-                href="#pricing"
-                onClick={(e) => handleNavClick(e, '#pricing')}
-                className="rounded-full bg-brass px-8 py-4 text-sm font-semibold uppercase tracking-wide text-ink shadow-lg shadow-brass/25 transition hover:-translate-y-0.5 hover:bg-brass-light hover:shadow-xl hover:shadow-brass/35"
-              >
-                Get Social Freedom
-              </a>
+            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row w-full max-w-sm mx-auto sm:max-w-none">
+              {hasPurchased ? (
+                <button
+                  type="button"
+                  onClick={() => navigate('/library?openPdf=true')}
+                  className="w-full sm:w-auto rounded-full bg-brass px-8 py-4 text-sm font-semibold uppercase tracking-wide text-ink shadow-lg shadow-brass/25 transition hover:-translate-y-0.5 hover:bg-brass-light hover:shadow-xl hover:shadow-brass/35 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <span>Read The Book</span>
+                  <span>→</span>
+                </button>
+              ) : (
+                <a
+                  href="#pricing"
+                  onClick={(e) => handleNavClick(e, '#pricing')}
+                  className="w-full sm:w-auto rounded-full bg-brass px-8 py-4 text-sm font-semibold uppercase tracking-wide text-ink shadow-lg shadow-brass/25 transition hover:-translate-y-0.5 hover:bg-brass-light hover:shadow-xl hover:shadow-brass/35 text-center"
+                >
+                  Get Social Freedom
+                </a>
+              )}
               <a
                 href="#roadmap"
                 onClick={(e) => handleNavClick(e, '#roadmap')}
-                className="rounded-full border border-white/15 px-8 py-4 text-sm font-semibold text-paper/90 transition hover:border-white/30"
+                className="w-full sm:w-auto rounded-full border border-white/15 px-8 py-4 text-sm font-semibold text-paper/90 transition hover:border-white/30 text-center"
               >
                 See the roadmap
               </a>
@@ -811,52 +853,90 @@ export default function Home() {
         <section id="pricing" className="border-t border-white/5 px-6 py-24">
           <div className="mx-auto max-w-xl">
             <div className="mf-reveal">
-              <div className="rounded-3xl border border-white/10 bg-charcoal/70 p-10 text-center">
-                <p className="text-xs uppercase tracking-[0.2em] text-brass">Complete Edition</p>
-                <h2 className="mt-4 font-serif text-3xl font-bold text-paper">Get Social Freedom</h2>
-                
-                {/* Price Display */}
-                <div className="mt-4 flex items-baseline justify-center gap-3">
-                  <span className="font-serif text-4xl font-bold text-paper">₹499</span>
-                  <span className="text-lg text-muted line-through">₹999</span>
-                  <span className="rounded-full bg-brass/10 border border-brass/30 px-2.5 py-0.5 text-xs font-semibold text-brass-light">
-                    50% OFF
-                  </span>
-                </div>
+              <div className="rounded-3xl border border-white/10 bg-charcoal/70 p-6 sm:p-10 text-center">
+                {hasPurchased ? (
+                  <div>
+                    <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1 text-xs font-semibold text-emerald-400 uppercase tracking-widest inline-block">
+                      ✓ ACCESS UNLOCKED • LIFETIME LICENSE
+                    </span>
+                    <h2 className="mt-4 font-serif text-2xl sm:text-3xl font-bold text-paper">You Own Social Freedom</h2>
+                    <p className="mt-2 text-sm text-muted">
+                      Your student license is active. You have full access to the complete 180-page manual, speech drills, and frameworks.
+                    </p>
 
-                <p className="mt-3 font-serif text-sm italic text-muted">
-                  The transformation begins when the page ends.
-                </p>
-                <ul className="mt-8 space-y-3 text-left">
-                  {[
-                    'The complete Social Freedom manual - 16 parts, 80 lessons',
-                    'Psychology-informed frameworks for anxiety, avoidance and overthinking',
-                    'The Mentico Method, Conversation Engine and Ethical Attraction Engine',
-                    'The 30-Day Social Freedom Challenge',
-                    'Practical, consent-centered approach and conversation guidance',
-                    'Lifetime access to updates',
-                  ].map((feature) => (
-                    <li key={feature} className="flex items-start gap-3 text-sm text-paper/90">
-                      <span className="mt-1 text-brass">✓</span>
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  type="button"
-                  onClick={handlePurchaseClick}
-                  className="mt-10 block w-full rounded-full bg-brass px-8 py-4 text-center text-sm font-semibold uppercase tracking-wide text-ink shadow-lg shadow-brass/25 transition hover:-translate-y-0.5 hover:bg-brass-light hover:shadow-xl hover:shadow-brass/35 cursor-pointer"
-                >
-                  {user?.hasPurchasedPdf ? 'Review Manual / Purchase Addons' : 'Get Instant Access'}
-                </button>
-                {user?.hasPurchasedPdf && (
-                  <button
-                    type="button"
-                    onClick={() => navigate('/dashboard')}
-                    className="mt-3 block w-full text-center text-xs font-semibold uppercase tracking-wider text-brass-light hover:underline cursor-pointer"
-                  >
-                    You are already enrolled • Open Social Freedom Hub →
-                  </button>
+                    <ul className="mt-8 space-y-3 text-left">
+                      {[
+                        'Complete Social Freedom manual - 16 parts, 80 lessons (Unlocked)',
+                        'Psychology-informed frameworks for anxiety, avoidance & overthinking',
+                        'The Mentico Method, Conversation Engine & Ethical Attraction Engine',
+                        'The 30-Day Social Freedom Challenge',
+                        'Protected Web Reader on Desktop & Mobile',
+                        'Lifetime access to updates & new releases',
+                      ].map((feature) => (
+                        <li key={feature} className="flex items-start gap-3 text-sm text-paper/90">
+                          <span className="mt-1 text-emerald-400 font-bold">✓</span>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <button
+                      type="button"
+                      onClick={() => navigate('/library?openPdf=true')}
+                      className="mt-8 block w-full rounded-full bg-brass px-8 py-4 text-center text-sm font-semibold uppercase tracking-wide text-ink shadow-lg shadow-brass/25 transition hover:-translate-y-0.5 hover:bg-brass-light hover:shadow-xl hover:shadow-brass/35 cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <span>Read The Book (Web Reader)</span>
+                      <span>→</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => navigate('/library')}
+                      className="mt-4 block w-full text-center text-xs font-semibold uppercase tracking-wider text-brass-light hover:underline cursor-pointer"
+                    >
+                      Open Social Freedom Hub & 30-Day Drills →
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-xs uppercase tracking-[0.2em] text-brass">Complete Edition</p>
+                    <h2 className="mt-4 font-serif text-2xl sm:text-3xl font-bold text-paper">Get Social Freedom</h2>
+                    
+                    {/* Price Display */}
+                    <div className="mt-4 flex items-baseline justify-center gap-3">
+                      <span className="font-serif text-4xl font-bold text-paper">₹499</span>
+                      <span className="text-lg text-muted line-through">₹999</span>
+                      <span className="rounded-full bg-brass/10 border border-brass/30 px-2.5 py-0.5 text-xs font-semibold text-brass-light">
+                        50% OFF
+                      </span>
+                    </div>
+
+                    <p className="mt-3 font-serif text-sm italic text-muted">
+                      The transformation begins when the page ends.
+                    </p>
+                    <ul className="mt-8 space-y-3 text-left">
+                      {[
+                        'The complete Social Freedom manual - 16 parts, 80 lessons',
+                        'Psychology-informed frameworks for anxiety, avoidance and overthinking',
+                        'The Mentico Method, Conversation Engine and Ethical Attraction Engine',
+                        'The 30-Day Social Freedom Challenge',
+                        'Practical, consent-centered approach and conversation guidance',
+                        'Lifetime access to updates',
+                      ].map((feature) => (
+                        <li key={feature} className="flex items-start gap-3 text-sm text-paper/90">
+                          <span className="mt-1 text-brass">✓</span>
+                          <span>{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <button
+                      type="button"
+                      onClick={handlePurchaseClick}
+                      className="mt-10 block w-full rounded-full bg-brass px-8 py-4 text-center text-sm font-semibold uppercase tracking-wide text-ink shadow-lg shadow-brass/25 transition hover:-translate-y-0.5 hover:bg-brass-light hover:shadow-xl hover:shadow-brass/35 cursor-pointer"
+                    >
+                      Get Instant Access
+                    </button>
+                  </>
                 )}
                 <p className="mt-4 text-xs text-muted">
                   Read a little. Go outside. Try something. Come back.
