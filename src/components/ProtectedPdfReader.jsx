@@ -30,6 +30,7 @@ export default function ProtectedPdfReader({
   const [totalPages, setTotalPages] = useState(90);
   const [scale, setScale] = useState(1.15);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [drmToast, setDrmToast] = useState('');
   const [showToc, setShowToc] = useState(false);
@@ -105,7 +106,10 @@ export default function ProtectedPdfReader({
       })
       .catch((err) => {
         console.error('PDF Load Error:', err);
-        if (isMounted) setIsLoading(false);
+        if (isMounted) {
+          setIsLoading(false);
+          setLoadError(err.message || 'Error loading web PDF reader.');
+        }
       });
 
     return () => {
@@ -449,6 +453,29 @@ export default function ProtectedPdfReader({
             <div style={{ fontSize: '0.88rem', fontFamily: 'var(--font-mono)' }}>
               DECRYPTING PROTECTED MENTICO PAGES...
             </div>
+          </div>
+        )}
+
+        {/* Load Error Fallback */}
+        {loadError && !isLoading && (
+          <div style={{ margin: 'auto', textAlign: 'center', color: '#F87171', padding: '3rem' }}>
+            <AlertTriangle size={36} style={{ margin: '0 auto 1rem' }} />
+            <div style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem', color: '#FFFFFF' }}>
+              Web Reader Notice
+            </div>
+            <p style={{ fontSize: '0.85rem', color: '#9CA3AF', marginBottom: '1.5rem', maxWidth: '400px', margin: '0 auto 1.5rem' }}>
+              Your Mentico license is active. If your browser cannot render the canvas reader, you can open the official PDF file directly:
+            </p>
+            <a
+              href={pdfUrl}
+              download="Mentico_Mastery_Blueprint.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-primary"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800 }}
+            >
+              <span>Download / Open Official PDF</span>
+            </a>
           </div>
         )}
 

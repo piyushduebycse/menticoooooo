@@ -19,14 +19,26 @@ import {
   Shield,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import Spinner from '../components/Spinner';
 import { DashboardSkeleton } from '../components/SkeletonLoader';
 import ProtectedPdfReader from '../components/ProtectedPdfReader';
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [isFetchingData, setIsFetchingData] = useState(true);
-  const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(false);
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const shouldAutoOpen = searchParams.get('openPdf') === 'true' || location.state?.openPdf === true;
+
+  const [isFetchingData, setIsFetchingData] = useState(!shouldAutoOpen);
+  const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(shouldAutoOpen);
+
+  useEffect(() => {
+    if (shouldAutoOpen) {
+      setIsPdfViewerOpen(true);
+      setIsFetchingData(false);
+    }
+  }, [shouldAutoOpen]);
 
   // 30-Day Indian Youth Confidence & Speaking Checklist
   const [checklist, setChecklist] = useState([
@@ -38,13 +50,14 @@ export default function Dashboard() {
     { id: 6, text: 'Day 5: Practice the "Pause & Breathe" anchor during a college/office meeting', completed: false },
   ]);
 
-  // Simulate network fetch with Skeleton Loader for 1.2s
+  // Simulate network fetch with Skeleton Loader for 1.2s when not directly opening PDF
   useEffect(() => {
+    if (shouldAutoOpen) return;
     const timer = setTimeout(() => {
       setIsFetchingData(false);
     }, 1200);
     return () => clearTimeout(timer);
-  }, []);
+  }, [shouldAutoOpen]);
 
   const handleRefresh = () => {
     setIsFetchingData(true);
@@ -296,11 +309,25 @@ export default function Dashboard() {
                     className="btn btn-primary"
                     onClick={() => setIsPdfViewerOpen(true)}
                     id="dashboard-open-reader-btn"
-                    style={{ flex: 1, minWidth: '240px', padding: '0.9rem 1.5rem', fontWeight: 800 }}
+                    style={{ flex: 1, minWidth: '220px', padding: '0.9rem 1.5rem', fontWeight: 800 }}
                   >
                     <BookOpen size={18} />
                     <span>Open Protected Web Reader</span>
                   </button>
+
+                  {/* Secondary Direct Download Link */}
+                  <a
+                    href="/Mentico_Mastery_Blueprint.pdf"
+                    download="Mentico_Mastery_Blueprint.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary"
+                    id="dashboard-download-pdf-btn"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.9rem 1.25rem', fontWeight: 700 }}
+                  >
+                    <Download size={18} />
+                    <span>Download PDF</span>
+                  </a>
 
                   <div
                     style={{

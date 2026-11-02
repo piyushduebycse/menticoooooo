@@ -64,6 +64,8 @@ function AppLayout() {
           />
           {/* Backward-compatibility alias for /dashboard */}
           <Route path="/dashboard" element={<Navigate to="/library" replace />} />
+          {/* Direct alias for PDF reader */}
+          <Route path="/reader" element={<Navigate to="/library?openPdf=true" replace />} />
 
           <Route path="/contact" element={<Contact />} />
           <Route path="/legal" element={<Legal />} />

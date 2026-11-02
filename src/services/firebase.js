@@ -134,7 +134,15 @@ export const firebaseAuthService = {
           } catch (e) {
             console.error('Error fetching firestore user profile:', e);
           }
-          const hasPurchased = Boolean(extraData.hasPurchased ?? extraData.hasPurchasedPdf ?? false);
+          let localPurchase = null;
+          try {
+            const stored = localStorage.getItem(`mentico_purchased_${firebaseUser.uid}`);
+            if (stored) localPurchase = JSON.parse(stored);
+          } catch {}
+
+          const hasPurchased = Boolean(
+            extraData.hasPurchased ?? extraData.hasPurchasedPdf ?? localPurchase?.hasPurchased ?? false
+          );
           callback({
             uid: firebaseUser.uid,
             email: firebaseUser.email,
@@ -142,7 +150,7 @@ export const firebaseAuthService = {
             displayName: firebaseUser.displayName || extraData.displayName || firebaseUser.email.split('@')[0],
             hasPurchased,
             hasPurchasedPdf: hasPurchased,
-            licenseKey: extraData.licenseKey || (hasPurchased ? 'MENTICO-IN-7701-VIP' : null),
+            licenseKey: extraData.licenseKey || localPurchase?.licenseKey || (hasPurchased ? 'MENTICO-IN-7701-VIP' : null),
             ...extraData,
           });
         } else {
@@ -382,21 +390,38 @@ export const firebaseAuthService = {
   refreshUser: async () => {
     if (isRealFirebaseConfigured && auth?.currentUser) {
       await auth.currentUser.reload();
+      let extraData = {};
       if (db) {
-        const userDocRef = doc(db, 'users', auth.currentUser.uid);
-        const snapshot = await getDoc(userDocRef);
-        const extraData = snapshot.exists() ? snapshot.data() : {};
-        const hasPurchased = Boolean(extraData.hasPurchased ?? extraData.hasPurchasedPdf ?? false);
-        return {
-          uid: auth.currentUser.uid,
-          email: auth.currentUser.email,
-          emailVerified: Boolean(auth.currentUser.emailVerified),
-          displayName: auth.currentUser.displayName || extraData.displayName || auth.currentUser.email.split('@')[0],
-          hasPurchased,
-          hasPurchasedPdf: hasPurchased,
-          ...extraData,
-        };
+        try {
+          const userDocRef = doc(db, 'users', auth.currentUser.uid);
+          const snapshot = await getDoc(userDocRef);
+          if (snapshot.exists()) {
+            extraData = snapshot.data();
+          }
+        } catch (e) {
+          console.warn('[Firebase] refreshUser Firestore read error:', e);
+        }
       }
+
+      let localPurchase = null;
+      try {
+        const stored = localStorage.getItem(`mentico_purchased_${auth.currentUser.uid}`);
+        if (stored) localPurchase = JSON.parse(stored);
+      } catch {}
+
+      const hasPurchased = Boolean(
+        extraData.hasPurchased ?? extraData.hasPurchasedPdf ?? localPurchase?.hasPurchased ?? false
+      );
+      return {
+        uid: auth.currentUser.uid,
+        email: auth.currentUser.email,
+        emailVerified: Boolean(auth.currentUser.emailVerified),
+        displayName: auth.currentUser.displayName || extraData.displayName || auth.currentUser.email.split('@')[0],
+        hasPurchased,
+        hasPurchasedPdf: hasPurchased,
+        licenseKey: extraData.licenseKey || localPurchase?.licenseKey || (hasPurchased ? 'MENTICO-IN-7701-VIP' : null),
+        ...extraData,
+      };
     }
     return null;
   },

@@ -27,7 +27,7 @@ import { trackCheckoutInitiated, trackPurchaseSuccess } from '../services/analyt
 import confetti from 'canvas-confetti';
 
 export default function Product() {
-  const { user, getIdToken, refreshUser } = useAuth();
+  const { user, getIdToken, refreshUser, markPurchased } = useAuth();
   const navigate = useNavigate();
 
   const [activePreviewTab, setActivePreviewTab] = useState('toc');
@@ -49,8 +49,8 @@ export default function Product() {
       return;
     }
 
-    if (user?.hasPurchased) {
-      navigate('/library');
+    if (user?.hasPurchased || user?.hasPurchasedPdf) {
+      navigate('/library?openPdf=true', { state: { openPdf: true } });
       return;
     }
 
@@ -133,15 +133,23 @@ export default function Product() {
             paymentId: paymentResponse.razorpay_payment_id,
           });
 
+          if (typeof markPurchased === 'function') {
+            markPurchased({
+              licenseKey: verifyData.licenseKey,
+              orderId: paymentResponse.razorpay_order_id,
+              paymentId: paymentResponse.razorpay_payment_id,
+            });
+          }
+
           if (typeof refreshUser === 'function') {
             await refreshUser();
           }
 
           setPurchaseSuccess(true);
-          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+          confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
           setTimeout(() => {
-            navigate('/library');
-          }, 1200);
+            navigate('/library?openPdf=true', { state: { openPdf: true, fromPayment: true } });
+          }, 1000);
         },
         onFailure: (err) => {
           if (err.message && !err.message.includes('closed before completion')) {
@@ -504,11 +512,11 @@ export default function Product() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => navigate('/library?openPdf=true', { state: { openPdf: true } })}
                     className="btn btn-secondary btn-sm"
                     style={{ width: '100%', borderColor: '#22c55e', color: '#22c55e' }}
                   >
-                    Open Social Freedom Hub →
+                    Open PDF Reader & Manual →
                   </button>
                 </div>
               )}
