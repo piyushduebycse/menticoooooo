@@ -23,6 +23,7 @@ import { useAuth } from '../context/AuthContext';
 import Spinner from '../components/Spinner';
 import ProtectedPdfReader from '../components/ProtectedPdfReader';
 import { openRazorpayCheckout } from '../services/razorpay';
+import { trackCheckoutInitiated, trackPurchaseSuccess } from '../services/analytics';
 import confetti from 'canvas-confetti';
 
 export default function Product() {
@@ -63,6 +64,7 @@ export default function Product() {
       }
 
       // Step A: Create order on serverless endpoint
+      trackCheckoutInitiated({ price: currentPrice, userId: user.uid, userEmail: user.email });
       const orderRes = await fetch('/api/razorpay/create-order', {
         method: 'POST',
         headers: {
@@ -124,6 +126,12 @@ export default function Product() {
           if (!verifyRes.ok || !verifyData.success) {
             throw new Error(verifyData.error || 'Payment verification failed.');
           }
+
+          trackPurchaseSuccess({
+            orderId: paymentResponse.razorpay_order_id,
+            amount: currentPrice,
+            paymentId: paymentResponse.razorpay_payment_id,
+          });
 
           if (typeof refreshUser === 'function') {
             await refreshUser();

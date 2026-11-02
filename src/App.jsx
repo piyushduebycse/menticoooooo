@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/Navbar';
@@ -84,6 +85,7 @@ export default function App() {
         <Router>
           <ScrollToTop />
           <AppLayout />
+          <Analytics />
         </Router>
       </AuthProvider>
     </ThemeProvider>
