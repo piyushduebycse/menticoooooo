@@ -67,15 +67,25 @@ if (isRealFirebaseConfigured) {
             try {
               const userRef = doc(db, 'users', credential.user.uid);
               const userSnap = await getDoc(userRef);
+              const localPurchase = getStoredPurchase(credential.user.uid, credential.user.email);
+              const hasPriorPurchase = Boolean(localPurchase?.hasPurchased);
               if (!userSnap.exists()) {
                 await setDoc(userRef, {
                   displayName: credential.user.displayName || 'Mentico Student',
                   email: credential.user.email,
                   createdAt: serverTimestamp(),
-                  hasPurchased: false,
-                  hasPurchasedPdf: false,
+                  hasPurchased: hasPriorPurchase,
+                  hasPurchasedPdf: hasPriorPurchase,
+                  licenseKey: localPurchase?.licenseKey || (hasPriorPurchase ? 'MENTICO-IN-7701-VIP' : null),
                   role: 'Mentico Student',
                 });
+              } else if (hasPriorPurchase && (!userSnap.data()?.hasPurchased || !userSnap.data()?.hasPurchasedPdf)) {
+                await setDoc(userRef, {
+                  hasPurchased: true,
+                  hasPurchasedPdf: true,
+                  licenseKey: localPurchase?.licenseKey || 'MENTICO-IN-7701-VIP',
+                  updatedAt: serverTimestamp(),
+                }, { merge: true });
               }
             } catch (e) {
               console.warn('[Firebase] Firestore user profile sync error on redirect:', e);
@@ -113,6 +123,22 @@ export const DEMO_MENTICO_USER = {
   goals: ['Stage Presence', 'Overcoming Social Hesitation', 'High-Trust Networking'],
 };
 
+// Helper to safely retrieve cached purchase by UID or email
+function getStoredPurchase(uid, email) {
+  let localPurchase = null;
+  try {
+    if (uid) {
+      const stored = localStorage.getItem(`mentico_purchased_${uid}`);
+      if (stored) localPurchase = JSON.parse(stored);
+    }
+    if (!localPurchase && email) {
+      const byEmail = localStorage.getItem(`mentico_purchased_email_${String(email).toLowerCase()}`);
+      if (byEmail) localPurchase = JSON.parse(byEmail);
+    }
+  } catch {}
+  return localPurchase;
+}
+
 /* ==========================================================================
    Auth Wrappers (Real Firebase with Mock Fallback)
    ========================================================================== */
@@ -132,26 +158,45 @@ export const firebaseAuthService = {
               }
             }
           } catch (e) {
-            console.error('Error fetching firestore user profile:', e);
+            console.warn('Error fetching firestore user profile:', e);
           }
-          let localPurchase = null;
-          try {
-            const stored = localStorage.getItem(`mentico_purchased_${firebaseUser.uid}`);
-            if (stored) localPurchase = JSON.parse(stored);
-          } catch {}
 
+          const localPurchase = getStoredPurchase(firebaseUser.uid, firebaseUser.email);
+
+          // Truthy check so boolean true from ANY source (Firestore OR local cache) grants access
           const hasPurchased = Boolean(
-            extraData.hasPurchased ?? extraData.hasPurchasedPdf ?? localPurchase?.hasPurchased ?? false
+            extraData.hasPurchased ||
+            extraData.hasPurchasedPdf ||
+            localPurchase?.hasPurchased ||
+            false
           );
+
+          const licenseKey =
+            extraData.licenseKey ||
+            localPurchase?.licenseKey ||
+            (hasPurchased ? (localPurchase?.licenseKey || 'MENTICO-IN-7701-VIP') : null);
+
+          // If purchase was recorded locally but Firestore is missing it, sync to Firestore
+          if (hasPurchased && (!extraData.hasPurchased || !extraData.hasPurchasedPdf) && db) {
+            setDoc(doc(db, 'users', firebaseUser.uid), {
+              hasPurchased: true,
+              hasPurchasedPdf: true,
+              licenseKey,
+              updatedAt: serverTimestamp(),
+            }, { merge: true }).catch((err) => {
+              console.warn('[Firebase] Auto-sync purchase to Firestore notice:', err);
+            });
+          }
+
           callback({
+            ...extraData,
             uid: firebaseUser.uid,
             email: firebaseUser.email,
             emailVerified: Boolean(firebaseUser.emailVerified),
             displayName: firebaseUser.displayName || extraData.displayName || firebaseUser.email.split('@')[0],
             hasPurchased,
             hasPurchasedPdf: hasPurchased,
-            licenseKey: extraData.licenseKey || localPurchase?.licenseKey || (hasPurchased ? 'MENTICO-IN-7701-VIP' : null),
-            ...extraData,
+            licenseKey,
           });
         } else {
           callback(null);
@@ -186,7 +231,42 @@ export const firebaseAuthService = {
     if (isRealFirebaseConfigured && auth) {
       try {
         const credential = await signInWithEmailAndPassword(auth, email, password);
-        return credential.user;
+
+        let extraData = {};
+        if (db) {
+          try {
+            const userDocRef = doc(db, 'users', credential.user.uid);
+            const snapshot = await getDoc(userDocRef);
+            if (snapshot.exists()) {
+              extraData = snapshot.data();
+            }
+          } catch (e) {
+            console.warn('[Firebase Login] Firestore read error:', e);
+          }
+        }
+
+        const localPurchase = getStoredPurchase(credential.user.uid, credential.user.email);
+        const hasPurchased = Boolean(
+          extraData.hasPurchased ||
+          extraData.hasPurchasedPdf ||
+          localPurchase?.hasPurchased ||
+          false
+        );
+        const licenseKey =
+          extraData.licenseKey ||
+          localPurchase?.licenseKey ||
+          (hasPurchased ? (localPurchase?.licenseKey || 'MENTICO-IN-7701-VIP') : null);
+
+        return {
+          ...extraData,
+          uid: credential.user.uid,
+          email: credential.user.email,
+          emailVerified: Boolean(credential.user.emailVerified),
+          displayName: credential.user.displayName || extraData.displayName || credential.user.email?.split('@')[0],
+          hasPurchased,
+          hasPurchasedPdf: hasPurchased,
+          licenseKey,
+        };
       } catch (err) {
         if (err.code === 'auth/api-key-not-valid' || err.message?.includes('api-key-not-valid')) {
           throw new Error('Firebase API Key in .env is invalid. Please copy the complete Web API Key from Firebase Console (Project Settings > General > Web API Key).');
@@ -224,17 +304,30 @@ export const firebaseAuthService = {
       try {
         const credential = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(credential.user, { displayName: name });
+
+        const localPurchase = getStoredPurchase(credential.user.uid, email);
+        const hasPurchased = Boolean(localPurchase?.hasPurchased);
+        const licenseKey = localPurchase?.licenseKey || (hasPurchased ? 'MENTICO-IN-7701-VIP' : null);
+
         if (db) {
           await setDoc(doc(db, 'users', credential.user.uid), {
             displayName: name,
             email,
             createdAt: serverTimestamp(),
-            hasPurchased: false,
-            hasPurchasedPdf: false,
+            hasPurchased,
+            hasPurchasedPdf: hasPurchased,
+            licenseKey,
             role: 'Mentico Student',
           });
         }
-        return credential.user;
+        return {
+          uid: credential.user.uid,
+          email: credential.user.email,
+          displayName: name,
+          hasPurchased,
+          hasPurchasedPdf: hasPurchased,
+          licenseKey,
+        };
       } catch (err) {
         if (err.code === 'auth/api-key-not-valid' || err.message?.includes('api-key-not-valid')) {
           throw new Error('Firebase API Key in .env is invalid. Please copy the complete Web API Key from Firebase Console (Project Settings > General > Web API Key).');
@@ -284,6 +377,10 @@ export const firebaseAuthService = {
         provider.setCustomParameters({ prompt: 'select_account' });
         const credential = await signInWithPopup(auth, provider);
 
+        let extraData = {};
+        const localPurchase = getStoredPurchase(credential.user.uid, credential.user.email);
+        const hasPriorPurchase = Boolean(localPurchase?.hasPurchased);
+
         // Sync new Google user to Firestore if not already registered
         if (db && credential?.user) {
           try {
@@ -294,16 +391,50 @@ export const firebaseAuthService = {
                 displayName: credential.user.displayName || 'Mentico Student',
                 email: credential.user.email,
                 createdAt: serverTimestamp(),
-                hasPurchased: false,
-                hasPurchasedPdf: false,
+                hasPurchased: hasPriorPurchase,
+                hasPurchasedPdf: hasPriorPurchase,
+                licenseKey: localPurchase?.licenseKey || (hasPriorPurchase ? 'MENTICO-IN-7701-VIP' : null),
                 role: 'Mentico Student',
               });
+            } else {
+              extraData = userSnap.data() || {};
             }
           } catch (e) {
             console.warn('Firestore user profile sync error:', e);
           }
         }
-        return credential.user;
+
+        const hasPurchased = Boolean(
+          extraData.hasPurchased ||
+          extraData.hasPurchasedPdf ||
+          localPurchase?.hasPurchased ||
+          false
+        );
+        const licenseKey =
+          extraData.licenseKey ||
+          localPurchase?.licenseKey ||
+          (hasPurchased ? (localPurchase?.licenseKey || 'MENTICO-IN-7701-VIP') : null);
+
+        // Auto-heal Firestore if missing
+        if (hasPurchased && (!extraData.hasPurchased || !extraData.hasPurchasedPdf) && db) {
+          setDoc(doc(db, 'users', credential.user.uid), {
+            hasPurchased: true,
+            hasPurchasedPdf: true,
+            licenseKey,
+            updatedAt: serverTimestamp(),
+          }, { merge: true }).catch(() => {});
+        }
+
+        return {
+          ...extraData,
+          uid: credential.user.uid,
+          email: credential.user.email,
+          emailVerified: Boolean(credential.user.emailVerified),
+          displayName: credential.user.displayName || extraData.displayName || credential.user.email?.split('@')[0],
+          hasPurchased,
+          hasPurchasedPdf: hasPurchased,
+          licenseKey,
+        };
       } catch (err) {
         if (err.code === 'auth/popup-blocked') {
           const customErr = new Error('Pop-up was blocked by your browser. Please allow pop-ups for this site in your browser address bar, or click "Continue with Google (Redirect)".');
@@ -378,6 +509,59 @@ export const firebaseAuthService = {
     return true;
   },
 
+  // Save Purchase to both LocalStorage and Client Firestore
+  savePurchase: async (uid, purchaseData = {}) => {
+    const enrichedData = {
+      hasPurchased: true,
+      hasPurchasedPdf: true,
+      licenseKey: purchaseData.licenseKey || 'MENTICO-IN-7701-VIP',
+      purchasedAt: new Date().toISOString(),
+      ...purchaseData,
+    };
+
+    // 1. Cache to localStorage by UID
+    if (uid) {
+      try {
+        localStorage.setItem(`mentico_purchased_${uid}`, JSON.stringify(enrichedData));
+      } catch (e) {
+        console.warn('[Firebase] Local storage write error (UID):', e);
+      }
+    }
+
+    // 2. Cache to localStorage by Email for cross-session and cross-device recovery
+    const emailToCache = purchaseData.email || (auth?.currentUser?.email);
+    if (emailToCache) {
+      try {
+        localStorage.setItem(
+          `mentico_purchased_email_${String(emailToCache).toLowerCase()}`,
+          JSON.stringify(enrichedData)
+        );
+      } catch (e) {
+        console.warn('[Firebase] Local storage write error (Email):', e);
+      }
+    }
+
+    // 3. Persist directly to real Firestore Cloud DB via client SDK
+    if (isRealFirebaseConfigured && db && uid) {
+      try {
+        const userDocRef = doc(db, 'users', uid);
+        await setDoc(userDocRef, {
+          hasPurchased: true,
+          hasPurchasedPdf: true,
+          licenseKey: enrichedData.licenseKey,
+          purchasedAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+          orderId: purchaseData.orderId || null,
+          paymentId: purchaseData.paymentId || null,
+        }, { merge: true });
+      } catch (err) {
+        console.warn('[Firebase] savePurchase Firestore client write notice:', err);
+      }
+    }
+
+    return enrichedData;
+  },
+
   // Get Client Firebase ID Token for Bearer Authorization headers
   getIdToken: async (forceRefresh = false) => {
     if (isRealFirebaseConfigured && auth?.currentUser) {
@@ -403,24 +587,39 @@ export const firebaseAuthService = {
         }
       }
 
-      let localPurchase = null;
-      try {
-        const stored = localStorage.getItem(`mentico_purchased_${auth.currentUser.uid}`);
-        if (stored) localPurchase = JSON.parse(stored);
-      } catch {}
+      const localPurchase = getStoredPurchase(auth.currentUser.uid, auth.currentUser.email);
 
       const hasPurchased = Boolean(
-        extraData.hasPurchased ?? extraData.hasPurchasedPdf ?? localPurchase?.hasPurchased ?? false
+        extraData.hasPurchased ||
+        extraData.hasPurchasedPdf ||
+        localPurchase?.hasPurchased ||
+        false
       );
+
+      const licenseKey =
+        extraData.licenseKey ||
+        localPurchase?.licenseKey ||
+        (hasPurchased ? (localPurchase?.licenseKey || 'MENTICO-IN-7701-VIP') : null);
+
+      // Auto-heal Firestore if missing
+      if (hasPurchased && (!extraData.hasPurchased || !extraData.hasPurchasedPdf) && db) {
+        setDoc(doc(db, 'users', auth.currentUser.uid), {
+          hasPurchased: true,
+          hasPurchasedPdf: true,
+          licenseKey,
+          updatedAt: serverTimestamp(),
+        }, { merge: true }).catch(() => {});
+      }
+
       return {
+        ...extraData,
         uid: auth.currentUser.uid,
         email: auth.currentUser.email,
         emailVerified: Boolean(auth.currentUser.emailVerified),
-        displayName: auth.currentUser.displayName || extraData.displayName || auth.currentUser.email.split('@')[0],
+        displayName: auth.currentUser.displayName || extraData.displayName || auth.currentUser.email?.split('@')[0],
         hasPurchased,
         hasPurchasedPdf: hasPurchased,
-        licenseKey: extraData.licenseKey || localPurchase?.licenseKey || (hasPurchased ? 'MENTICO-IN-7701-VIP' : null),
-        ...extraData,
+        licenseKey,
       };
     }
     return null;

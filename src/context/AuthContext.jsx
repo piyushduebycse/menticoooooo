@@ -78,6 +78,8 @@ export function AuthProvider({ children }) {
 
   const markPurchased = (purchaseData = {}) => {
     setUser((prev) => {
+      const email = purchaseData.email || prev?.email;
+      const uid = prev?.uid || purchaseData.userId;
       const updated = {
         ...(prev || {}),
         hasPurchased: true,
@@ -85,19 +87,17 @@ export function AuthProvider({ children }) {
         licenseKey: purchaseData.licenseKey || prev?.licenseKey || 'MENTICO-IN-7701-VIP',
         ...purchaseData,
       };
-      if (prev?.uid) {
-        try {
-          localStorage.setItem(`mentico_purchased_${prev.uid}`, JSON.stringify({
-            hasPurchased: true,
-            hasPurchasedPdf: true,
-            licenseKey: updated.licenseKey,
-            ...purchaseData,
-            timestamp: Date.now(),
-          }));
-        } catch (e) {
-          console.warn('[AuthContext] LocalStorage write error:', e);
-        }
+
+      if (uid || email) {
+        firebaseAuthService.savePurchase(uid, {
+          ...purchaseData,
+          email,
+          licenseKey: updated.licenseKey,
+        }).catch((err) => {
+          console.warn('[AuthContext] savePurchase error:', err);
+        });
       }
+
       return updated;
     });
   };

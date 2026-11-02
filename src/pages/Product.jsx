@@ -24,6 +24,7 @@ import Spinner from '../components/Spinner';
 import PdfHighlightsModal from '../components/PdfHighlightsModal';
 import { openRazorpayCheckout } from '../services/razorpay';
 import { trackCheckoutInitiated, trackPurchaseSuccess } from '../services/analytics';
+import { firebaseAuthService } from '../services/firebase';
 import confetti from 'canvas-confetti';
 
 export default function Product() {
@@ -140,7 +141,21 @@ export default function Product() {
               licenseKey: verifyData.licenseKey,
               orderId: paymentResponse.razorpay_order_id,
               paymentId: paymentResponse.razorpay_payment_id,
+              email: user?.email,
+              userId: user?.uid,
             });
+          }
+
+          try {
+            await firebaseAuthService.savePurchase(user?.uid, {
+              licenseKey: verifyData.licenseKey,
+              orderId: paymentResponse.razorpay_order_id,
+              paymentId: paymentResponse.razorpay_payment_id,
+              email: user?.email,
+              userId: user?.uid,
+            });
+          } catch (e) {
+            console.warn('[Product] Client direct savePurchase notice:', e);
           }
 
           if (typeof refreshUser === 'function') {

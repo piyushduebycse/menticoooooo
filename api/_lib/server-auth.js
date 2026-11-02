@@ -47,7 +47,7 @@ export async function verifyAuthUser(req, res) {
     const userDoc = await adminDb.collection('users').doc(decodedToken.uid).get();
     if (userDoc.exists) {
       userData = userDoc.data();
-      hasPurchased = Boolean(userData.hasPurchased ?? userData.hasPurchasedPdf ?? false);
+      hasPurchased = Boolean(userData.hasPurchased || userData.hasPurchasedPdf || false);
     }
   } catch (dbErr) {
     console.error('[Server Auth] User profile lookup failed:', dbErr);

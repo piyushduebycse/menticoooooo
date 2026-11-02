@@ -14,7 +14,7 @@ service cloud.firestore {
         && !request.resource.data.keys().hasAny(['licenseKey', 'purchasedAt']);
       allow update: if request.auth != null && request.auth.uid == userId
         && request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['displayName', 'updatedAt']);
+          .hasOnly(['displayName', 'updatedAt', 'hasPurchased', 'hasPurchasedPdf', 'licenseKey', 'purchasedAt', 'orderId', 'paymentId']);
       allow delete: if false;
     }
 

@@ -40,7 +40,7 @@ export default function Login() {
       return;
     }
 
-    if (loggedInUser?.hasPurchased) {
+    if (loggedInUser?.hasPurchased || loggedInUser?.hasPurchasedPdf) {
       navigate('/library', { replace: true });
     } else {
       navigate('/purchase', { replace: true });
