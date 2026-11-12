@@ -330,17 +330,9 @@ export default function Home() {
             </div>
 
             <div className="mentico-hero-media-wrapper">
-              <div className="mentico-hero-decorative-text">
-                More Confidence
-                <br />
-                More real conversations
-                <br />
-                A freer you
-              </div>
-
               <img
                 src="/images/hero_person_cliff.jpg"
-                alt="Man sitting freely on a cliff overlooking sunset and city"
+                alt="Man sitting freely on a cliff overlooking sunset and city - More Confidence, More real conversations, A freer you"
                 className="mentico-hero-image"
                 loading="eager"
               />

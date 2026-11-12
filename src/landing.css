@@ -317,22 +317,6 @@
   border: 1px solid var(--border-light);
 }
 
-.mentico-hero-decorative-text {
-  position: absolute;
-  top: -15px;
-  left: -20px;
-  font-family: var(--font-decorative);
-  font-weight: 500;
-  font-style: italic;
-  font-size: 26px;
-  line-height: 1.25;
-  color: var(--color-decorative);
-  transform: rotate(-6deg);
-  pointer-events: none;
-  text-shadow: 0 2px 10px rgba(250, 246, 240, 0.8);
-  z-index: 2;
-}
-
 /* Feature Highlights Bar */
 .mentico-features-bar {
   margin-top: 24px;
@@ -1416,11 +1400,6 @@
     justify-content: center;
   }
 
-  .mentico-hero-decorative-text {
-    left: 10%;
-    top: -20px;
-  }
-
   .mentico-learn-grid {
     grid-template-columns: repeat(4, 1fr);
   }
@@ -1528,12 +1507,6 @@
     padding: 0 28px;
     width: 100%;
     max-width: 350px;
-  }
-
-  .mentico-hero-decorative-text {
-    font-size: 20px;
-    left: 4px;
-    top: -15px;
   }
 
   /* Feature bar */
