@@ -950,15 +950,15 @@
 .mentico-sneak-carousel {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-top: 20px;
 }
 
 .mentico-carousel-btn {
   background-color: #FFFFFF;
   border: 1px solid var(--border-light);
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -967,11 +967,13 @@
   color: var(--color-primary-heading);
   flex-shrink: 0;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .mentico-carousel-btn:hover {
   background-color: #FAF4ED;
   border-color: #CBB4A0;
+  transform: scale(1.06);
 }
 
 .mentico-sneak-items {
@@ -982,26 +984,95 @@
 }
 
 .mentico-sneak-card {
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
   border: 1px solid var(--border-light);
   cursor: pointer;
   transition: all 0.25s ease;
   background-color: #FFFFFF;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(40, 25, 15, 0.05);
+  height: 155px;
+  text-align: left;
 }
 
 .mentico-sneak-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(40, 25, 15, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 22px rgba(40, 25, 15, 0.14);
   border-color: #B38662;
 }
 
-.mentico-sneak-thumb {
+.mentico-sneak-card-header {
+  padding: 8px 10px 4px;
+  background-color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mentico-sneak-card-badge {
+  font-family: var(--font-label);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--color-terracotta);
+  line-height: 1.2;
+}
+
+.mentico-sneak-card-title {
+  font-family: var(--font-primary-heading);
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-primary-heading);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mentico-sneak-card-art-wrap {
+  position: relative;
   width: 100%;
-  height: 100px;
+  height: 85px;
+  overflow: hidden;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.mentico-sneak-card-art {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.35s ease;
+}
+
+.mentico-sneak-card:hover .mentico-sneak-card-art {
+  transform: scale(1.06);
+}
+
+.mentico-sneak-card-zoom {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  border-radius: 4px;
+  padding: 2px 5px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--color-primary-heading);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.mentico-sneak-card:hover .mentico-sneak-card-zoom {
+  opacity: 1;
 }
 
 /* Card: "This Book is for You If..." */
@@ -1664,8 +1735,33 @@
     padding: 24px 20px;
   }
 
+  .mentico-sneak-carousel {
+    gap: 8px;
+  }
+
   .mentico-sneak-items {
     grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .mentico-sneak-card {
+    height: 145px;
+  }
+
+  .mentico-sneak-card-header {
+    padding: 6px 8px 3px;
+  }
+
+  .mentico-sneak-card-badge {
+    font-size: 8.5px;
+  }
+
+  .mentico-sneak-card-title {
+    font-size: 11px;
+  }
+
+  .mentico-sneak-card-art-wrap {
+    height: 80px;
   }
 
   .mentico-card-for-you {

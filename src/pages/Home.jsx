@@ -79,36 +79,48 @@ export default function Home() {
   const sneakPeekItems = [
     {
       id: 1,
-      title: 'A Real Truth • Social Confidence Without the Hype',
-      thumb: '/images/sneak_1.jpg',
-      full: '/images/book_open_preview.jpg',
+      badge: 'A Real Truth',
+      title: 'Social Confidence Without the Hype',
+      art: '/images/sneak_art_1.jpg',
+      full: '/images/preview_confidence_formula.jpg',
     },
     {
       id: 2,
+      badge: 'Framework',
       title: 'The Conversation Engine',
-      thumb: '/images/sneak_2.jpg',
-      full: '/images/book_open_preview.jpg',
+      art: '/images/sneak_art_2.jpg',
+      full: '/images/preview_frameworks.jpg',
     },
     {
       id: 3,
+      badge: 'Action Plan',
       title: 'The 30-Day Challenge',
-      thumb: '/images/sneak_3.jpg',
-      full: '/images/book_open_preview.jpg',
+      art: '/images/sneak_art_3.jpg',
+      full: '/images/preview_30day_challenge.jpg',
     },
     {
       id: 4,
+      badge: 'Quick Reference',
       title: 'Final Field Card',
-      thumb: '/images/sneak_4.jpg',
+      art: '/images/sneak_art_4.jpg',
       full: '/images/book_open_preview.jpg',
     },
   ];
 
   const handleCarouselNext = () => {
-    setCarouselIndex((prev) => (prev + 1) % sneakPeekItems.length);
+    setCarouselIndex((prev) => {
+      const nextIdx = (prev + 1) % sneakPeekItems.length;
+      setLightboxImage(sneakPeekItems[nextIdx]);
+      return nextIdx;
+    });
   };
 
   const handleCarouselPrev = () => {
-    setCarouselIndex((prev) => (prev - 1 + sneakPeekItems.length) % sneakPeekItems.length);
+    setCarouselIndex((prev) => {
+      const prevIdx = (prev - 1 + sneakPeekItems.length) % sneakPeekItems.length;
+      setLightboxImage(sneakPeekItems[prevIdx]);
+      return prevIdx;
+    });
   };
 
   const faqItems = [
@@ -800,22 +812,37 @@ export default function Home() {
                 className="mentico-carousel-btn"
                 aria-label="Previous preview"
               >
-                <ChevronLeft size={20} />
+                <ChevronLeft size={18} />
               </button>
 
               <div className="mentico-sneak-items">
-                {sneakPeekItems.map((item, idx) => (
+                {sneakPeekItems.map((item) => (
                   <div
                     key={item.id}
                     className="mentico-sneak-card"
                     onClick={() => setLightboxImage(item)}
-                    title="Click to view full preview spread"
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setLightboxImage(item);
+                      }
+                    }}
+                    title={`Click to view spread: ${item.title}`}
                   >
-                    <img
-                      src={item.thumb}
-                      alt={item.title}
-                      className="mentico-sneak-thumb"
-                    />
+                    <div className="mentico-sneak-card-header">
+                      <span className="mentico-sneak-card-badge">{item.badge}</span>
+                      <h4 className="mentico-sneak-card-title">{item.title}</h4>
+                    </div>
+                    <div className="mentico-sneak-card-art-wrap">
+                      <img
+                        src={item.art}
+                        alt={item.title}
+                        className="mentico-sneak-card-art"
+                        loading="lazy"
+                      />
+                      <span className="mentico-sneak-card-zoom">Preview ↗</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -826,7 +853,7 @@ export default function Home() {
                 className="mentico-carousel-btn"
                 aria-label="Next preview"
               >
-                <ChevronRight size={20} />
+                <ChevronRight size={18} />
               </button>
             </div>
           </div>
@@ -1037,18 +1064,48 @@ export default function Home() {
             >
               <X size={20} />
             </button>
-            <img
-              src={lightboxImage.full}
-              alt={lightboxImage.title}
-              className="mentico-lightbox-img"
-            />
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+              <button
+                type="button"
+                onClick={() => {
+                  const currentIdx = sneakPeekItems.findIndex((it) => it.id === lightboxImage.id);
+                  const prevIdx = (currentIdx - 1 + sneakPeekItems.length) % sneakPeekItems.length;
+                  setLightboxImage(sneakPeekItems[prevIdx]);
+                }}
+                className="mentico-carousel-btn"
+                style={{ position: 'absolute', left: '16px', zIndex: 5, boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}
+                aria-label="Previous preview spread"
+              >
+                <ChevronLeft size={22} />
+              </button>
+
+              <img
+                src={lightboxImage.full}
+                alt={lightboxImage.title}
+                className="mentico-lightbox-img"
+              />
+
+              <button
+                type="button"
+                onClick={() => {
+                  const currentIdx = sneakPeekItems.findIndex((it) => it.id === lightboxImage.id);
+                  const nextIdx = (currentIdx + 1) % sneakPeekItems.length;
+                  setLightboxImage(sneakPeekItems[nextIdx]);
+                }}
+                className="mentico-carousel-btn"
+                style={{ position: 'absolute', right: '16px', zIndex: 5, boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}
+                aria-label="Next preview spread"
+              >
+                <ChevronRight size={22} />
+              </button>
+            </div>
             <div className="mentico-lightbox-caption">
               <div>
                 <strong style={{ display: 'block', color: 'var(--color-primary-heading)' }}>
                   {lightboxImage.title}
                 </strong>
                 <span style={{ fontSize: '13.5px', color: 'var(--color-body)' }}>
-                  Complete field guide preview spread
+                  Complete field guide preview spread • Click arrows to view chapters
                 </span>
               </div>
               <button
