@@ -415,10 +415,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 5. Section Pair: Familiar vs 30-Day Challenge */}
-        <div className="mentico-container mentico-section-row">
-          {/* Card: Does This Sound Familiar? */}
-          <div className="mentico-card-familiar">
+        {/* 5. Problem: Does This Sound Familiar? */}
+        <section className="mentico-container" style={{ marginBottom: '36px' }}>
+          <div className="mentico-card-familiar mentico-card-familiar-full">
             <img
               src="/images/familiar_thinking_man.jpg"
               alt="Thoughtful man reflecting in warm lighting"
@@ -426,7 +425,7 @@ export default function Home() {
             />
             <div className="mentico-card-familiar-content">
               <h2 className="mentico-card-familiar-title">Does This Sound Familiar?</h2>
-              <ul className="mentico-familiar-list">
+              <ul className="mentico-familiar-list mentico-familiar-list-2col">
                 <li className="mentico-familiar-item">
                   <Check className="mentico-check-icon" size={18} />
                   <span>You overthink before approaching someone.</span>
@@ -454,9 +453,92 @@ export default function Home() {
               </ul>
             </div>
           </div>
+        </section>
 
-          {/* Card: The 30-Day Social Freedom Challenge */}
-          <div className="mentico-card-challenge" id="challenge">
+        {/* 6. Audience Identification: Who Should Read Social Freedom? */}
+        <section className="mentico-who-section">
+          <div className="mentico-container">
+            <div className="mentico-who-header">
+              <h2 className="mentico-who-heading">
+                Who Should Read <span className="mentico-who-heading-accent">Social Freedom?</span>
+              </h2>
+              <p className="mentico-who-subtitle">
+                If you relate to any of these, this book is for you.
+              </p>
+              <div className="mentico-who-divider" />
+            </div>
+
+            <div className="mentico-who-cards">
+              {/* Card 1: Students and young adults */}
+              <div className="mentico-who-card">
+                <img
+                  src="/images/who_students_sq.jpg"
+                  alt="Students and young adults"
+                  className="mentico-who-card-img"
+                  loading="lazy"
+                />
+                <div className="mentico-who-card-body">
+                  <h3 className="mentico-who-card-title">Students and young adults</h3>
+                  <p className="mentico-who-card-desc">
+                    Who want to become more socially comfortable.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 2: Working professionals */}
+              <div className="mentico-who-card">
+                <img
+                  src="/images/who_professionals_sq.jpg"
+                  alt="Working professionals"
+                  className="mentico-who-card-img"
+                  loading="lazy"
+                />
+                <div className="mentico-who-card-body">
+                  <h3 className="mentico-who-card-title">Working professionals</h3>
+                  <p className="mentico-who-card-desc">
+                    Who want to improve communication and networking.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 3: Overthinkers and introverts */}
+              <div className="mentico-who-card">
+                <img
+                  src="/images/who_introverts_sq.jpg"
+                  alt="Overthinkers and introverts"
+                  className="mentico-who-card-img"
+                  loading="lazy"
+                />
+                <div className="mentico-who-card-body">
+                  <h3 className="mentico-who-card-title">Overthinkers and introverts</h3>
+                  <p className="mentico-who-card-desc">
+                    Who want to participate more comfortably in social situations.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 4: People starting afresh */}
+              <div className="mentico-who-card">
+                <img
+                  src="/images/who_afresh_sq.jpg"
+                  alt="People starting afresh"
+                  className="mentico-who-card-img"
+                  loading="lazy"
+                />
+                <div className="mentico-who-card-body">
+                  <h3 className="mentico-who-card-title">People starting afresh</h3>
+                  <p className="mentico-who-card-desc">
+                    Who want to expand their social circle and make new connections.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 7. Action / Solution: The 30-Day Social Freedom Challenge */}
+        <section className="mentico-container" style={{ marginBottom: '36px' }} id="challenge">
+          <div className="mentico-card-challenge mentico-card-challenge-full">
             <div>
               <h2 className="mentico-section-heading" style={{ marginBottom: '6px' }}>
                 The 30-Day Social Freedom Challenge
@@ -499,7 +581,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
         {/* 6. Section Pair: Not a Pickup-Line Book vs The Confidence Formula */}
         <div className="mentico-container mentico-section-row">
