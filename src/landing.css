@@ -315,6 +315,24 @@
   box-shadow: 0 16px 40px -10px rgba(78, 35, 19, 0.18);
   /* Smooth mask/blend for warm sunset integration */
   border: 1px solid var(--border-light);
+  display: block;
+}
+
+.mentico-hero-script-overlay {
+  position: absolute;
+  top: 14%;
+  left: 8%;
+  z-index: 5;
+  font-family: var(--font-decorative);
+  font-style: italic;
+  font-weight: 600;
+  font-size: 26px;
+  line-height: 1.25;
+  color: #381A0E;
+  transform: rotate(-6deg);
+  pointer-events: none;
+  text-shadow: 0 1px 8px rgba(255, 245, 230, 0.85), 0 0 2px rgba(255, 255, 255, 0.9);
+  user-select: none;
 }
 
 /* Feature Highlights Bar */
@@ -1398,6 +1416,13 @@
 
   .mentico-hero-media-wrapper {
     justify-content: center;
+    margin: 0 auto;
+  }
+
+  .mentico-hero-script-overlay {
+    font-size: 24px;
+    top: 12%;
+    left: 8%;
   }
 
   .mentico-learn-grid {
@@ -1507,6 +1532,13 @@
     padding: 0 28px;
     width: 100%;
     max-width: 350px;
+  }
+
+  .mentico-hero-script-overlay {
+    font-size: 18px;
+    top: 10%;
+    left: 8%;
+    line-height: 1.25;
   }
 
   /* Feature bar */
