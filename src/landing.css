@@ -916,11 +916,12 @@
 }
 
 .mentico-review-avatar {
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid #E8DACB;
+  box-shadow: 0 2px 8px rgba(40, 25, 15, 0.08);
 }
 
 .mentico-review-quote {

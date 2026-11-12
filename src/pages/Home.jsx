@@ -123,6 +123,52 @@ export default function Home() {
     });
   };
 
+  const initialTestimonials = [
+    {
+      id: 1,
+      author: '— Amit, 26',
+      quote:
+        '"This helped me stop overthinking and actually start talking to people. The 30-day challenge is super practical."',
+      avatar: '/images/testimonial_avatar_1.jpg',
+    },
+    {
+      id: 2,
+      author: '— Rohan, 24',
+      quote:
+        '"I feel more confident in social situations and conversations that I actually enjoy now. It\'s not theory, it\'s real life."',
+      avatar: '/images/testimonial_avatar_2.jpg',
+    },
+    {
+      id: 3,
+      author: '— Karan, 28',
+      quote:
+        '"Not just about dating, this improved my overall social life. Very practical and well-structured."',
+      avatar: '/images/testimonial_avatar_3.jpg',
+    },
+  ];
+
+  const [testimonialsList, setTestimonialsList] = useState(initialTestimonials);
+
+  useEffect(() => {
+    // Randomize avatar images dynamically across testimonials on load
+    const pool = [
+      '/images/testimonial_avatar_1.jpg',
+      '/images/testimonial_avatar_2.jpg',
+      '/images/testimonial_avatar_3.jpg',
+    ];
+    const shuffled = [...pool];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    setTestimonialsList((prev) =>
+      prev.map((item, idx) => ({
+        ...item,
+        avatar: shuffled[idx % shuffled.length],
+      }))
+    );
+  }, []);
+
   const faqItems = [
     {
       question: 'What format is the book?',
@@ -750,50 +796,20 @@ export default function Home() {
             <h2 className="mentico-section-heading">Real People. Real Progress.</h2>
 
             <div className="mentico-reviews-grid">
-              <div className="mentico-review-box">
-                <div className="mentico-review-avatar-wrap">
-                  <img
-                    src="/images/avatar_amit.jpg"
-                    alt="Amit"
-                    className="mentico-review-avatar"
-                  />
+              {testimonialsList.map((review) => (
+                <div key={review.id} className="mentico-review-box">
+                  <div className="mentico-review-avatar-wrap">
+                    <img
+                      src={review.avatar}
+                      alt={review.author}
+                      className="mentico-review-avatar"
+                      loading="lazy"
+                    />
+                  </div>
+                  <p className="mentico-review-quote">{review.quote}</p>
+                  <span className="mentico-review-author">{review.author}</span>
                 </div>
-                <p className="mentico-review-quote">
-                  "This helped me stop overthinking and actually start talking to people. The
-                  30-day challenge is super practical."
-                </p>
-                <span className="mentico-review-author">— Amit, 26</span>
-              </div>
-
-              <div className="mentico-review-box">
-                <div className="mentico-review-avatar-wrap">
-                  <img
-                    src="/images/avatar_rohan.jpg"
-                    alt="Rohan"
-                    className="mentico-review-avatar"
-                  />
-                </div>
-                <p className="mentico-review-quote">
-                  "I feel more confident in social situations and conversations that I actually
-                  enjoy now. It's not theory, it's real life."
-                </p>
-                <span className="mentico-review-author">— Rohan, 24</span>
-              </div>
-
-              <div className="mentico-review-box">
-                <div className="mentico-review-avatar-wrap">
-                  <img
-                    src="/images/avatar_karan.jpg"
-                    alt="Karan"
-                    className="mentico-review-avatar"
-                  />
-                </div>
-                <p className="mentico-review-quote">
-                  "Not just about dating, this improved my overall social life. Very practical and
-                  well-structured."
-                </p>
-                <span className="mentico-review-author">— Karan, 28</span>
-              </div>
+              ))}
             </div>
           </div>
         </div>
