@@ -7,6 +7,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // 7 Core Pages Lazy-Loaded for Instant Initial Page Load
 const Home = lazy(() => import('./pages/Home'));
@@ -63,45 +64,47 @@ function AppLayout() {
     <div className={`app-wrapper ${isLandingPage ? 'landing-mode' : ''}`}>
       {!isLandingPage && <Navbar />}
       <main className={isLandingPage ? 'landing-main-content' : 'main-content'}>
-        <Suspense fallback={<PageLoadingFallback />}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/about" element={<About />} />
-            
-            {/* Purchase Route (requires authentication, redirects unauthenticated to /login?redirect=/purchase) */}
-            <Route
-              path="/purchase"
-              element={
-                <ProtectedRoute>
-                  <Product />
-                </ProtectedRoute>
-              }
-            />
-            {/* Backward-compatibility alias for /product */}
-            <Route path="/product" element={<Navigate to="/purchase" replace />} />
+        <ErrorBoundary>
+          <Suspense fallback={<PageLoadingFallback />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/about" element={<About />} />
+              
+              {/* Purchase Route (requires authentication, redirects unauthenticated to /login?redirect=/purchase) */}
+              <Route
+                path="/purchase"
+                element={
+                  <ProtectedRoute>
+                    <Product />
+                  </ProtectedRoute>
+                }
+              />
+              {/* Backward-compatibility alias for /product */}
+              <Route path="/product" element={<Navigate to="/purchase" replace />} />
 
-            {/* Library Download Route (requires authentication AND active purchase) */}
-            <Route
-              path="/library"
-              element={
-                <ProtectedRoute requirePurchase={true}>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            {/* Backward-compatibility alias for /dashboard */}
-            <Route path="/dashboard" element={<Navigate to="/library" replace />} />
-            {/* Direct alias for PDF reader */}
-            <Route path="/reader" element={<Navigate to="/library?openPdf=true" replace />} />
+              {/* Library Download Route (requires authentication AND active purchase) */}
+              <Route
+                path="/library"
+                element={
+                  <ProtectedRoute requirePurchase={true}>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              {/* Backward-compatibility alias for /dashboard */}
+              <Route path="/dashboard" element={<Navigate to="/library" replace />} />
+              {/* Direct alias for PDF reader */}
+              <Route path="/reader" element={<Navigate to="/library?openPdf=true" replace />} />
 
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/legal" element={<Legal />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/legal" element={<Legal />} />
 
-            {/* Fallback route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
+              {/* Fallback route */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </main>
       {!isLandingPage && <Footer />}
       <AuthModal />

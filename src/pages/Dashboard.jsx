@@ -23,6 +23,7 @@ import { useSearchParams, useLocation } from 'react-router-dom';
 import Spinner from '../components/Spinner';
 import { DashboardSkeleton } from '../components/SkeletonLoader';
 import ProtectedPdfReader from '../components/ProtectedPdfReader';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -117,7 +118,7 @@ export default function Dashboard() {
                   fontSize: '1.35rem',
                 }}
               >
-                {(user?.displayName || user?.email || 'ST')
+                {String(user?.displayName || user?.email || 'ST')
                   .slice(0, 2)
                   .toUpperCase()}
               </div>
@@ -455,12 +456,14 @@ export default function Dashboard() {
           IN-APP PDF READER MODAL (DISPLAYS THE REAL 12.6 MB PDF)
           ================================================================== */}
       {isPdfViewerOpen && (
-        <ProtectedPdfReader
-          bookId="social-freedom"
-          pdfUrl="/api/pdf/social-freedom"
-          user={user}
-          onClose={() => setIsPdfViewerOpen(false)}
-        />
+        <ErrorBoundary>
+          <ProtectedPdfReader
+            bookId="social-freedom"
+            pdfUrl="/api/pdf/social-freedom"
+            user={user}
+            onClose={() => setIsPdfViewerOpen(false)}
+          />
+        </ErrorBoundary>
       )}
     </div>
   );

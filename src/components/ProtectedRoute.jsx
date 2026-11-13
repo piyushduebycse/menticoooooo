@@ -34,9 +34,11 @@ export default function ProtectedRoute({ children, requirePurchase = false, gues
     );
   }
 
+  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf);
+
   // If page is for guests only (e.g. /login) and user is already logged in
   if (guestOnly && user) {
-    if (user.hasPurchased) {
+    if (hasPurchased) {
       return <Navigate to="/library" replace />;
     }
     return <Navigate to="/purchase" replace />;
@@ -49,7 +51,7 @@ export default function ProtectedRoute({ children, requirePurchase = false, gues
   }
 
   // If page requires active purchase and user has not purchased yet
-  if (requirePurchase && user && !user.hasPurchased) {
+  if (requirePurchase && user && !hasPurchased) {
     return <Navigate to="/purchase" replace />;
   }
 

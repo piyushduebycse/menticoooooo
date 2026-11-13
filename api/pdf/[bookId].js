@@ -16,7 +16,13 @@ import { getR2Client, resolveBook } from '../_lib/r2-client.js';
  */
 export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser } = {}) {
   // 1. CORS & Preflight handling
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.headers?.origin;
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
   res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Authorization, Range, Content-Type');
   res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length, Content-Type');

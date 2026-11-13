@@ -16,8 +16,14 @@ import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { useAuth } from '../context/AuthContext';
 
-// Set worker source using Vite's ?url import
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+// Set worker source using Vite's ?url import with safe fallback
+try {
+  if (pdfjsLib?.GlobalWorkerOptions) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+  }
+} catch (e) {
+  console.warn('[PDF Reader] Notice: workerSrc top-level initialization deferred:', e?.message);
+}
 
 export default function ProtectedPdfReader({
   pdfUrl = '/api/pdf/social-freedom',
@@ -140,6 +146,13 @@ export default function ProtectedPdfReader({
 
         const httpHeaders = idToken ? { Authorization: `Bearer ${idToken}` } : {};
 
+        // Ensure worker is assigned before initiating document load
+        try {
+          if (pdfjsLib?.GlobalWorkerOptions && !pdfjsLib.GlobalWorkerOptions.workerSrc) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
+          }
+        } catch {}
+
         /**
          * PDF.js Range-Streaming Configuration:
          * - disableRange: false -> Enables HTTP 206 Partial Content byte ranges
@@ -150,7 +163,6 @@ export default function ProtectedPdfReader({
         const loadingTask = pdfjsLib.getDocument({
           url: resolvedUrl,
           httpHeaders,
-          withCredentials: true,
           disableRange: false,
           disableStream: false,
           disableAutoFetch: true,
@@ -534,15 +546,27 @@ export default function ProtectedPdfReader({
             <p style={{ fontSize: '0.85rem', color: '#9CA3AF', marginBottom: '1.5rem', maxWidth: '400px', margin: '0 auto 1.5rem' }}>
               Your Mentico license is active. Access is strictly delivered via this protected DRM environment. Click below to reload the reader.
             </p>
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              className="btn btn-primary"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800 }}
-            >
-              <RotateCw size={16} />
-              <span>Reload Protected Reader</span>
-            </button>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="btn btn-primary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800 }}
+              >
+                <RotateCw size={16} />
+                <span>Reload Protected Reader</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="btn btn-secondary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}
+              >
+                <X size={16} />
+                <span>Exit Reader</span>
+              </button>
+            </div>
           </div>
         )}
 
