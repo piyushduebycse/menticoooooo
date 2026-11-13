@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { Lock, Unlock, LogOut, Menu, X, ArrowRight } from 'lucide-react';
-import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 
 export default function Navbar() {
   const { user, logout, openAuthModal } = useAuth();
-  const { isDark } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -40,7 +37,7 @@ export default function Navbar() {
         {/* Brand Logo */}
         <Link to="/" className="brand-logo" onClick={() => setMobileMenuOpen(false)} aria-label="Mentico Home">
           <img
-            src={isDark ? "/logo-trans-dark.png" : "/logo-trans-light.png"}
+            src="/logo-trans-light.png"
             alt="MENTICO"
             className="brand-logo-img"
           />
@@ -74,11 +71,8 @@ export default function Navbar() {
           ))}
         </ul>
 
-        {/* Nav Actions: Day/Night Toggle + CTA */}
+        {/* Nav Actions: CTA */}
         <div className="nav-actions">
-          {/* Day/Night Theme Toggle */}
-          <ThemeToggle />
-
           {/* User Account or Blueprint CTA Button */}
           {user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>

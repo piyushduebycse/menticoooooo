@@ -2,11 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, Sparkles, Terminal, ArrowUpRight, Heart, Users } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 
 export default function Footer() {
   const { isRealFirebase, user } = useAuth();
-  const { isDark } = useTheme();
   const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf);
 
   return (
@@ -18,7 +16,7 @@ export default function Footer() {
             <div style={{ marginBottom: '1.25rem' }}>
               <Link to="/" className="brand-logo" aria-label="Mentico Home">
                 <img
-                  src={isDark ? "/logo-trans-dark.png" : "/logo-trans-light.png"}
+                  src="/logo-trans-light.png"
                   alt="MENTICO"
                   className="brand-logo-img"
                   style={{ height: '32px' }}
