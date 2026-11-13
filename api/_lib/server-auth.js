@@ -20,8 +20,9 @@ export async function verifyAuthUser(req, res) {
 
   let adminAuth;
   let adminDb;
+  let adminRtdb;
   try {
-    ({ adminAuth, adminDb } = getFirebaseAdmin());
+    ({ adminAuth, adminDb, adminRtdb } = getFirebaseAdmin());
   } catch (err) {
     console.error('[Server Auth] Firebase Admin is unavailable:', err);
     res.status(503).json({ success: false, error: 'Firebase authentication is unavailable.' });
@@ -39,20 +40,49 @@ export async function verifyAuthUser(req, res) {
     return null;
   }
 
-  // 2. Fetch purchase status from Firestore/in-memory DB
+  // 2. Fetch purchase status from Firebase Realtime Database and/or Firestore
   let hasPurchased = false;
   let userData = {};
 
-  try {
-    const userDoc = await adminDb.collection('users').doc(decodedToken.uid).get();
-    if (userDoc.exists) {
-      userData = userDoc.data();
-      hasPurchased = Boolean(userData.hasPurchased || userData.hasPurchasedPdf || false);
+  // Check Firebase Realtime Database
+  if (adminRtdb) {
+    try {
+      const userSnap = await adminRtdb.ref(`users/${decodedToken.uid}`).once('value');
+      if (userSnap.exists()) {
+        const val = userSnap.val() || {};
+        userData = { ...val };
+        if (val.hasPurchased || val.hasPurchasedPdf) {
+          hasPurchased = true;
+        }
+      }
+      if (!hasPurchased) {
+        const purchaseSnap = await adminRtdb.ref(`purchases/${decodedToken.uid}`).once('value');
+        if (purchaseSnap.exists()) {
+          const pVal = purchaseSnap.val() || {};
+          if (pVal.hasPurchased || pVal.hasPurchasedPdf || pVal.status === 'paid' || pVal.active) {
+            hasPurchased = true;
+          }
+        }
+      }
+    } catch (rtdbErr) {
+      console.warn('[Server Auth] RTDB lookup notice:', rtdbErr.message);
     }
-  } catch (dbErr) {
-    console.error('[Server Auth] User profile lookup failed:', dbErr);
-    res.status(503).json({ success: false, error: 'Could not check purchase status.' });
-    return null;
+  }
+
+  // Check Cloud Firestore (existing project database)
+  if (!hasPurchased && adminDb) {
+    try {
+      const userDoc = await adminDb.collection('users').doc(decodedToken.uid).get();
+      if (userDoc.exists) {
+        const fData = userDoc.data() || {};
+        userData = { ...userData, ...fData };
+        if (fData.hasPurchased || fData.hasPurchasedPdf) {
+          hasPurchased = true;
+        }
+      }
+    } catch (dbErr) {
+      console.warn('[Server Auth] Firestore user profile lookup notice:', dbErr.message);
+    }
   }
 
   return {

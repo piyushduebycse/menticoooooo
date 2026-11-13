@@ -456,7 +456,8 @@ export default function Dashboard() {
           ================================================================== */}
       {isPdfViewerOpen && (
         <ProtectedPdfReader
-          pdfUrl="/Mentico_Mastery_Blueprint.pdf"
+          bookId="social-freedom"
+          pdfUrl="/api/pdf/social-freedom"
           user={user}
           onClose={() => setIsPdfViewerOpen(false)}
         />

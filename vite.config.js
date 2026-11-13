@@ -1,6 +1,7 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,8 +15,30 @@ function vercelApiDevPlugin() {
           return next();
         }
 
-        const urlPath = req.url.split('?')[0].replace(/^\/api\//, '');
-        const filePath = path.resolve(__dirname, 'api', `${urlPath}.js`);
+        const urlParts = req.url.split('?');
+        const urlPath = urlParts[0].replace(/^\/api\//, '');
+        let filePath = path.resolve(__dirname, 'api', `${urlPath}.js`);
+        let routeQuery = {};
+
+        // Parse query params
+        if (urlParts[1]) {
+          const searchParams = new URLSearchParams(urlParts[1]);
+          routeQuery = Object.fromEntries(searchParams.entries());
+        }
+
+        // Support dynamic serverless routes e.g. api/pdf/[bookId].js
+        if (!fs.existsSync(filePath)) {
+          const segments = urlPath.split('/');
+          if (segments.length === 2 && segments[0] === 'pdf') {
+            const dynamicPath = path.resolve(__dirname, 'api', 'pdf', '[bookId].js');
+            if (fs.existsSync(dynamicPath)) {
+              filePath = dynamicPath;
+              routeQuery.bookId = segments[1];
+            }
+          }
+        }
+
+        req.query = { ...(req.query || {}), ...routeQuery };
 
         try {
           // Parse JSON body for incoming requests

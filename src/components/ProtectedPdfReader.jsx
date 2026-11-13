@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -7,26 +7,28 @@ import {
   ZoomIn,
   ZoomOut,
   RotateCw,
-  Shield,
   Lock,
   X,
-  BookOpen,
   AlertTriangle,
   List,
 } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import { useAuth } from '../context/AuthContext';
 
 // Set worker source using Vite's ?url import
 pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 export default function ProtectedPdfReader({
-  pdfUrl = '/Mentico_Mastery_Blueprint.pdf',
+  pdfUrl = '/api/pdf/social-freedom',
+  bookId = 'social-freedom',
   user,
   onClose,
 }) {
+  const { getIdToken } = useAuth();
   const [pdfDoc, setPdfDoc] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(90);
   const getInitialScale = () => {
     if (typeof window !== 'undefined') {
       const w = window.innerWidth;
@@ -47,6 +49,7 @@ export default function ProtectedPdfReader({
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
   const renderTaskRef = useRef(null);
+  const loadingTaskRef = useRef(null);
 
   const studentEmail = user?.email || 'student@mentico.com';
   const licenseKey = user?.licenseKey || 'STUDENT_VAULT_2026';
@@ -60,6 +63,32 @@ export default function ProtectedPdfReader({
     { page: 74, title: 'Module 5: The 30-Day Social Freedom Challenge' },
     { page: 86, title: 'Module 6: Summary Cheat Sheets & Final Field Cards' },
   ];
+
+  const triggerDrmWarning = useCallback((msg) => {
+    setDrmToast(msg);
+    setTimeout(() => {
+      setDrmToast('');
+    }, 3000);
+  }, []);
+
+  // Forensic Watermark Baked Directly Into Canvas Pixels
+  const drawCanvasWatermark = useCallback((ctx, width, height, dpr = 1) => {
+    ctx.save();
+    ctx.font = `bold ${Math.round(15 * dpr)}px monospace`;
+    ctx.fillStyle = 'rgba(220, 38, 38, 0.14)';
+    ctx.rotate((-25 * Math.PI) / 180);
+
+    const text = `LICENSED TO: ${studentEmail} • ID: ${licenseKey} • MENTICO PROTECTED VAULT`;
+    const stepX = 360 * dpr;
+    const stepY = 140 * dpr;
+
+    for (let x = -width; x < width * 2; x += stepX) {
+      for (let y = -height; y < height * 2; y += stepY) {
+        ctx.fillText(text, x, y);
+      }
+    }
+    ctx.restore();
+  }, [studentEmail, licenseKey]);
 
   // DRM & Anti-Piracy Keyboard / Right-Click Interception
   useEffect(() => {
@@ -87,69 +116,109 @@ export default function ProtectedPdfReader({
       window.removeEventListener('contextmenu', handleContextMenu);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [triggerDrmWarning]);
 
-  const triggerDrmWarning = (msg) => {
-    setDrmToast(msg);
-    setTimeout(() => {
-      setDrmToast('');
-    }, 3000);
-  };
+  // Resolved PDF Endpoint (R2 Stream via Vercel Serverless Function)
+  const resolvedUrl = bookId ? `/api/pdf/${bookId}` : pdfUrl;
 
-  // Load the PDF Document
+  // Range-Optimized PDF.js Document Loading
   useEffect(() => {
     let isMounted = true;
     setIsLoading(true);
+    setLoadError(null);
 
-    const loadingTask = pdfjsLib.getDocument({
-      url: pdfUrl,
-      disableRange: false,
-    });
+    async function initializePdf() {
+      try {
+        let idToken = null;
+        if (typeof getIdToken === 'function') {
+          try {
+            idToken = await getIdToken();
+          } catch (tokErr) {
+            console.warn('[PDF Reader] Token notice:', tokErr.message);
+          }
+        }
 
-    loadingTask.promise
-      .then((doc) => {
+        const httpHeaders = idToken ? { Authorization: `Bearer ${idToken}` } : {};
+
+        /**
+         * PDF.js Range-Streaming Configuration:
+         * - disableRange: false -> Enables HTTP 206 Partial Content byte ranges
+         * - disableStream: false -> Allows progressive data streaming chunk-by-chunk
+         * - disableAutoFetch: true -> CRITICAL: Stops PDF.js from downloading all 20-50 MB in the background!
+         * - rangeChunkSize: 65536 -> 64 KB chunk size for fastest first-page display
+         */
+        const loadingTask = pdfjsLib.getDocument({
+          url: resolvedUrl,
+          httpHeaders,
+          withCredentials: true,
+          disableRange: false,
+          disableStream: false,
+          disableAutoFetch: true,
+          rangeChunkSize: 65536,
+          cMapPacked: true,
+        });
+
+        loadingTaskRef.current = loadingTask;
+
+        const doc = await loadingTask.promise;
         if (!isMounted) return;
+
         setPdfDoc(doc);
         setTotalPages(doc.numPages);
         setIsLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
+        if (!isMounted) return;
         console.error('PDF Load Error:', err);
-        if (isMounted) {
-          setIsLoading(false);
-          setLoadError(err.message || 'Error loading web PDF reader.');
-        }
-      });
+        setIsLoading(false);
+        setLoadError(err.message || 'Error loading protected PDF document.');
+      }
+    }
+
+    initializePdf();
 
     return () => {
       isMounted = false;
+      if (loadingTaskRef.current) {
+        try {
+          loadingTaskRef.current.destroy();
+        } catch {}
+      }
     };
-  }, [pdfUrl]);
+  }, [resolvedUrl, getIdToken]);
 
-  // Render Page to Canvas + Forensic Watermark directly on Canvas
+  // Render Page to Canvas with DPR optimization + Forensic Watermark
   useEffect(() => {
     if (!pdfDoc || !canvasRef.current) return;
 
     let isCancelled = false;
 
-    // Cancel existing render if page/scale changed rapidly
+    // Cancel existing render task if page or scale changed rapidly
     if (renderTaskRef.current) {
-      renderTaskRef.current.cancel();
+      try {
+        renderTaskRef.current.cancel();
+      } catch {}
     }
 
     pdfDoc.getPage(currentPage).then((page) => {
       if (isCancelled) return;
 
       const canvas = canvasRef.current;
+      if (!canvas) return;
       const context = canvas.getContext('2d');
       const viewport = page.getViewport({ scale });
 
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
+      // Device Pixel Ratio capped at 2 to ensure razor-sharp text without memory bloat
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      canvas.width = Math.floor(viewport.width * dpr);
+      canvas.height = Math.floor(viewport.height * dpr);
+      canvas.style.width = `${viewport.width}px`;
+      canvas.style.height = `${viewport.height}px`;
 
       const renderContext = {
         canvasContext: context,
         viewport,
+        transform: dpr !== 1 ? [dpr, 0, 0, dpr, 0, 0] : null,
       };
 
       const renderTask = page.render(renderContext);
@@ -159,39 +228,28 @@ export default function ProtectedPdfReader({
         .then(() => {
           if (isCancelled) return;
           // Apply forensic watermark directly to the canvas pixels
-          drawCanvasWatermark(context, viewport.width, viewport.height);
+          drawCanvasWatermark(context, viewport.width * dpr, viewport.height * dpr, dpr);
         })
         .catch((err) => {
-          if (err.name !== 'RenderingCancelledException') {
+          if (err?.name !== 'RenderingCancelledException') {
             console.error('Page render error:', err);
           }
         });
+    }).catch((pageErr) => {
+      if (pageErr?.name !== 'RenderingCancelledException') {
+        console.error('Failed to load page:', pageErr);
+      }
     });
 
     return () => {
       isCancelled = true;
       if (renderTaskRef.current) {
-        renderTaskRef.current.cancel();
+        try {
+          renderTaskRef.current.cancel();
+        } catch {}
       }
     };
-  }, [pdfDoc, currentPage, scale]);
-
-  // Forensic Watermark Baked Directly Into Canvas Pixels
-  const drawCanvasWatermark = (ctx, width, height) => {
-    ctx.save();
-    ctx.font = 'bold 15px monospace';
-    ctx.fillStyle = 'rgba(220, 38, 38, 0.14)';
-    ctx.rotate((-25 * Math.PI) / 180);
-
-    const text = `LICENSED TO: ${studentEmail} • ID: ${licenseKey} • MENTICO PROTECTED VAULT`;
-
-    for (let x = -width; x < width * 2; x += 360) {
-      for (let y = -height; y < height * 2; y += 140) {
-        ctx.fillText(text, x, y);
-      }
-    }
-    ctx.restore();
-  };
+  }, [pdfDoc, currentPage, scale, drawCanvasWatermark]);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage((prev) => prev + 1);

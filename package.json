@@ -10,10 +10,11 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "test": "node --test api/_lib/payment-fulfillment.test.js",
+    "test": "node --test api/_lib/pdf-r2-stream.test.js",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1168.0",
     "@vercel/analytics": "^2.0.1",
     "canvas-confetti": "^1.9.4",
     "firebase": "^12.19.0",

@@ -2,6 +2,7 @@ import { initializeApp, getApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { getStorage } from 'firebase-admin/storage';
+import { getDatabaseWithUrl } from 'firebase-admin/database';
 
 /**
  * Server-only Firebase Admin SDK Singleton (Modular Firebase Admin v14)
@@ -11,6 +12,7 @@ let adminApp = null;
 let adminAuth = null;
 let adminDb = null;
 let adminStorage = null;
+let adminRtdb = null;
 
 // Safe In-Memory DB stub for local dev when service account credentials are not configured
 const inMemoryStore = new Map();
@@ -62,7 +64,7 @@ function createSafeFirestoreStub() {
 
 export function getFirebaseAdmin() {
   if (adminApp && adminAuth && adminDb) {
-    return { adminApp, adminAuth, adminDb, adminStorage, FieldValue };
+    return { adminApp, adminAuth, adminDb, adminStorage, adminRtdb, FieldValue };
   }
 
   const projectId = process.env.FIREBASE_PROJECT_ID || process.env.VITE_FIREBASE_PROJECT_ID || 'margman-staging';
@@ -70,6 +72,7 @@ export function getFirebaseAdmin() {
   const rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY;
   const privateKey = rawPrivateKey ? rawPrivateKey.replace(/\\n/g, '\n') : undefined;
   const storageBucket = process.env.FIREBASE_STORAGE_BUCKET || process.env.VITE_FIREBASE_STORAGE_BUCKET;
+  const databaseURL = process.env.FIREBASE_DATABASE_URL || process.env.VITE_FIREBASE_DATABASE_URL || (projectId ? `https://${projectId}-default-rtdb.firebaseio.com` : undefined);
 
   const hasServiceAccount = Boolean(projectId && clientEmail && privateKey);
 
@@ -84,6 +87,7 @@ export function getFirebaseAdmin() {
           privateKey,
         }),
         storageBucket,
+        databaseURL,
       });
     } catch (err) {
       console.error('[Firebase Admin] Service account initialization failed:', err);
@@ -94,6 +98,7 @@ export function getFirebaseAdmin() {
       adminApp = initializeApp({
         projectId,
         storageBucket,
+        databaseURL,
       });
     } catch {
       adminApp = getApp();
@@ -125,7 +130,15 @@ export function getFirebaseAdmin() {
     adminStorage = null;
   }
 
-  return { adminApp, adminAuth, adminDb, adminStorage, FieldValue };
+  if (databaseURL && adminApp) {
+    try {
+      adminRtdb = getDatabaseWithUrl(databaseURL, adminApp);
+    } catch (err) {
+      adminRtdb = null;
+    }
+  }
+
+  return { adminApp, adminAuth, adminDb, adminStorage, adminRtdb, FieldValue };
 }
 
 // Fallback safe FieldValue implementation
