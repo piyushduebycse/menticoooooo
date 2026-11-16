@@ -67,9 +67,9 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
   const rangeHeader = req.headers.range || req.headers.Range;
 
   // 5. Cloudflare R2 Delivery (Primary Production Pipeline)
-  const r2Client = getR2Client();
+  let activeClient = getR2Client();
 
-  if (r2Client) {
+  if (activeClient) {
     try {
       // Fetch object metadata from Cloudflare R2
       const headCmd = new HeadObjectCommand({
@@ -77,7 +77,24 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
         Key: book.r2Key,
       });
 
-      const headResult = await r2Client.send(headCmd);
+      let headResult;
+      try {
+        headResult = await activeClient.send(headCmd);
+      } catch (headErr) {
+        // If 403 AccessDenied and endpoint wasn't .eu, auto-retry with .eu endpoint
+        if ((headErr.name === 'AccessDenied' || headErr['$metadata']?.httpStatusCode === 403) && !activeClient.isEu) {
+          const euClient = getR2Client({ forceEu: true });
+          if (euClient) {
+            headResult = await euClient.send(headCmd);
+            activeClient = euClient;
+          } else {
+            throw headErr;
+          }
+        } else {
+          throw headErr;
+        }
+      }
+
       const totalSize = Number(headResult.ContentLength);
 
       // Handle HEAD request
@@ -115,7 +132,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
           Range: `bytes=${start}-${end}`,
         });
 
-        const r2Response = await r2Client.send(getCmd);
+        const r2Response = await activeClient.send(getCmd);
 
         res.status(206);
         res.setHeader('Content-Range', `bytes ${start}-${end}/${totalSize}`);
@@ -143,7 +160,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
         Key: book.r2Key,
       });
 
-      const r2Response = await r2Client.send(getCmd);
+      const r2Response = await activeClient.send(getCmd);
 
       res.status(200);
       res.setHeader('Accept-Ranges', 'bytes');
