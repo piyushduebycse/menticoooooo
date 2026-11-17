@@ -71,15 +71,8 @@ function AppLayout() {
               <Route path="/login" element={<Login />} />
               <Route path="/about" element={<About />} />
               
-              {/* Purchase Route (requires authentication, redirects unauthenticated to /login?redirect=/purchase) */}
-              <Route
-                path="/purchase"
-                element={
-                  <ProtectedRoute>
-                    <Product />
-                  </ProtectedRoute>
-                }
-              />
+              {/* Purchase Route (open to all visitors so they can buy directly) */}
+              <Route path="/purchase" element={<Product />} />
               {/* Backward-compatibility alias for /product */}
               <Route path="/product" element={<Navigate to="/purchase" replace />} />
 

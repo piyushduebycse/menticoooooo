@@ -34,25 +34,36 @@ export default function ProtectedRoute({ children, requirePurchase = false, gues
     );
   }
 
-  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf);
+  const storedPass = (() => {
+    try {
+      return typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('mentico_access_pass') || '{}') : {};
+    } catch {
+      return {};
+    }
+  })();
 
-  // If page is for guests only (e.g. /login) and user is already logged in
-  if (guestOnly && user) {
+  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased);
+
+  // If page is for guests only (e.g. /login) and user is already logged in or has active pass
+  if (guestOnly && (user || hasPurchased)) {
     if (hasPurchased) {
       return <Navigate to="/library" replace />;
     }
     return <Navigate to="/purchase" replace />;
   }
 
-  // If user is not authenticated, redirect to /login and preserve return URL
-  if (!user && !guestOnly) {
-    const returnUrl = encodeURIComponent(location.pathname + location.search);
-    return <Navigate to={`/login?redirect=${returnUrl}`} replace />;
+  // If page requires active purchase and user has purchased (either logged in or via guest access pass)
+  if (requirePurchase) {
+    if (hasPurchased) {
+      return children;
+    }
+    return <Navigate to="/purchase" replace />;
   }
 
-  // If page requires active purchase and user has not purchased yet
-  if (requirePurchase && user && !hasPurchased) {
-    return <Navigate to="/purchase" replace />;
+  // If user is not authenticated and has not purchased, redirect to /login
+  if (!user && !guestOnly && !hasPurchased) {
+    const returnUrl = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/login?redirect=${returnUrl}`} replace />;
   }
 
   return children;
