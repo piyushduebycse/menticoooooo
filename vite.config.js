@@ -66,6 +66,17 @@ function vercelApiDevPlugin() {
             res.end(JSON.stringify(data));
             return res;
           };
+          res.send = function (data) {
+            if (Buffer.isBuffer(data) || typeof data === 'string') {
+              res.end(data);
+            } else if (typeof data === 'object') {
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify(data));
+            } else {
+              res.end(String(data));
+            }
+            return res;
+          };
 
           const module = await server.ssrLoadModule(filePath);
           if (typeof module.default === 'function') {
