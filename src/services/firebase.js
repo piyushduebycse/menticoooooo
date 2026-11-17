@@ -51,10 +51,12 @@ if (isRealFirebaseConfigured) {
     app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
     auth = getAuth(app);
     db = getFirestore(app);
-    if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
+    if (typeof window !== 'undefined' && firebaseConfig.measurementId && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
       isSupported().then((supported) => {
         if (supported && app) {
-          analytics = getAnalytics(app);
+          try {
+            analytics = getAnalytics(app);
+          } catch {}
         }
       }).catch(() => {});
     }
@@ -232,37 +234,16 @@ export const firebaseAuthService = {
       try {
         const credential = await signInWithEmailAndPassword(auth, email, password);
 
-        let extraData = {};
-        if (db) {
-          try {
-            const userDocRef = doc(db, 'users', credential.user.uid);
-            const snapshot = await getDoc(userDocRef);
-            if (snapshot.exists()) {
-              extraData = snapshot.data();
-            }
-          } catch (e) {
-            console.warn('[Firebase Login] Firestore read error:', e);
-          }
-        }
-
+        // Fast resolution: onAuthStateChanged will asynchronously sync deep Firestore profile
         const localPurchase = getStoredPurchase(credential.user.uid, credential.user.email);
-        const hasPurchased = Boolean(
-          extraData.hasPurchased ||
-          extraData.hasPurchasedPdf ||
-          localPurchase?.hasPurchased ||
-          false
-        );
-        const licenseKey =
-          extraData.licenseKey ||
-          localPurchase?.licenseKey ||
-          (hasPurchased ? (localPurchase?.licenseKey || 'MENTICO-IN-7701-VIP') : null);
+        const hasPurchased = Boolean(localPurchase?.hasPurchased);
+        const licenseKey = localPurchase?.licenseKey || (hasPurchased ? 'MENTICO-IN-7701-VIP' : null);
 
         return {
-          ...extraData,
           uid: credential.user.uid,
           email: credential.user.email,
           emailVerified: Boolean(credential.user.emailVerified),
-          displayName: credential.user.displayName || extraData.displayName || credential.user.email?.split('@')[0],
+          displayName: credential.user.displayName || credential.user.email?.split('@')[0],
           hasPurchased,
           hasPurchasedPdf: hasPurchased,
           licenseKey,
@@ -281,7 +262,7 @@ export const firebaseAuthService = {
       }
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     const mockUser = {
       uid: 'usr_' + Date.now(),
@@ -303,23 +284,28 @@ export const firebaseAuthService = {
     if (isRealFirebaseConfigured && auth) {
       try {
         const credential = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(credential.user, { displayName: name });
 
         const localPurchase = getStoredPurchase(credential.user.uid, email);
         const hasPurchased = Boolean(localPurchase?.hasPurchased);
         const licenseKey = localPurchase?.licenseKey || (hasPurchased ? 'MENTICO-IN-7701-VIP' : null);
 
+        // Run profile update & Firestore record creation in parallel
+        const tasks = [updateProfile(credential.user, { displayName: name })];
         if (db) {
-          await setDoc(doc(db, 'users', credential.user.uid), {
-            displayName: name,
-            email,
-            createdAt: serverTimestamp(),
-            hasPurchased,
-            hasPurchasedPdf: hasPurchased,
-            licenseKey,
-            role: 'Mentico Student',
-          });
+          tasks.push(
+            setDoc(doc(db, 'users', credential.user.uid), {
+              displayName: name,
+              email,
+              createdAt: serverTimestamp(),
+              hasPurchased,
+              hasPurchasedPdf: hasPurchased,
+              licenseKey,
+              role: 'Mentico Student',
+            })
+          );
         }
+        await Promise.all(tasks);
+
         return {
           uid: credential.user.uid,
           email: credential.user.email,

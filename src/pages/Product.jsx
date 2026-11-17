@@ -146,27 +146,15 @@ export default function Product() {
             });
           }
 
+          // Trigger celebrate confetti
           try {
-            await firebaseAuthService.savePurchase(user?.uid, {
-              licenseKey: verifyData.licenseKey,
-              orderId: paymentResponse.razorpay_order_id,
-              paymentId: paymentResponse.razorpay_payment_id,
-              email: user?.email,
-              userId: user?.uid,
-            });
-          } catch (e) {
-            console.warn('[Product] Client direct savePurchase notice:', e);
-          }
-
-          if (typeof refreshUser === 'function') {
-            await refreshUser();
-          }
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+          } catch {}
 
           setPurchaseSuccess(true);
-          confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
-          setTimeout(() => {
-            navigate('/library?openPdf=true', { state: { openPdf: true, fromPayment: true } });
-          }, 1000);
+
+          // Instant navigation to the unlocked library without artificial delays
+          navigate('/library?openPdf=true', { state: { openPdf: true, fromPayment: true } });
         },
         onFailure: (err) => {
           if (err.message && !err.message.includes('closed before completion')) {

@@ -31,13 +31,12 @@ export default function Dashboard() {
   const location = useLocation();
   const shouldAutoOpen = searchParams.get('openPdf') === 'true' || location.state?.openPdf === true;
 
-  const [isFetchingData, setIsFetchingData] = useState(!shouldAutoOpen);
+  const [isFetchingData, setIsFetchingData] = useState(false);
   const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(shouldAutoOpen);
 
   useEffect(() => {
     if (shouldAutoOpen) {
       setIsPdfViewerOpen(true);
-      setIsFetchingData(false);
     }
   }, [shouldAutoOpen]);
 
@@ -51,20 +50,11 @@ export default function Dashboard() {
     { id: 6, text: 'Day 5: Practice the "Pause & Breathe" anchor during a college/office meeting', completed: false },
   ]);
 
-  // Simulate network fetch with Skeleton Loader for 1.2s when not directly opening PDF
-  useEffect(() => {
-    if (shouldAutoOpen) return;
-    const timer = setTimeout(() => {
-      setIsFetchingData(false);
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, [shouldAutoOpen]);
-
   const handleRefresh = () => {
     setIsFetchingData(true);
     setTimeout(() => {
       setIsFetchingData(false);
-    }, 900);
+    }, 200);
   };
 
   const toggleChecklist = (id) => {

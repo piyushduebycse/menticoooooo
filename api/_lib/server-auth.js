@@ -1,5 +1,14 @@
 import { getFirebaseAdmin } from './firebase-admin.js';
 
+// In-memory cache for verified auth & entitlements (TTL: 60s)
+// Eliminates repetitive RTDB / Firestore queries on rapid consecutive PDF byte-range requests
+const AUTH_CACHE = new Map();
+const AUTH_CACHE_TTL_MS = 60 * 1000;
+
+export function clearAuthCache() {
+  AUTH_CACHE.clear();
+}
+
 /**
  * Server-side Firebase ID Token Verification Middleware
  * Enforces that every protected API route verifies the client token.
@@ -17,6 +26,12 @@ export async function verifyAuthUser(req, res) {
   }
 
   const idToken = authHeader.split('Bearer ')[1].trim();
+
+  // Fast-path: Check in-memory cache for recent verified purchase
+  const cached = AUTH_CACHE.get(idToken);
+  if (cached && Date.now() < cached.expiresAt) {
+    return cached.user;
+  }
 
   let adminAuth;
   let adminDb;
@@ -85,7 +100,7 @@ export async function verifyAuthUser(req, res) {
     }
   }
 
-  return {
+  const user = {
     uid: decodedToken.uid,
     email: decodedToken.email,
     emailVerified: Boolean(decodedToken.email_verified),
@@ -93,4 +108,17 @@ export async function verifyAuthUser(req, res) {
     hasPurchased,
     decodedToken,
   };
+
+  // Cache verified purchases in-memory to accelerate rapid consecutive byte-range streaming
+  if (hasPurchased) {
+    if (AUTH_CACHE.size > 200) {
+      const now = Date.now();
+      for (const [k, v] of AUTH_CACHE.entries()) {
+        if (now >= v.expiresAt) AUTH_CACHE.delete(k);
+      }
+    }
+    AUTH_CACHE.set(idToken, { user, expiresAt: Date.now() + AUTH_CACHE_TTL_MS });
+  }
+
+  return user;
 }

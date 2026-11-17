@@ -30,7 +30,19 @@ export async function fulfillCapturedPayment({ orderId, payment, userId, order }
     throw new Error('Payment order belongs to another user.');
   }
 
+  if (purchase) {
+    if ((payment.order_id && payment.order_id !== orderId) ||
+        (payment.status && payment.status !== 'captured') ||
+        (purchase.amountInPaise && payment.amount && payment.amount !== purchase.amountInPaise) ||
+        (purchase.currency && payment.currency && payment.currency !== purchase.currency)) {
+      throw new Error('Payment does not match the captured order and amount.');
+    }
+  }
+
   if (purchase?.status === 'paid') {
+    if (purchase.paymentId && purchase.paymentId !== payment.id) {
+      throw new Error('Order was fulfilled with another payment.');
+    }
     return { licenseKey, alreadyFulfilled: true };
   }
 

@@ -69,12 +69,11 @@ export default function Login() {
           throw new Error('Password must be at least 6 characters.');
         }
         const newUser = await signup(name, email, password);
-        // Attempt sending email verification
-        try {
-          await sendVerificationEmail();
-          setVerificationSent(true);
-        } catch {
-          // Verification email error is non-fatal
+        // Dispatch email verification in the background without blocking the UI redirect
+        if (typeof sendVerificationEmail === 'function') {
+          sendVerificationEmail()
+            .then(() => setVerificationSent(true))
+            .catch(() => {});
         }
         handlePostAuthRedirect(newUser);
       } else if (tab === 'forgot') {

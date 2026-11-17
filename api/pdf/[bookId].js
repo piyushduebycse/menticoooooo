@@ -4,6 +4,15 @@ import path from 'path';
 import { verifyAuthUser } from '../_lib/server-auth.js';
 import { getR2Client, resolveBook } from '../_lib/r2-client.js';
 
+// In-memory cache for R2 object metadata (file size)
+// Avoids redundant HeadObjectCommand round-trips to Cloudflare R2 on every byte-range chunk
+const R2_METADATA_CACHE = new Map();
+const R2_METADATA_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+export function clearMetadataCache() {
+  R2_METADATA_CACHE.clear();
+}
+
 /**
  * Vercel Serverless Function: GET & HEAD /api/pdf/[bookId]
  * Streams protected PDFs from Cloudflare R2 using HTTP 206 Partial Content range requests.
@@ -71,31 +80,42 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
 
   if (activeClient) {
     try {
-      // Fetch object metadata from Cloudflare R2
-      const headCmd = new HeadObjectCommand({
-        Bucket: book.r2Bucket,
-        Key: book.r2Key,
-      });
+      const cacheKey = `${book.r2Bucket}/${book.r2Key}`;
+      let totalSize;
+      const cached = R2_METADATA_CACHE.get(cacheKey);
 
-      let headResult;
-      try {
-        headResult = await activeClient.send(headCmd);
-      } catch (headErr) {
-        // If 403 AccessDenied and endpoint wasn't .eu, auto-retry with .eu endpoint
-        if ((headErr.name === 'AccessDenied' || headErr['$metadata']?.httpStatusCode === 403) && !activeClient.isEu) {
-          const euClient = getR2Client({ forceEu: true });
-          if (euClient) {
-            headResult = await euClient.send(headCmd);
-            activeClient = euClient;
+      if (cached && Date.now() < cached.expiresAt) {
+        totalSize = cached.totalSize;
+      } else {
+        // Fetch object metadata from Cloudflare R2
+        const headCmd = new HeadObjectCommand({
+          Bucket: book.r2Bucket,
+          Key: book.r2Key,
+        });
+
+        let headResult;
+        try {
+          headResult = await activeClient.send(headCmd);
+        } catch (headErr) {
+          // If 403 AccessDenied and endpoint wasn't .eu, auto-retry with .eu endpoint
+          if ((headErr.name === 'AccessDenied' || headErr['$metadata']?.httpStatusCode === 403) && !activeClient.isEu) {
+            const euClient = getR2Client({ forceEu: true });
+            if (euClient) {
+              headResult = await euClient.send(headCmd);
+              activeClient = euClient;
+            } else {
+              throw headErr;
+            }
           } else {
             throw headErr;
           }
-        } else {
-          throw headErr;
+        }
+
+        totalSize = Number(headResult.ContentLength);
+        if (totalSize && totalSize > 0) {
+          R2_METADATA_CACHE.set(cacheKey, { totalSize, expiresAt: Date.now() + R2_METADATA_TTL_MS });
         }
       }
-
-      const totalSize = Number(headResult.ContentLength);
 
       // Handle HEAD request
       if (req.method === 'HEAD') {
