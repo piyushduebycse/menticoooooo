@@ -27,8 +27,8 @@ export default function Navbar() {
       path: '/library',
       isProtected: true,
     },
-    { label: 'Contact & FAQs', path: '/contact' },
-    { label: 'Legal', path: '/legal' },
+    { label: 'Contact', path: '/contact' },
+    { label: 'Terms & Conditions', path: '/terms' },
   ];
 
   return (

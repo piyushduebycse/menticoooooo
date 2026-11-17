@@ -516,12 +516,8 @@ export default function Login() {
           {/* Footer note */}
           <div style={{ marginTop: '1.75rem', textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
             By continuing, you agree to Mentico's{' '}
-            <Link to="/legal" style={{ color: 'var(--text-main)', textDecoration: 'underline' }}>
-              Terms of Service
-            </Link>{' '}
-            and{' '}
-            <Link to="/legal" style={{ color: 'var(--text-main)', textDecoration: 'underline' }}>
-              Privacy Policy
+            <Link to="/terms" style={{ color: 'var(--text-main)', textDecoration: 'underline' }}>
+              Terms &amp; Conditions
             </Link>
             .
           </div>

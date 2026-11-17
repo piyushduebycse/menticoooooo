@@ -1034,21 +1034,21 @@ export default function Home() {
             </div>
 
             <div className="mentico-footer-col">
-              <h4>Legal & Privacy</h4>
+              <h4>Terms &amp; Policies</h4>
               <ul className="mentico-footer-links">
                 <li>
-                  <Link to="/legal" className="mentico-footer-link">
-                    Terms & Privacy Policy
+                  <Link to="/terms" className="mentico-footer-link">
+                    Terms &amp; Conditions
                   </Link>
                 </li>
                 <li>
-                  <Link to="/legal" className="mentico-footer-link">
-                    Refund Policy
+                  <Link to="/terms" className="mentico-footer-link">
+                    No Refund Policy
                   </Link>
                 </li>
                 <li>
-                  <Link to="/legal" className="mentico-footer-link">
-                    Content Ethics
+                  <Link to="/terms" className="mentico-footer-link">
+                    Intellectual Property
                   </Link>
                 </li>
               </ul>

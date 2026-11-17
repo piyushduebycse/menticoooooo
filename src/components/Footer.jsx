@@ -74,40 +74,37 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Column 3: Mentorship & Campus */}
+          {/* Column 3: About & Outreach */}
           <div>
-            <div className="footer-col-title">Mentorship & Outreach</div>
+            <div className="footer-col-title">About & Support</div>
             <ul className="footer-links">
               <li>
-                <Link to="/about" className="footer-link">About Lead Mentor</Link>
+                <Link to="/about" className="footer-link">About Mentico</Link>
               </li>
               <li>
-                <Link to="/contact" className="footer-link">College Fest & Campus Workshops</Link>
+                <Link to="/contact" className="footer-link">Contact Us</Link>
               </li>
               <li>
-                <Link to="/contact" className="footer-link">1-on-1 Speech Audit</Link>
-              </li>
-              <li>
-                <Link to="/contact" className="footer-link">Corporate Graduate Bootcamps</Link>
+                <a href="mailto:margmanpath@gmail.com" className="footer-link">margmanpath@gmail.com</a>
               </li>
             </ul>
           </div>
 
-          {/* Column 4: Legal & Student Rights */}
+          {/* Column 4: Terms & Policies */}
           <div>
-            <div className="footer-col-title">Ethics & Policies</div>
+            <div className="footer-col-title">Terms & Policies</div>
             <ul className="footer-links">
               <li>
-                <Link to="/legal" className="footer-link">Terms of Program</Link>
+                <Link to="/terms" className="footer-link">Terms & Conditions</Link>
               </li>
               <li>
-                <Link to="/legal" className="footer-link">Privacy & Student Confidentiality</Link>
+                <Link to="/terms" className="footer-link">Personal Use Policy</Link>
               </li>
               <li>
-                <Link to="/legal" className="footer-link">Personal Growth Disclaimer</Link>
+                <Link to="/terms" className="footer-link">No Refund Policy</Link>
               </li>
               <li>
-                <Link to="/legal" className="footer-link">30-Day Money-Back Guarantee</Link>
+                <Link to="/terms" className="footer-link">Intellectual Property</Link>
               </li>
             </ul>
           </div>

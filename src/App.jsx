@@ -15,7 +15,7 @@ const About = lazy(() => import('./pages/About'));
 const Product = lazy(() => import('./pages/Product'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Contact = lazy(() => import('./pages/Contact'));
-const Legal = lazy(() => import('./pages/Legal'));
+const Terms = lazy(() => import('./pages/Terms'));
 const Login = lazy(() => import('./pages/Login'));
 
 // Lightweight page transition loader
@@ -98,7 +98,9 @@ function AppLayout() {
               <Route path="/reader" element={<Navigate to="/library?openPdf=true" replace />} />
 
               <Route path="/contact" element={<Contact />} />
-              <Route path="/legal" element={<Legal />} />
+              <Route path="/terms" element={<Terms />} />
+              {/* Backward-compatibility redirect for legacy /legal */}
+              <Route path="/legal" element={<Navigate to="/terms" replace />} />
 
               {/* Fallback route */}
               <Route path="*" element={<Navigate to="/" replace />} />
