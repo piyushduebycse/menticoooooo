@@ -57,8 +57,16 @@ export default function ProtectedPdfReader({
   const renderTaskRef = useRef(null);
   const loadingTaskRef = useRef(null);
 
-  const studentEmail = user?.email || 'student@mentico.com';
-  const licenseKey = user?.licenseKey || 'STUDENT_VAULT_2026';
+  const storedPass = (() => {
+    try {
+      return typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('mentico_access_pass') || '{}') : {};
+    } catch {
+      return {};
+    }
+  })();
+
+  const studentEmail = user?.email || storedPass?.email || 'student@mentico.com';
+  const licenseKey = user?.licenseKey || storedPass?.licenseKey || 'STUDENT_VAULT_2026';
 
   const chapters = [
     { page: 1, title: 'Introduction: The Social Freedom Mindset' },
@@ -135,8 +143,8 @@ export default function ProtectedPdfReader({
 
     async function initializePdf() {
       try {
-        let idToken = null;
-        if (typeof getIdToken === 'function') {
+        let idToken = user?.accessToken || storedPass?.accessToken || null;
+        if (!idToken && typeof getIdToken === 'function') {
           try {
             idToken = await getIdToken();
           } catch (tokErr) {

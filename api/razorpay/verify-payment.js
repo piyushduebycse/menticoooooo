@@ -1,6 +1,7 @@
 import { verifyAuthUser } from '../_lib/server-auth.js';
 import { getRazorpayClient, verifyRazorpayPaymentSignature } from '../_lib/razorpay-admin.js';
 import { fulfillCapturedPayment, requirePaymentDatabase } from '../_lib/payment-fulfillment.js';
+import { createAccessToken } from '../_lib/access-token.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -8,8 +9,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, error: 'Method Not Allowed' });
   }
 
-  const authUser = await verifyAuthUser(req, res);
-  if (!authUser) return;
+  // Support both logged-in users and guest purchasers
+  let authUser = null;
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    authUser = await verifyAuthUser(req, res);
+  }
 
   const { orderId, paymentId, signature } = req.body || {};
   if (typeof orderId !== 'string' || typeof paymentId !== 'string' || typeof signature !== 'string') {
@@ -24,13 +29,13 @@ export default async function handler(req, res) {
 
     const razorpay = getRazorpayClient();
 
-    // 2. Fetch order from Razorpay to verify user ownership and amount
+    // 2. Fetch order from Razorpay to verify details
     const order = await razorpay.orders.fetch(orderId);
     if (!order) {
       return res.status(404).json({ success: false, error: 'Payment order not found.' });
     }
 
-    if (order.notes?.userId && order.notes.userId !== authUser.uid) {
+    if (authUser && order.notes?.userId && order.notes.userId !== authUser.uid && !authUser.isGuestPass) {
       return res.status(403).json({ success: false, error: 'Payment order does not belong to this account.' });
     }
 
@@ -56,15 +61,32 @@ export default async function handler(req, res) {
       });
     }
 
-    // 4. Fulfill payment and update user status
-    const result = await fulfillCapturedPayment({ orderId, payment, userId: authUser.uid, order });
+    // 4. Resolve buyer identity
+    const buyerEmail = (order.notes?.userEmail || payment.notes?.userEmail || payment.email || req.body?.email || authUser?.email || '').toLowerCase().trim();
+    const buyerName = order.notes?.userName || payment.notes?.userName || req.body?.name || authUser?.name || '';
+    const effectiveUserId = authUser?.uid || order.notes?.userId || (buyerEmail ? `guest_${buyerEmail.replace(/[^a-zA-Z0-9]/g, '_')}` : `user_${paymentId}`);
+
+    // 5. Fulfill payment in database
+    const result = await fulfillCapturedPayment({ orderId, payment, userId: effectiveUserId, order });
+
+    // 6. Generate cryptographically signed Mentico Access Pass
+    const accessToken = createAccessToken({
+      email: buyerEmail,
+      name: buyerName,
+      orderId,
+      paymentId,
+      licenseKey: result.licenseKey,
+    });
 
     return res.status(200).json({
       success: true,
       verified: true,
       licenseKey: result.licenseKey,
+      accessToken,
       orderId,
       paymentId,
+      email: buyerEmail,
+      name: buyerName,
       hasPurchased: true,
       hasPurchasedPdf: true,
       message: 'Payment verified. The manual is unlocked.',

@@ -31,6 +31,16 @@ export default function Dashboard() {
   const location = useLocation();
   const shouldAutoOpen = searchParams.get('openPdf') === 'true' || location.state?.openPdf === true;
 
+  const storedPass = (() => {
+    try {
+      return typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('mentico_access_pass') || '{}') : {};
+    } catch {
+      return {};
+    }
+  })();
+
+  const effectiveUser = user || (storedPass?.hasPurchased ? storedPass : location.state?.accessPass || null);
+
   const [isFetchingData, setIsFetchingData] = useState(false);
   const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(shouldAutoOpen);
 
@@ -108,19 +118,19 @@ export default function Dashboard() {
                   fontSize: '1.35rem',
                 }}
               >
-                {String(user?.displayName || user?.email || 'ST')
+                {String(effectiveUser?.name || effectiveUser?.displayName || effectiveUser?.email || 'ST')
                   .slice(0, 2)
                   .toUpperCase()}
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                  <h2 style={{ fontSize: '1.6rem' }}>{user?.displayName || 'Mentico Student'}</h2>
+                  <h2 style={{ fontSize: '1.6rem' }}>{effectiveUser?.name || effectiveUser?.displayName || 'Mentico Student'}</h2>
                   <span className="badge-red" style={{ fontSize: '0.7rem' }}>
                     PRO MEMBER // 18–30
                   </span>
                 </div>
                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
-                  {user?.email} • Enrolled in Mentico 3-in-1 Mastery Program
+                  {effectiveUser?.email || 'student@mentico.co.in'} • Enrolled in Mentico 3-in-1 Mastery Program
                 </div>
               </div>
             </div>
@@ -450,7 +460,7 @@ export default function Dashboard() {
           <ProtectedPdfReader
             bookId="social-freedom"
             pdfUrl="/api/pdf/social-freedom"
-            user={user}
+            user={effectiveUser}
             onClose={() => setIsPdfViewerOpen(false)}
           />
         </ErrorBoundary>

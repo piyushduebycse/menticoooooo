@@ -224,3 +224,35 @@ test('Case C: Logged-in user with valid purchase receives full document stream w
   const fullData = Buffer.concat(res.chunks);
   assert.ok(fullData.length > 10000000);
 });
+
+test('Case H: Guest purchaser with signed Mentico Access Token receives range stream', async () => {
+  const { createAccessToken } = await import('./access-token.js');
+  const guestToken = createAccessToken({
+    email: 'guest.purchaser@example.com',
+    name: 'Rahul Guest',
+    paymentId: 'pay_live_998877',
+  });
+
+  const req = {
+    method: 'GET',
+    headers: {
+      authorization: `Bearer ${guestToken}`,
+      range: 'bytes=0-65535',
+    },
+    url: '/api/pdf/social-freedom',
+    query: { bookId: 'social-freedom' },
+  };
+  const res = createMockResponse();
+
+  await new Promise((resolve) => {
+    res.on('finish', resolve);
+    handler(req, res);
+  });
+
+  assert.equal(res.statusCode, 206);
+  assert.equal(res.getHeader('accept-ranges'), 'bytes');
+  assert.equal(res.getHeader('content-range'), 'bytes 0-65535/12318428');
+  assert.equal(res.getHeader('content-length'), '65536');
+  const data = Buffer.concat(res.chunks);
+  assert.equal(data.length, 65536);
+});

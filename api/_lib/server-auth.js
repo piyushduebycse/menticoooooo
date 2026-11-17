@@ -1,4 +1,5 @@
 import { getFirebaseAdmin } from './firebase-admin.js';
+import { verifyAccessToken } from './access-token.js';
 
 // In-memory cache for verified auth & entitlements (TTL: 60s)
 // Eliminates repetitive RTDB / Firestore queries on rapid consecutive PDF byte-range requests
@@ -31,6 +32,25 @@ export async function verifyAuthUser(req, res) {
   const cached = AUTH_CACHE.get(idToken);
   if (cached && Date.now() < cached.expiresAt) {
     return cached.user;
+  }
+
+  // Fast-path: Check if token is a cryptographic Mentico Access Pass (Guest Checkout)
+  if (idToken.startsWith('mtc_')) {
+    const pass = verifyAccessToken(idToken);
+    if (pass) {
+      const user = {
+        uid: `guest_${pass.email.replace(/[^a-zA-Z0-9]/g, '_')}`,
+        email: pass.email,
+        emailVerified: true,
+        name: pass.name || pass.email.split('@')[0],
+        hasPurchased: true,
+        hasPurchasedPdf: true,
+        licenseKey: pass.licenseKey || 'MENTICO-IN-VIP',
+        isGuestPass: true,
+      };
+      AUTH_CACHE.set(idToken, { user, expiresAt: Date.now() + AUTH_CACHE_TTL_MS });
+      return user;
+    }
   }
 
   let adminAuth;

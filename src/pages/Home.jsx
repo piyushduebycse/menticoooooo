@@ -31,7 +31,14 @@ import '../landing.css';
 export default function Home() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf);
+  const storedPass = (() => {
+    try {
+      return typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('mentico_access_pass') || '{}') : {};
+    } catch {
+      return {};
+    }
+  })();
+  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased);
 
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

@@ -12,9 +12,30 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, error: 'Method Not Allowed' });
   }
 
-  // 1. Authenticate user via Firebase ID Token
-  const authUser = await verifyAuthUser(req, res);
-  if (!authUser) return;
+  // 1. Authenticate user: Either via Bearer Token (logged-in) OR via Guest Checkout (Name & Email)
+  let authUser = null;
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    authUser = await verifyAuthUser(req, res);
+    if (!authUser) return; // verifyAuthUser handles 401 response
+  } else {
+    // Guest Checkout flow: Validate direct Name and Email
+    const email = (req.body?.email || '').trim().toLowerCase();
+    const name = (req.body?.name || '').trim();
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ success: false, error: 'A valid email address is required.' });
+    }
+    if (!name) {
+      return res.status(400).json({ success: false, error: 'Name is required to personalize your book.' });
+    }
+    authUser = {
+      uid: `guest_${email.replace(/[^a-zA-Z0-9]/g, '_')}`,
+      email,
+      name,
+      hasPurchased: false,
+    };
+  }
 
   // 2. Check if user already owns the manual
   if (authUser.hasPurchased) {
@@ -25,14 +46,16 @@ export default async function handler(req, res) {
     });
   }
 
-  // 3. Price resolution: Default ₹1 INR = 100 paise for live test mode
-  const priceINR = Number(process.env.PRODUCT_PRICE_INR || process.env.VITE_PRODUCT_PRICE_INR || 1);
-  const amountInPaise = Math.round(priceINR * 100);
+  // 3. Price resolution: Default ₹1 INR = 100 paise for live test mode, or client displayed amount
+  const envPriceINR = Number(process.env.PRODUCT_PRICE_INR || process.env.VITE_PRODUCT_PRICE_INR || 1);
+  const clientAmountInPaise = Number(req.body?.displayedAmountInPaise);
+  const amountInPaise = (Number.isSafeInteger(clientAmountInPaise) && clientAmountInPaise >= 100)
+    ? clientAmountInPaise
+    : Math.round(envPriceINR * 100);
+  const priceINR = amountInPaise / 100;
+
   if (!Number.isFinite(priceINR) || amountInPaise < 100 || !Number.isSafeInteger(amountInPaise)) {
     return res.status(500).json({ success: false, error: 'Product price is misconfigured.' });
-  }
-  if (req.body?.displayedAmountInPaise !== amountInPaise) {
-    return res.status(409).json({ success: false, error: 'Checkout price changed. Please refresh the page before paying.' });
   }
 
   const keyId = (process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID || '').trim();
@@ -58,7 +81,9 @@ export default async function handler(req, res) {
       receipt: receiptId,
       notes: {
         userId: authUser.uid,
+        userName: authUser.name || '',
         userEmail: authUser.email || '',
+        userPhone: (req.body?.phone || '').trim(),
         productName: 'Mentico - Social Freedom (PDF Field Manual)',
       },
     });

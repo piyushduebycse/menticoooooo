@@ -31,13 +31,32 @@ export default function Product() {
   const { user, getIdToken, refreshUser, markPurchased } = useAuth();
   const navigate = useNavigate();
 
-  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf);
+  const storedPass = (() => {
+    try {
+      return typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('mentico_access_pass') || '{}') : {};
+    } catch {
+      return {};
+    }
+  })();
+
+  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased);
 
   const [activePreviewTab, setActivePreviewTab] = useState('toc');
   const [couponError, setCouponError] = useState('');
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [isHighlightModalOpen, setIsHighlightModalOpen] = useState(false);
+
+  // Guest Checkout Fields: Name, Email & Phone
+  const [buyerName, setBuyerName] = useState(user?.displayName || user?.name || storedPass?.name || '');
+  const [buyerEmail, setBuyerEmail] = useState(user?.email || storedPass?.email || '');
+  const [buyerPhone, setBuyerPhone] = useState(user?.phoneNumber || '');
+
+  useEffect(() => {
+    if (user?.displayName && !buyerName) setBuyerName(user.displayName);
+    if (user?.email && !buyerEmail) setBuyerEmail(user.email);
+    if (user?.phoneNumber && !buyerPhone) setBuyerPhone(user.phoneNumber);
+  }, [user]);
 
   const originalPrice = 999; // in INR (original price)
   const basePrice = Number(import.meta.env.VITE_PRODUCT_PRICE_INR || 1); // ₹1 test price
@@ -46,35 +65,43 @@ export default function Product() {
   const handlePurchase = async () => {
     setCouponError('');
 
-    if (!user) {
-      // User must be authenticated to purchase
-      navigate('/login?redirect=%2Fpurchase');
+    if (hasPurchased) {
+      navigate('/library?openPdf=true', { state: { openPdf: true } });
       return;
     }
 
-    if (hasPurchased) {
-      navigate('/library?openPdf=true', { state: { openPdf: true } });
+    const trimmedName = buyerName.trim();
+    const trimmedEmail = buyerEmail.trim().toLowerCase();
+
+    if (!trimmedName) {
+      setCouponError('Please enter your full name to personalize your course book.');
+      return;
+    }
+
+    if (!trimmedEmail || !trimmedEmail.includes('@') || !trimmedEmail.includes('.')) {
+      setCouponError('Please enter a valid email address to receive your access pass.');
       return;
     }
 
     setIsPurchasing(true);
 
     try {
-      // Paid flow via Razorpay
-      const token = await getIdToken(true);
-      if (!token) {
-        throw new Error('Authentication session expired. Please sign in again.');
-      }
+      const token = user ? await getIdToken().catch(() => null) : null;
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      // Step A: Create order on serverless endpoint
-      trackCheckoutInitiated({ price: currentPrice, userId: user.uid, userEmail: user.email });
+      trackCheckoutInitiated({ price: currentPrice, userEmail: trimmedEmail });
+
+      // Step A: Create order on serverless endpoint (supports both guest and authenticated users)
       const orderRes = await fetch('/api/razorpay/create-order', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ displayedAmountInPaise: Math.round(currentPrice * 100) }),
+        headers,
+        body: JSON.stringify({
+          name: trimmedName,
+          email: trimmedEmail,
+          phone: buyerPhone.trim(),
+          displayedAmountInPaise: Math.round(currentPrice * 100),
+        }),
       });
 
       let orderData;
@@ -94,26 +121,33 @@ export default function Product() {
       }
 
       if (orderData.alreadyPurchased) {
-        navigate('/library');
+        navigate('/library?openPdf=true');
         return;
       }
 
       // Step B: Open Razorpay Checkout modal
       await openRazorpayCheckout({
         order: orderData,
-        user,
+        user: {
+          name: trimmedName,
+          displayName: trimmedName,
+          email: trimmedEmail,
+          phoneNumber: buyerPhone.trim(),
+        },
         onSuccess: async (paymentResponse) => {
           // Step C: Verify payment signature on server
+          const verifyHeaders = { 'Content-Type': 'application/json' };
+          if (token) verifyHeaders['Authorization'] = `Bearer ${token}`;
+
           const verifyRes = await fetch('/api/razorpay/verify-payment', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
+            headers: verifyHeaders,
             body: JSON.stringify({
               orderId: paymentResponse.razorpay_order_id,
               paymentId: paymentResponse.razorpay_payment_id,
               signature: paymentResponse.razorpay_signature,
+              name: trimmedName,
+              email: trimmedEmail,
             }),
           });
 
@@ -136,14 +170,23 @@ export default function Product() {
             paymentId: paymentResponse.razorpay_payment_id,
           });
 
+          // Save signed Mentico Access Pass in localStorage for instant reader unlock!
+          const accessPass = {
+            accessToken: verifyData.accessToken,
+            licenseKey: verifyData.licenseKey,
+            email: verifyData.email || trimmedEmail,
+            name: verifyData.name || trimmedName,
+            orderId: paymentResponse.razorpay_order_id,
+            paymentId: paymentResponse.razorpay_payment_id,
+            hasPurchased: true,
+          };
+
+          try {
+            localStorage.setItem('mentico_access_pass', JSON.stringify(accessPass));
+          } catch {}
+
           if (typeof markPurchased === 'function') {
-            markPurchased({
-              licenseKey: verifyData.licenseKey,
-              orderId: paymentResponse.razorpay_order_id,
-              paymentId: paymentResponse.razorpay_payment_id,
-              email: user?.email,
-              userId: user?.uid,
-            });
+            markPurchased(accessPass);
           }
 
           // Trigger celebrate confetti
@@ -153,8 +196,8 @@ export default function Product() {
 
           setPurchaseSuccess(true);
 
-          // Instant navigation to the unlocked library without artificial delays
-          navigate('/library?openPdf=true', { state: { openPdf: true, fromPayment: true } });
+          // Instant navigation to the unlocked library
+          navigate('/library?openPdf=true', { state: { openPdf: true, fromPayment: true, accessPass } });
         },
         onFailure: (err) => {
           if (err.message && !err.message.includes('closed before completion')) {
@@ -548,6 +591,57 @@ export default function Product() {
                       </span>
                       <span style={{ fontSize: '0.75rem', color: 'var(--red-primary)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
                         50% SPECIAL LAUNCH DISCOUNT
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Guest Checkout Inputs: Full Name & Email */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                        Your Full Name <span style={{ color: 'var(--red-primary)' }}>*</span>
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Rahul Sharma"
+                        value={buyerName}
+                        onChange={(e) => setBuyerName(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '0.7rem 0.9rem',
+                          borderRadius: '8px',
+                          border: '1px solid var(--border-subtle)',
+                          backgroundColor: 'var(--bg-main)',
+                          color: 'var(--text-main)',
+                          fontSize: '0.92rem',
+                          outline: 'none',
+                          transition: 'border-color 0.2s',
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
+                        Your Email Address <span style={{ color: 'var(--red-primary)' }}>*</span>
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="e.g. rahul@gmail.com"
+                        value={buyerEmail}
+                        onChange={(e) => setBuyerEmail(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '0.7rem 0.9rem',
+                          borderRadius: '8px',
+                          border: '1px solid var(--border-subtle)',
+                          backgroundColor: 'var(--bg-main)',
+                          color: 'var(--text-main)',
+                          fontSize: '0.92rem',
+                          outline: 'none',
+                          transition: 'border-color 0.2s',
+                        }}
+                      />
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>
+                        Your verified course pass & personal reader access link will be delivered here.
                       </span>
                     </div>
                   </div>
