@@ -8,10 +8,27 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf);
+  const storedPass = (() => {
+    try {
+      return typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('mentico_access_pass') || '{}') : {};
+    } catch {
+      return {};
+    }
+  })();
+
+  const effectiveUser = user || (storedPass?.hasPurchased ? storedPass : null);
+  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased);
 
   const handleLogout = async () => {
-    await logout();
+    try {
+      await logout();
+    } catch (err) {
+      console.warn('[Navbar] Logout error:', err);
+    }
+    try {
+      localStorage.removeItem('mentico_access_pass');
+      window.dispatchEvent(new Event('storage'));
+    } catch {}
     setMobileMenuOpen(false);
     navigate('/');
   };
@@ -59,11 +76,11 @@ export default function Navbar() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       padding: '2px',
-                      color: user ? 'var(--red-primary)' : 'var(--text-muted)',
+                      color: effectiveUser ? 'var(--red-primary)' : 'var(--text-muted)',
                     }}
-                    title={user ? 'Hub Unlocked' : 'Member Access Only'}
+                    title={effectiveUser ? 'Hub Unlocked' : 'Member Access Only'}
                   >
-                    {user ? <Unlock size={12} /> : <Lock size={12} />}
+                    {effectiveUser ? <Unlock size={12} /> : <Lock size={12} />}
                   </span>
                 )}
               </NavLink>
@@ -74,7 +91,7 @@ export default function Navbar() {
         {/* Nav Actions: CTA */}
         <div className="nav-actions">
           {/* User Account or Blueprint CTA Button */}
-          {user ? (
+          {effectiveUser ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
               <Link
                 to={hasPurchased ? '/library' : '/purchase'}
@@ -91,7 +108,7 @@ export default function Navbar() {
                   }}
                 />
                 <span style={{ maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {user.displayName?.split(' ')[0] || 'Member'}
+                  {effectiveUser.displayName?.split(' ')[0] || effectiveUser.name?.split(' ')[0] || 'Member'}
                 </span>
               </Link>
 
@@ -185,7 +202,7 @@ export default function Navbar() {
                   <span>{item.label}</span>
                   {item.isProtected && (
                     <span className="badge-mono" style={{ fontSize: '0.72rem' }}>
-                      {user ? 'ACCESS GRANTED' : 'LOGIN REQUIRED'}
+                      {effectiveUser ? 'ACCESS GRANTED' : 'LOGIN REQUIRED'}
                     </span>
                   )}
                 </NavLink>
@@ -194,17 +211,19 @@ export default function Navbar() {
           </ul>
 
           <div style={{ borderTop: '1px solid var(--border-main)', paddingTop: '1.25rem', marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            {user && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {effectiveUser && (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
-                  Logged in as <strong>{user.email}</strong>
+                  Logged in as <strong>{effectiveUser.email || effectiveUser.displayName || effectiveUser.name || 'Student'}</strong>
                 </span>
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
                   onClick={handleLogout}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
                 >
-                  Sign Out
+                  <LogOut size={13} />
+                  <span>Sign Out</span>
                 </button>
               </div>
             )}

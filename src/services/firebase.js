@@ -460,9 +460,14 @@ export const firebaseAuthService = {
   // Logout
   logout: async () => {
     if (isRealFirebaseConfigured && auth) {
-      await signOut(auth);
+      try {
+        await signOut(auth);
+      } catch (err) {
+        console.warn('[Firebase] signOut error:', err);
+      }
     }
     localStorage.removeItem(STORAGE_KEY_USER);
+    localStorage.removeItem('mentico_access_pass');
     window.dispatchEvent(new Event('storage'));
   },
 

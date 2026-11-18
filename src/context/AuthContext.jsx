@@ -52,7 +52,15 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    await firebaseAuthService.logout();
+    try {
+      await firebaseAuthService.logout();
+    } catch (err) {
+      console.warn('[AuthContext] logout error:', err);
+    }
+    try {
+      localStorage.removeItem('mentico_access_pass');
+      window.dispatchEvent(new Event('storage'));
+    } catch {}
     setUser(null);
   };
 

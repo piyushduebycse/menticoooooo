@@ -24,13 +24,14 @@ import {
   Brain,
   RotateCw,
   Menu,
+  LogOut,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import '../landing.css';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const storedPass = (() => {
     try {
       return typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('mentico_access_pass') || '{}') : {};
@@ -39,6 +40,19 @@ export default function Home() {
     }
   })();
   const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.warn('[Home] Logout error:', err);
+    }
+    try {
+      localStorage.removeItem('mentico_access_pass');
+      window.dispatchEvent(new Event('storage'));
+    } catch {}
+    setMobileMenuOpen(false);
+  };
   const originalPrice = 999;
   const envPrice = Number(import.meta.env.VITE_PRODUCT_PRICE_INR);
   const currentPrice = (Number.isFinite(envPrice) && envPrice > 1) ? envPrice : 499;
@@ -269,16 +283,45 @@ export default function Home() {
             </ul>
           </nav>
 
-          {/* Header CTA Button */}
-          <button
-            type="button"
-            onClick={handlePurchaseClick}
-            className="mentico-btn-cta"
-            aria-label="Get the Book"
-          >
-            {hasPurchased ? 'Open Your Book' : 'Get the Book'}
-            <ArrowRight size={16} />
-          </button>
+          {/* Header Action Buttons */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={handlePurchaseClick}
+              className="mentico-btn-cta"
+              aria-label={hasPurchased ? 'Open Your Book' : 'Get the Book'}
+            >
+              {hasPurchased ? 'Open Your Book' : 'Get the Book'}
+              <ArrowRight size={16} />
+            </button>
+
+            {(user || hasPurchased) && (
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="mentico-btn-logout-header"
+                title="Sign Out"
+                aria-label="Sign Out"
+                style={{
+                  background: 'transparent',
+                  border: '1px solid rgba(0, 0, 0, 0.14)',
+                  borderRadius: '999px',
+                  padding: '7px 14px',
+                  fontSize: '0.82rem',
+                  fontWeight: 600,
+                  color: 'var(--mentico-charcoal)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <LogOut size={14} />
+                <span>Sign Out</span>
+              </button>
+            )}
+          </div>
 
           {/* Mobile Menu Toggle Button */}
           <button
@@ -345,6 +388,32 @@ export default function Home() {
           {hasPurchased ? 'Open Your Book' : 'Get the Book'}
           <ArrowRight size={16} />
         </button>
+
+        {(user || hasPurchased) && (
+          <button
+            type="button"
+            onClick={handleLogout}
+            style={{
+              width: '100%',
+              marginTop: '10px',
+              padding: '12px',
+              background: 'transparent',
+              border: '1px solid var(--mentico-border)',
+              borderRadius: '999px',
+              fontSize: '0.9rem',
+              fontWeight: 600,
+              color: 'var(--mentico-charcoal)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+            }}
+          >
+            <LogOut size={16} />
+            <span>Sign Out</span>
+          </button>
+        )}
       </div>
 
       <main>

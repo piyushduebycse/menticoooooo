@@ -1633,8 +1633,9 @@
     font-size: 22px;
   }
 
-  .mentico-header .mentico-btn-cta {
-    display: none; /* In header, save space on mobile; menu has CTA */
+  .mentico-header .mentico-btn-cta,
+  .mentico-header .mentico-btn-logout-header {
+    display: none; /* In header, save space on mobile; menu has CTA & Logout */
   }
 
   /* Hero Section */

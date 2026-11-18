@@ -17,9 +17,10 @@ import {
   Maximize2,
   BookOpen,
   Shield,
+  LogOut,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useSearchParams, useLocation } from 'react-router-dom';
+import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
 import Spinner from '../components/Spinner';
 import { DashboardSkeleton } from '../components/SkeletonLoader';
 import ProtectedPdfReader from '../components/ProtectedPdfReader';
@@ -28,10 +29,24 @@ import { getReadingProgress } from '../services/readingProgress';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const shouldAutoOpen = searchParams.get('openPdf') === 'true' || location.state?.openPdf === true;
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.warn('[Dashboard] Logout error:', err);
+    }
+    try {
+      localStorage.removeItem('mentico_access_pass');
+      window.dispatchEvent(new Event('storage'));
+    } catch {}
+    navigate('/');
+  };
 
   const storedPass = (() => {
     try {
@@ -157,7 +172,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
               <button
                 type="button"
                 className="btn btn-secondary btn-sm"
@@ -166,6 +181,22 @@ export default function Dashboard() {
               >
                 <RefreshCw size={14} />
                 <span>Sync Vault</span>
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary btn-sm"
+                onClick={handleLogout}
+                title="Sign Out of Mentico"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  borderColor: 'var(--border-main)',
+                  color: 'var(--text-secondary)',
+                }}
+              >
+                <LogOut size={14} />
+                <span>Sign Out</span>
               </button>
             </div>
           </div>
