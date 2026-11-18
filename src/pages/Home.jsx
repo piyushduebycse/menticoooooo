@@ -39,17 +39,22 @@ export default function Home() {
     }
   })();
   const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased);
+  const originalPrice = 999;
+  const envPrice = Number(import.meta.env.VITE_PRODUCT_PRICE_INR);
+  const currentPrice = (Number.isFinite(envPrice) && envPrice > 1) ? envPrice : 499;
 
   const [scrolled, setScrolled] = useState(false);
+  const [showStickyBar, setShowStickyBar] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [lightboxImage, setLightboxImage] = useState(null);
 
-  // Scroll listener for sticky header styling
+  // Scroll listener for sticky header & floating bottom buy bar
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
+      setShowStickyBar(window.scrollY > 260);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
@@ -1129,6 +1134,63 @@ export default function Home() {
           </div>
         </div>
       )}
+      {/* Sticky Floating Buy Bar with Price (Desktop & Mobile) */}
+      <aside
+        className={`mentico-sticky-bar ${showStickyBar ? 'is-visible' : ''}`}
+        aria-label="Sticky purchase bar"
+      >
+        <div className="mentico-sticky-bar-inner">
+          <div className="mentico-sticky-bar-left">
+            <div className="mentico-sticky-pricing">
+              {hasPurchased ? (
+                <>
+                  <div className="mentico-sticky-price-row">
+                    <span
+                      style={{
+                        width: '9px',
+                        height: '9px',
+                        borderRadius: '50%',
+                        backgroundColor: '#22c55e',
+                        display: 'inline-block',
+                      }}
+                    />
+                    <span className="mentico-sticky-title">Social Freedom</span>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#16a34a' }}>
+                      Active Member
+                    </span>
+                  </div>
+                  <div className="mentico-sticky-sublabel">
+                    Full Web Reader &amp; PDF Manual Unlocked
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="mentico-sticky-price-row">
+                    <span className="mentico-sticky-title">Social Freedom</span>
+                    <span className="mentico-sticky-price">₹{currentPrice.toLocaleString('en-IN')}</span>
+                    <span className="mentico-sticky-original-price">₹{originalPrice.toLocaleString('en-IN')}</span>
+                    <span className="mentico-sticky-badge">50% OFF</span>
+                  </div>
+                  <div className="mentico-sticky-sublabel">
+                    Instant PDF Access • 30-Day Challenge Included
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handlePurchaseClick}
+            className="mentico-sticky-btn"
+            style={hasPurchased ? { backgroundColor: '#16a34a' } : {}}
+            aria-label={hasPurchased ? 'Open Protected Reader' : `Get the Book (₹${currentPrice})`}
+          >
+            <span>{hasPurchased ? 'Open Your Book' : `Get the Book (₹${currentPrice})`}</span>
+            <ArrowRight size={16} />
+          </button>
+        </div>
+      </aside>
     </div>
   );
 }
