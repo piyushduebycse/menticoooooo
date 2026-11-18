@@ -2,7 +2,7 @@ import { GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import fs from 'fs';
 import path from 'path';
 import { verifyAuthUser } from '../_lib/server-auth.js';
-import { getR2Client, getR2Config, resolveBook } from '../_lib/r2-client.js';
+import { getR2Client, resolveBook } from '../_lib/r2-client.js';
 
 // In-memory cache for R2 object metadata (file size)
 // Avoids redundant HeadObjectCommand round-trips to Cloudflare R2 on every byte-range chunk
@@ -202,19 +202,10 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
       return;
     } catch (r2Err) {
       console.error('[R2 Storage Error]:', r2Err);
-      const fallbackUrl = 'https://drive.google.com/file/d/12Tak_H7W-TS0gmyX9Lkza0lSwY_a-fn_/view?usp=sharing';
-      res.setHeader('X-Mentico-Fallback-Url', fallbackUrl);
-      if (req.headers?.accept?.includes('text/html')) {
-        if (typeof res.redirect === 'function') {
-          return res.redirect(307, fallbackUrl);
-        }
-        res.setHeader('Location', fallbackUrl);
-        return res.status(307).end();
-      }
       if (r2Err.name === 'NoSuchKey' || r2Err.$metadata?.httpStatusCode === 404) {
-        return res.status(404).json({ success: false, error: 'PDF file was not found in R2 storage.', fallbackUrl });
+        return res.status(404).json({ success: false, error: 'PDF file was not found in R2 storage.' });
       }
-      return res.status(500).json({ success: false, error: 'Failed to stream document from Cloudflare R2.', fallbackUrl });
+      return res.status(500).json({ success: false, error: 'Failed to stream document from Cloudflare R2.' });
     }
   }
 
@@ -233,19 +224,9 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
   }
 
   if (!resolvedLocalPath) {
-    const fallbackUrl = 'https://drive.google.com/file/d/12Tak_H7W-TS0gmyX9Lkza0lSwY_a-fn_/view?usp=sharing';
-    res.setHeader('X-Mentico-Fallback-Url', fallbackUrl);
-    if (req.headers?.accept?.includes('text/html')) {
-      if (typeof res.redirect === 'function') {
-        return res.redirect(307, fallbackUrl);
-      }
-      res.setHeader('Location', fallbackUrl);
-      return res.status(307).end();
-    }
     return res.status(500).json({
       success: false,
       error: 'Cloudflare R2 credentials (R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT) are not configured, and local PDF fallback was not found.',
-      fallbackUrl,
     });
   }
 

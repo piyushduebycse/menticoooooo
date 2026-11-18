@@ -1,4 +1,5 @@
 import { getFirebaseAdmin } from './firebase-admin.js';
+import { clearAuthCache } from './server-auth.js';
 
 export function requirePaymentDatabase() {
   const hasCreds = Boolean(process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY);
@@ -77,4 +78,64 @@ export async function fulfillCapturedPayment({ orderId, payment, userId, order }
   }
 
   return { licenseKey, alreadyFulfilled: false };
+}
+
+export async function recordPaymentFailure({ orderId, paymentId = null, reason = 'failed' }, database = requirePaymentDatabase()) {
+  const { adminDb, FieldValue } = database;
+  if (!adminDb || !orderId) return;
+  try {
+    const purchaseRef = adminDb.collection('purchases').doc(orderId);
+    await purchaseRef.set({
+      orderId,
+      paymentId: paymentId || null,
+      status: 'failed',
+      failureReason: reason,
+      failedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+  } catch (err) {
+    console.warn('[Payment Failure Record Notice]:', err.message);
+  }
+}
+
+export async function revokePaymentRefund({ orderId = null, paymentId = null, refundId = null, reason = 'refunded' }, database = requirePaymentDatabase()) {
+  const { adminDb, FieldValue } = database;
+  if (!adminDb) return;
+  try {
+    let orderRef = null;
+    let userId = null;
+
+    if (orderId) {
+      orderRef = adminDb.collection('purchases').doc(orderId);
+      const snap = await orderRef.get();
+      if (snap.exists) userId = snap.data()?.userId;
+    } else if (paymentId) {
+      const snap = await adminDb.collection('purchases').where('paymentId', '==', paymentId).limit(1).get();
+      if (!snap.empty) {
+        orderRef = snap.docs[0].ref;
+        userId = snap.docs[0].data()?.userId;
+      }
+    }
+
+    if (orderRef) {
+      await orderRef.set({
+        status: 'refunded',
+        refundId: refundId || null,
+        refundReason: reason,
+        refundedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+    }
+
+    if (userId) {
+      await adminDb.collection('users').doc(userId).set({
+        hasPurchased: false,
+        hasPurchasedPdf: false,
+        status: 'refunded',
+        updatedAt: FieldValue.serverTimestamp(),
+      }, { merge: true });
+    }
+
+    clearAuthCache();
+  } catch (err) {
+    console.warn('[Payment Refund Revocation Notice]:', err.message);
+  }
 }

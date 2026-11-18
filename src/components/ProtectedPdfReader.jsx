@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   ChevronLeft,
   ChevronRight,
@@ -11,14 +12,13 @@ import {
   X,
   AlertTriangle,
   List,
-  ExternalLink,
+  ShieldAlert,
+  ArrowRight,
 } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { useAuth } from '../context/AuthContext';
 import { saveReadingProgress } from '../services/readingProgress';
-
-const FALLBACK_DIRECT_PDF_URL = 'https://drive.google.com/file/d/12Tak_H7W-TS0gmyX9Lkza0lSwY_a-fn_/view?usp=sharing';
 
 // Set worker source using Vite's ?url import with safe fallback
 try {
@@ -37,6 +37,7 @@ export default function ProtectedPdfReader({
   user,
   onClose,
 }) {
+  const navigate = useNavigate();
   const { getIdToken } = useAuth();
   const [pdfDoc, setPdfDoc] = useState(null);
   const [currentPage, setCurrentPage] = useState(Math.max(1, Number(initialPage) || 1));
@@ -54,6 +55,7 @@ export default function ProtectedPdfReader({
   const [scale, setScale] = useState(getInitialScale);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
+  const [isAccessDenied, setIsAccessDenied] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [drmToast, setDrmToast] = useState('');
   const [showToc, setShowToc] = useState(false);
@@ -239,13 +241,22 @@ export default function ProtectedPdfReader({
         setIsLoading(false);
       } catch (err) {
         if (!isMounted) return;
-        console.error('PDF Load Error (Cloudflare R2):', err);
+        console.error('[PDF Reader Load Error]:', err);
         setIsLoading(false);
-        setLoadError('Unable to stream PDF from Cloudflare R2. Redirecting to direct reader...');
-        try {
-          window.location.href = FALLBACK_DIRECT_PDF_URL;
-        } catch (redirErr) {
-          console.warn('[PDF Reader] Auto redirect error:', redirErr);
+        const errMsg = String(err?.message || '');
+        if (
+          err?.status === 401 ||
+          err?.status === 403 ||
+          errMsg.includes('401') ||
+          errMsg.includes('403') ||
+          errMsg.includes('Access Denied') ||
+          errMsg.includes('Unauthorized') ||
+          errMsg.includes('purchase-required')
+        ) {
+          setIsAccessDenied(true);
+          setLoadError('Access Denied: A verified active purchase is required to view this publication.');
+        } else {
+          setLoadError(err.message || 'Error loading protected PDF document from vault.');
         }
       }
     }
@@ -261,22 +272,6 @@ export default function ProtectedPdfReader({
       }
     };
   }, [resolvedUrl, getIdToken]);
-
-  // Safety timeout: If user stays in DRM without getting access to PDF from Cloudflare R2, redirect to backup link
-  useEffect(() => {
-    if (!isLoading || pdfDoc) return;
-
-    const redirectTimer = setTimeout(() => {
-      console.warn('[DRM Reader] Staying in DRM without access from Cloudflare R2. Redirecting to backup link...');
-      try {
-        window.location.href = FALLBACK_DIRECT_PDF_URL;
-      } catch (err) {
-        console.warn('Redirect error:', err);
-      }
-    }, 4500);
-
-    return () => clearTimeout(redirectTimer);
-  }, [isLoading, pdfDoc]);
 
   // Render Page to Canvas with DPR optimization + Forensic Watermark
   useEffect(() => {
@@ -420,27 +415,6 @@ export default function ProtectedPdfReader({
             <Lock size={12} />
             <span>PROTECTED DRM</span>
           </div>
-
-          <a
-            href={FALLBACK_DIRECT_PDF_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-secondary btn-sm"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.74rem',
-              color: '#FBBF24',
-              borderColor: 'rgba(251, 191, 36, 0.4)',
-              textDecoration: 'none',
-              padding: '0.3rem 0.65rem',
-            }}
-            title="Open direct backup link on Google Drive"
-          >
-            <ExternalLink size={12} />
-            <span>Direct Reader (Drive)</span>
-          </a>
 
           <button
             type="button"
@@ -619,7 +593,7 @@ export default function ProtectedPdfReader({
 
         {/* Loading Spinner */}
         {isLoading && (
-          <div style={{ margin: 'auto', textAlign: 'center', color: '#9CA3AF', padding: '3rem 1.5rem', maxWidth: '480px' }}>
+          <div style={{ margin: 'auto', textAlign: 'center', color: '#9CA3AF', padding: '3rem 1.5rem', maxWidth: '440px' }}>
             <div
               style={{
                 width: '42px',
@@ -632,73 +606,44 @@ export default function ProtectedPdfReader({
               }}
             />
             <div style={{ fontSize: '0.95rem', fontWeight: 700, fontFamily: 'var(--font-mono)', color: '#FFFFFF', marginBottom: '0.45rem' }}>
-              DECRYPTING PROTECTED MENTICO PAGES...
+              VERIFYING ENTITLEMENT & DECRYPTING PAGES...
             </div>
-            <p style={{ fontSize: '0.82rem', color: '#9CA3AF', marginBottom: '1.25rem', lineHeight: 1.5 }}>
-              Connecting to Cloudflare R2 stream. If access is delayed, you will be redirected automatically to the direct reader.
+            <p style={{ fontSize: '0.82rem', color: '#9CA3AF', margin: 0 }}>
+              Connecting to secure Cloudflare R2 vault with forensic DRM protection.
             </p>
-            <a
-              href={FALLBACK_DIRECT_PDF_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-secondary btn-sm"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                fontSize: '0.82rem',
-                color: '#FBBF24',
-                borderColor: 'rgba(251, 191, 36, 0.4)',
-                padding: '0.45rem 1rem',
-                borderRadius: '999px',
-                textDecoration: 'none',
-              }}
-            >
-              <ExternalLink size={14} />
-              <span>Redirect Now to Google Drive Reader →</span>
-            </a>
           </div>
         )}
 
-        {/* Load Error Fallback */}
-        {loadError && !isLoading && (
-          <div style={{ margin: 'auto', textAlign: 'center', color: '#F87171', padding: '3rem 1.5rem', maxWidth: '520px' }}>
-            <AlertTriangle size={38} style={{ margin: '0 auto 1rem', color: '#EF4444' }} />
-            <div style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '0.5rem', color: '#FFFFFF' }}>
-              Redirecting to Direct PDF Reader
+        {/* Access Denied (Unpurchased / Cancelled / Tampered) */}
+        {isAccessDenied && !isLoading && (
+          <div style={{ margin: 'auto', textAlign: 'center', color: '#FFFFFF', padding: '3rem 1.5rem', maxWidth: '480px' }}>
+            <ShieldAlert size={46} color="var(--red-primary)" style={{ margin: '0 auto 1rem' }} />
+            <div style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '0.5rem', color: '#FFFFFF' }}>
+              Verified Purchase Required
             </div>
-            <p style={{ fontSize: '0.88rem', color: '#D1D5DB', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-              Access to the PDF stream from Cloudflare R2 is currently delayed or unavailable. Redirecting you to the direct reader on Google Drive...
+            <p style={{ fontSize: '0.88rem', color: '#D1D5DB', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+              This publication is strictly protected under Mentico DRM. An independently verified active purchase is required to unlock this document. Cancelled, failed, or unpaid sessions cannot access this manual.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a
-                href={FALLBACK_DIRECT_PDF_URL}
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
+                onClick={() => {
+                  if (onClose) onClose();
+                  navigate('/purchase');
+                }}
                 className="btn btn-primary"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.5rem',
                   fontWeight: 800,
-                  backgroundColor: '#DC2626',
-                  borderColor: '#DC2626',
-                  textDecoration: 'none',
-                  padding: '0.65rem 1.25rem',
+                  backgroundColor: 'var(--red-primary)',
+                  borderColor: 'var(--red-primary)',
+                  padding: '0.65rem 1.35rem',
                 }}
               >
-                <ExternalLink size={16} />
-                <span>Open Google Drive Reader →</span>
-              </a>
-
-              <button
-                type="button"
-                onClick={() => window.location.reload()}
-                className="btn btn-secondary"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}
-              >
-                <RotateCw size={16} />
-                <span>Retry R2 Reader</span>
+                <span>Get the Manual Now</span>
+                <ArrowRight size={16} />
               </button>
 
               <button
@@ -708,7 +653,41 @@ export default function ProtectedPdfReader({
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}
               >
                 <X size={16} />
-                <span>Exit</span>
+                <span>Exit Reader</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Load Error Fallback (Network / Vault Error for legitimate purchasers) */}
+        {loadError && !isAccessDenied && !isLoading && (
+          <div style={{ margin: 'auto', textAlign: 'center', color: '#F87171', padding: '3rem 1.5rem', maxWidth: '480px' }}>
+            <AlertTriangle size={42} style={{ margin: '0 auto 1rem', color: '#EF4444' }} />
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '0.5rem', color: '#FFFFFF' }}>
+              Reader Decryption Notice
+            </div>
+            <p style={{ fontSize: '0.86rem', color: '#D1D5DB', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+              {loadError || 'Unable to stream pages from the secure document vault. Please check your connection and reload.'}
+            </p>
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="btn btn-primary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800 }}
+              >
+                <RotateCw size={16} />
+                <span>Reload Protected Reader</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="btn btn-secondary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}
+              >
+                <X size={16} />
+                <span>Exit Reader</span>
               </button>
             </div>
           </div>

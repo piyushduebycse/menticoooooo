@@ -1,6 +1,6 @@
 import { verifyAuthUser } from '../_lib/server-auth.js';
 import { getRazorpayClient, verifyRazorpayPaymentSignature } from '../_lib/razorpay-admin.js';
-import { fulfillCapturedPayment, requirePaymentDatabase } from '../_lib/payment-fulfillment.js';
+import { fulfillCapturedPayment } from '../_lib/payment-fulfillment.js';
 import { createAccessToken } from '../_lib/access-token.js';
 
 export default async function handler(req, res) {

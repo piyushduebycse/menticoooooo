@@ -1,6 +1,24 @@
 import { getFirebaseAdmin } from './firebase-admin.js';
 import { verifyAccessToken } from './access-token.js';
 
+// Strict Payment State constants
+export const PAYMENT_STATES = {
+  CREATED: 'created',
+  PENDING: 'pending',
+  PAID: 'paid',
+  FAILED: 'failed',
+  CANCELLED: 'cancelled',
+  REFUNDED: 'refunded',
+};
+
+const UNPAID_OR_REVOKED_STATES = new Set([
+  PAYMENT_STATES.CREATED,
+  PAYMENT_STATES.PENDING,
+  PAYMENT_STATES.FAILED,
+  PAYMENT_STATES.CANCELLED,
+  PAYMENT_STATES.REFUNDED,
+]);
+
 // In-memory cache for verified auth & entitlements (TTL: 60s)
 // Eliminates repetitive RTDB / Firestore queries on rapid consecutive PDF byte-range requests
 const AUTH_CACHE = new Map();
@@ -38,6 +56,30 @@ export async function verifyAuthUser(req, res) {
   if (idToken.startsWith('mtc_')) {
     const pass = verifyAccessToken(idToken);
     if (pass) {
+      // Check if pass was revoked or refunded
+      let isRevoked = false;
+      try {
+        const { adminDb } = getFirebaseAdmin();
+        if (adminDb && pass.orderId) {
+          const snap = await adminDb.collection('purchases').doc(pass.orderId).get();
+          if (snap.exists) {
+            const pStatus = snap.data()?.status;
+            if (pStatus === 'refunded' || pStatus === 'cancelled' || pStatus === 'failed') {
+              isRevoked = true;
+            }
+          }
+        }
+      } catch {}
+
+      if (isRevoked) {
+        res.status(403).json({
+          success: false,
+          error: 'Access has been revoked or refunded for this pass.',
+          code: 'auth/pass-revoked',
+        });
+        return null;
+      }
+
       const user = {
         uid: `guest_${pass.email.replace(/[^a-zA-Z0-9]/g, '_')}`,
         email: pass.email,
@@ -92,16 +134,22 @@ export async function verifyAuthUser(req, res) {
       if (userSnap.exists()) {
         const val = userSnap.val() || {};
         userData = { ...val };
-        if (val.hasPurchased || val.hasPurchasedPdf) {
-          hasPurchased = true;
+        const status = val.status;
+        if (!UNPAID_OR_REVOKED_STATES.has(status)) {
+          if (val.hasPurchased || val.hasPurchasedPdf || status === PAYMENT_STATES.PAID) {
+            hasPurchased = true;
+          }
         }
       }
       if (!hasPurchased) {
         const purchaseSnap = await adminRtdb.ref(`purchases/${decodedToken.uid}`).once('value');
         if (purchaseSnap.exists()) {
           const pVal = purchaseSnap.val() || {};
-          if (pVal.hasPurchased || pVal.hasPurchasedPdf || pVal.status === 'paid' || pVal.active) {
-            hasPurchased = true;
+          const pStatus = pVal.status;
+          if (!UNPAID_OR_REVOKED_STATES.has(pStatus)) {
+            if (pVal.hasPurchased || pVal.hasPurchasedPdf || pStatus === PAYMENT_STATES.PAID) {
+              hasPurchased = true;
+            }
           }
         }
       }
@@ -110,20 +158,52 @@ export async function verifyAuthUser(req, res) {
     }
   }
 
-  // Check Cloud Firestore (existing project database)
+  // Check Cloud Firestore
   if (!hasPurchased && adminDb) {
     try {
       const userDoc = await adminDb.collection('users').doc(decodedToken.uid).get();
       if (userDoc.exists) {
         const fData = userDoc.data() || {};
         userData = { ...userData, ...fData };
-        if (fData.hasPurchased || fData.hasPurchasedPdf) {
+        const status = fData.status;
+        if (!UNPAID_OR_REVOKED_STATES.has(status)) {
+          if (fData.hasPurchased || fData.hasPurchasedPdf || status === PAYMENT_STATES.PAID) {
+            hasPurchased = true;
+          }
+        }
+      }
+
+      // Check verified 'paid' purchases by userId
+      if (!hasPurchased) {
+        const paidSnap = await adminDb.collection('purchases')
+          .where('userId', '==', decodedToken.uid)
+          .where('status', '==', PAYMENT_STATES.PAID)
+          .limit(1)
+          .get();
+        if (!paidSnap.empty) {
+          hasPurchased = true;
+        }
+      }
+
+      // Check verified 'paid' purchases by userEmail
+      if (!hasPurchased && decodedToken.email) {
+        const paidEmailSnap = await adminDb.collection('purchases')
+          .where('userEmail', '==', decodedToken.email.toLowerCase())
+          .where('status', '==', PAYMENT_STATES.PAID)
+          .limit(1)
+          .get();
+        if (!paidEmailSnap.empty) {
           hasPurchased = true;
         }
       }
     } catch (dbErr) {
       console.warn('[Server Auth] Firestore user profile lookup notice:', dbErr.message);
     }
+  }
+
+  // Explicit revocation override: If user status is cancelled, refunded, or failed, deny access
+  if (userData.status && UNPAID_OR_REVOKED_STATES.has(userData.status)) {
+    hasPurchased = false;
   }
 
   const user = {

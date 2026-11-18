@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   FileText,
   Download,
@@ -18,6 +18,7 @@ import {
   Sparkles,
   ExternalLink,
   X,
+  AlertTriangle,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Spinner from '../components/Spinner';
@@ -30,6 +31,7 @@ import confetti from 'canvas-confetti';
 export default function Product() {
   const { user, getIdToken, refreshUser, markPurchased } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const storedPass = (() => {
     try {
@@ -43,6 +45,7 @@ export default function Product() {
 
   const [activePreviewTab, setActivePreviewTab] = useState('toc');
   const [couponError, setCouponError] = useState('');
+  const [paymentNotice, setPaymentNotice] = useState(null);
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const [isHighlightModalOpen, setIsHighlightModalOpen] = useState(false);
@@ -51,6 +54,25 @@ export default function Product() {
   const [buyerName, setBuyerName] = useState(user?.displayName || user?.name || storedPass?.name || '');
   const [buyerEmail, setBuyerEmail] = useState(user?.email || storedPass?.email || '');
   const [buyerPhone, setBuyerPhone] = useState(user?.phoneNumber || '');
+
+  useEffect(() => {
+    if (searchParams.get('denied') === 'true') {
+      setPaymentNotice({
+        type: 'cancelled',
+        message: 'A verified purchase is required to access the Protected PDF Reader. No active purchase was found.',
+      });
+    } else if (searchParams.get('cancelled') === 'true' || searchParams.get('payment') === 'cancelled') {
+      setPaymentNotice({
+        type: 'cancelled',
+        message: "Payment was cancelled. No access has been granted. You can try again whenever you're ready.",
+      });
+    } else if (searchParams.get('failed') === 'true' || searchParams.get('error') === 'true') {
+      setPaymentNotice({
+        type: 'failed',
+        message: 'Payment was not completed. Your account has not been debited and access is locked.',
+      });
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (user?.displayName && !buyerName) setBuyerName(user.displayName);
@@ -65,6 +87,7 @@ export default function Product() {
 
   const handlePurchase = async () => {
     setCouponError('');
+    setPaymentNotice(null);
 
     if (hasPurchased) {
       navigate('/library?openPdf=true', { state: { openPdf: true } });
@@ -201,14 +224,33 @@ export default function Product() {
           navigate('/library?openPdf=true', { state: { openPdf: true, fromPayment: true, accessPass } });
         },
         onFailure: (err) => {
-          if (err.message && !err.message.includes('closed before completion')) {
-            setCouponError(err.message);
+          if (err.isCancelled || err.code === 'PAYMENT_CANCELLED' || err.message?.includes('cancelled') || err.message?.includes('closed before completion')) {
+            setPaymentNotice({
+              type: 'cancelled',
+              message: "Payment was cancelled. No access has been granted. You can try again whenever you're ready.",
+            });
+            setCouponError('');
+          } else {
+            setPaymentNotice({
+              type: 'failed',
+              message: err.message || 'Payment was not completed. Your account has not been debited and access is locked. Please try another payment method.',
+            });
           }
         },
       });
     } catch (err) {
       console.error('[Purchase Error]:', err);
-      setCouponError(err.message || 'Payment initiation failed. Please try again.');
+      if (err.isCancelled || err.code === 'PAYMENT_CANCELLED' || err.message?.includes('cancelled') || err.message?.includes('closed before completion')) {
+        setPaymentNotice({
+          type: 'cancelled',
+          message: "Payment was cancelled. No access has been granted. You can try again whenever you're ready.",
+        });
+      } else {
+        setPaymentNotice({
+          type: 'failed',
+          message: err.message || 'Payment initiation failed. Please try again.',
+        });
+      }
     } finally {
       setIsPurchasing(false);
     }
@@ -646,6 +688,41 @@ export default function Product() {
                       </span>
                     </div>
                   </div>
+
+                  {paymentNotice && (
+                    <div
+                      role="alert"
+                      style={{
+                        padding: '0.85rem 1rem',
+                        borderRadius: '8px',
+                        marginBottom: '1rem',
+                        fontSize: '0.84rem',
+                        lineHeight: 1.45,
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '0.65rem',
+                        backgroundColor: paymentNotice.type === 'cancelled' ? '#FEF3C7' : '#FEE2E2',
+                        border: `1px solid ${paymentNotice.type === 'cancelled' ? '#F59E0B' : '#EF4444'}`,
+                        color: paymentNotice.type === 'cancelled' ? '#92400E' : '#B91C1C',
+                      }}
+                    >
+                      <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 700, marginBottom: '2px' }}>
+                          {paymentNotice.type === 'cancelled' ? 'Payment Cancelled' : 'Payment Not Completed'}
+                        </div>
+                        <div>{paymentNotice.message}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setPaymentNotice(null)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '0 2px' }}
+                        aria-label="Dismiss"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
 
                   {couponError && (
                     <div role="alert" style={{ color: 'var(--red-primary)', fontSize: '0.8rem', marginBottom: '1rem', fontWeight: 600 }}>

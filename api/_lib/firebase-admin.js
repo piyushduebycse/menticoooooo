@@ -18,6 +18,12 @@ let adminRtdb = null;
 const inMemoryStore = new Map();
 
 function createSafeFirestoreStub() {
+  const queryStub = {
+    where: () => queryStub,
+    limit: () => queryStub,
+    get: async () => ({ empty: true, docs: [] }),
+  };
+
   return {
     collection: (collName) => ({
       doc: (docId) => ({
@@ -45,6 +51,9 @@ function createSafeFirestoreStub() {
           return { writeTime: new Date() };
         },
       }),
+      where: () => queryStub,
+      limit: () => queryStub,
+      get: async () => ({ empty: true, docs: [] }),
     }),
     batch: () => {
       const ops = [];

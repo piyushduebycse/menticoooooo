@@ -65,8 +65,11 @@ export async function openRazorpayCheckout({ order, user, onSuccess, onFailure }
       modal: {
         confirm_close: true,
         ondismiss: () => {
-          if (onFailure) onFailure(new Error('Checkout closed before completion.'));
-          resolve({ dismissed: true });
+          const cancelErr = new Error("Payment was cancelled. No access has been granted. You can try again whenever you're ready.");
+          cancelErr.isCancelled = true;
+          cancelErr.code = 'PAYMENT_CANCELLED';
+          if (onFailure) onFailure(cancelErr);
+          resolve({ dismissed: true, cancelled: true });
         },
       },
       handler: async (response) => {
@@ -85,9 +88,13 @@ export async function openRazorpayCheckout({ order, user, onSuccess, onFailure }
     const rzp = new window.Razorpay(options);
 
     rzp.on('payment.failed', function (response) {
-      const errorMsg = response.error?.description || 'Payment failed.';
-      if (onFailure) onFailure(new Error(errorMsg));
-      reject(new Error(errorMsg));
+      const errorMsg = response.error?.description || 'Payment was not completed. Your account has not been debited and access is locked.';
+      const failErr = new Error(errorMsg);
+      failErr.isFailed = true;
+      failErr.code = 'PAYMENT_FAILED';
+      failErr.details = response.error;
+      if (onFailure) onFailure(failErr);
+      reject(failErr);
     });
 
     rzp.open();

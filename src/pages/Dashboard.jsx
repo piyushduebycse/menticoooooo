@@ -56,11 +56,12 @@ export default function Dashboard() {
     }
   })();
 
+  const isRevoked = user?.status === 'cancelled' || user?.status === 'refunded' || user?.status === 'failed';
   const effectiveUser = {
     ...(user || {}),
     ...(storedPass || {}),
     ...(location.state?.accessPass || {}),
-    hasPurchased: Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased || location.state?.accessPass?.hasPurchased),
+    hasPurchased: !isRevoked && Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased || location.state?.accessPass?.hasPurchased),
     name: user?.displayName || storedPass?.name || location.state?.accessPass?.name || 'Mentico Student',
     email: user?.email || storedPass?.email || location.state?.accessPass?.email || 'student@mentico.co.in',
     accessToken: location.state?.accessPass?.accessToken || storedPass?.accessToken || user?.accessToken || null,
@@ -345,52 +346,20 @@ export default function Dashboard() {
                     <span>Open Protected Web Reader</span>
                   </button>
 
-                  {/* Direct Backup Link if R2 is unavailable */}
-                  <a
-                    href="https://drive.google.com/file/d/12Tak_H7W-TS0gmyX9Lkza0lSwY_a-fn_/view?usp=sharing"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-secondary"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.45rem',
-                      fontWeight: 700,
-                      padding: '0.95rem 1.25rem',
-                      textDecoration: 'none',
-                    }}
-                    title="Direct PDF link hosted on Google Drive"
-                  >
-                    <ExternalLink size={16} />
-                    <span>Direct Reader (Google Drive)</span>
-                  </a>
-
                   <div
                     style={{
                       width: '100%',
                       marginTop: '0.5rem',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'space-between',
-                      flexWrap: 'wrap',
                       gap: '0.5rem',
                       fontSize: '0.76rem',
                       color: 'var(--text-muted)',
                       fontFamily: 'var(--font-mono)',
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <Shield size={14} color="#16A34A" />
-                      <span>ANTI-PIRACY ACTIVE • WATERMARKED TO {user?.email}</span>
-                    </div>
-                    <a
-                      href="https://drive.google.com/file/d/12Tak_H7W-TS0gmyX9Lkza0lSwY_a-fn_/view?usp=sharing"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: 'var(--red-primary)', textDecoration: 'underline', fontWeight: 600 }}
-                    >
-                      Direct Backup: Google Drive ↗
-                    </a>
+                    <Shield size={14} color="#16A34A" />
+                    <span>ANTI-PIRACY ACTIVE • FORENSIC WATERMARK ACTIVE • SITE-ONLY DRM</span>
                   </div>
                 </div>
               </div>

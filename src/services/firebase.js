@@ -163,32 +163,14 @@ export const firebaseAuthService = {
             console.warn('Error fetching firestore user profile:', e);
           }
 
-          const localPurchase = getStoredPurchase(firebaseUser.uid, firebaseUser.email);
-
-          // Truthy check so boolean true from ANY source (Firestore OR local cache) grants access
+          // Strict server-verified check: user must be verified 'paid' and not cancelled/refunded
+          const isRevoked = extraData.status === 'cancelled' || extraData.status === 'refunded' || extraData.status === 'failed';
           const hasPurchased = Boolean(
-            extraData.hasPurchased ||
-            extraData.hasPurchasedPdf ||
-            localPurchase?.hasPurchased ||
-            false
+            !isRevoked &&
+            (extraData.hasPurchased || extraData.hasPurchasedPdf)
           );
 
-          const licenseKey =
-            extraData.licenseKey ||
-            localPurchase?.licenseKey ||
-            (hasPurchased ? (localPurchase?.licenseKey || 'MENTICO-IN-7701-VIP') : null);
-
-          // If purchase was recorded locally but Firestore is missing it, sync to Firestore
-          if (hasPurchased && (!extraData.hasPurchased || !extraData.hasPurchasedPdf) && db) {
-            setDoc(doc(db, 'users', firebaseUser.uid), {
-              hasPurchased: true,
-              hasPurchasedPdf: true,
-              licenseKey,
-              updatedAt: serverTimestamp(),
-            }, { merge: true }).catch((err) => {
-              console.warn('[Firebase] Auto-sync purchase to Firestore notice:', err);
-            });
-          }
+          const licenseKey = extraData.licenseKey || (hasPurchased ? 'MENTICO-IN-7701-VIP' : null);
 
           callback({
             ...extraData,
@@ -234,19 +216,15 @@ export const firebaseAuthService = {
       try {
         const credential = await signInWithEmailAndPassword(auth, email, password);
 
-        // Fast resolution: onAuthStateChanged will asynchronously sync deep Firestore profile
-        const localPurchase = getStoredPurchase(credential.user.uid, credential.user.email);
-        const hasPurchased = Boolean(localPurchase?.hasPurchased);
-        const licenseKey = localPurchase?.licenseKey || (hasPurchased ? 'MENTICO-IN-7701-VIP' : null);
-
+        // onAuthStateChanged will asynchronously sync verified Firestore profile
         return {
           uid: credential.user.uid,
           email: credential.user.email,
           emailVerified: Boolean(credential.user.emailVerified),
           displayName: credential.user.displayName || credential.user.email?.split('@')[0],
-          hasPurchased,
-          hasPurchasedPdf: hasPurchased,
-          licenseKey,
+          hasPurchased: false,
+          hasPurchasedPdf: false,
+          licenseKey: null,
         };
       } catch (err) {
         if (err.code === 'auth/api-key-not-valid' || err.message?.includes('api-key-not-valid')) {
@@ -268,11 +246,11 @@ export const firebaseAuthService = {
       uid: 'usr_' + Date.now(),
       email,
       displayName: email.split('@')[0].toUpperCase(),
-      role: 'Mentico Member',
-      hasPurchasedPdf: true,
-      licenseKey: 'MENTICO-IN-' + Math.floor(1000 + Math.random() * 9000),
-      purchaseDate: new Date().toISOString(),
-      downloadCount: 1,
+      role: 'Mentico Student',
+      hasPurchasedPdf: false,
+      licenseKey: null,
+      purchaseDate: null,
+      downloadCount: 0,
     };
     localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(mockUser));
     window.dispatchEvent(new Event('storage'));
