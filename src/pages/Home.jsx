@@ -350,8 +350,8 @@ export default function Home() {
               <span className="mentico-label-pill">A PRACTICAL FIELD GUIDE</span>
 
               <h1 className="mentico-hero-title">
-                <span className="mentico-hero-title-main">MENTICO</span>
-                <span className="mentico-hero-title-accent">SOCIAL FREEDOM</span>
+                <span className="mentico-hero-title-main">Social Freedom</span>
+                <span className="mentico-hero-title-accent">By Mentico</span>
               </h1>
 
               <h2 className="mentico-hero-subhead">
