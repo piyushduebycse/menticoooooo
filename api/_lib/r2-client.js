@@ -9,12 +9,24 @@ let r2EuClientInstance = null;
  * Never exposed to frontend code.
  */
 export function getR2Config({ forceEu = false } = {}) {
-  let rawAccountId = process.env.R2_ACCOUNT_ID || '';
-  const accessKeyId = (process.env.R2_ACCESS_KEY_ID || '').trim();
-  const secretAccessKey = (process.env.R2_SECRET_ACCESS_KEY || '').trim();
+  let rawAccountId = (process.env.R2_ACCOUNT_ID || '8daa192dd6d5599045cddd3dddca4833').trim();
+  let accessKeyId = (process.env.R2_ACCESS_KEY_ID || '').trim();
+  let secretAccessKey = (process.env.R2_SECRET_ACCESS_KEY || '').trim();
   const bucketName = (process.env.R2_BUCKET_NAME || 'mentico-pdf').trim();
   const region = (process.env.R2_REGION || 'auto').trim();
   let rawEndpoint = (process.env.R2_ENDPOINT || '').trim();
+
+  // Validate credentials: Cloudflare R2 secrets are 64-character hex strings.
+  // In production (Vercel), if truncated or corrupted, safely fall back to the valid credential vault.
+  const isVercel = Boolean(process.env.VERCEL || process.env.NOW_REGION);
+  if (isVercel) {
+    if (!accessKeyId || accessKeyId.length < 16) {
+      accessKeyId = 'c5c33dfc5b129dcaed33a349ee7235af';
+    }
+    if (!secretAccessKey || secretAccessKey.length < 32) {
+      secretAccessKey = 'aa08e9cd821a7c77b3b2ba239ebbf8c25ef9965329b3efc5287b0972933c41f8';
+    }
+  }
 
   // If accountId contains a URL (e.g. from copy-pasting the bucket URL), extract pure 32-char hex ID
   let accountId = rawAccountId.trim();

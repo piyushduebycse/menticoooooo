@@ -205,23 +205,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
       if (r2Err.name === 'NoSuchKey' || r2Err.$metadata?.httpStatusCode === 404) {
         return res.status(404).json({ success: false, error: 'PDF file was not found in R2 storage.' });
       }
-      const debugConfig = getR2Config();
-      return res.status(500).json({
-        success: false,
-        error: 'Failed to stream document from Cloudflare R2.',
-        msg: r2Err.message || String(r2Err),
-        name: r2Err.name,
-        status: r2Err['$metadata']?.httpStatusCode,
-        r2Config: {
-          accountId: debugConfig.accountId,
-          accessKeyId: debugConfig.accessKeyId ? debugConfig.accessKeyId.slice(0, 6) + '...' : 'MISSING',
-          secretKeyLen: debugConfig.secretAccessKey ? debugConfig.secretAccessKey.length : 0,
-          bucketName: debugConfig.bucketName,
-          region: debugConfig.region,
-          endpoint: debugConfig.endpoint,
-          isEu: debugConfig.isEu,
-        },
-      });
+      return res.status(500).json({ success: false, error: 'Failed to stream document from Cloudflare R2.' });
     }
   }
 
