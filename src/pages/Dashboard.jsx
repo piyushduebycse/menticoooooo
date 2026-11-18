@@ -209,7 +209,7 @@ export default function Dashboard() {
             <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
               BLUEPRINT DELIVERABLE
             </div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>12.6 MB PDF</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>Official PDF</div>
             <div style={{ fontSize: '0.75rem', color: 'var(--red-primary)', fontWeight: 600 }}>Official High-Res Document</div>
           </div>
 
@@ -251,10 +251,10 @@ export default function Dashboard() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
               <div>
                 <h3 style={{ fontSize: '1.4rem' }}>Primary Student Deliverable</h3>
-                <p style={{ fontSize: '0.88rem' }}>Official High-Resolution Mentico Blueprint PDF (12.6 MB).</p>
+                <p style={{ fontSize: '0.88rem' }}>Official High-Resolution Mentico Blueprint PDF.</p>
               </div>
               <span className="badge-red" style={{ fontSize: '0.7rem' }}>
-                DIGITAL PDF (12.6 MB)
+                DIGITAL PDF MANUAL
               </span>
             </div>
 
@@ -285,7 +285,7 @@ export default function Dashboard() {
                   <FileText size={32} color="var(--red-primary)" style={{ margin: '0 auto' }} />
                 </div>
                 <div style={{ fontSize: '0.6rem', textAlign: 'center', color: '#A1A1AA', fontFamily: 'var(--font-mono)' }}>
-                  12.6 MB PDF
+                  FULL MANUAL
                 </div>
               </div>
 
@@ -295,7 +295,7 @@ export default function Dashboard() {
                   The Mentico Mastery Blueprint (PDF)
                 </div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-                  Official Course Manual • 12.6 MB High-Res PDF • Licensed to:{' '}
+                  Official Course Manual • High-Res Digital PDF • Licensed to:{' '}
                   <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--red-primary)', fontWeight: 700 }}>
                     {user?.displayName || user?.email}
                   </span>
@@ -410,7 +410,7 @@ export default function Dashboard() {
       </div>
 
       {/* ==================================================================
-          IN-APP PDF READER MODAL (DISPLAYS THE REAL 12.6 MB PDF)
+          IN-APP PDF READER MODAL (DISPLAYS THE OFFICIAL DIGITAL MANUAL)
           ================================================================== */}
       {isPdfViewerOpen && (
         <ErrorBoundary>

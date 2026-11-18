@@ -279,7 +279,7 @@ export default function Product() {
             The Mentico Mastery Blueprint (PDF)
           </h1>
           <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)' }}>
-            The complete 12.6 MB self-transformation manual covering <strong>Confidence Building</strong>,{' '}
+            The complete self-transformation manual covering <strong>Confidence Building</strong>,{' '}
             <strong>Public Speaking Mastery</strong>, and <strong>Relationship Dynamics</strong>.
           </p>
         </div>
@@ -310,16 +310,16 @@ export default function Product() {
                 <div>
                   <h3 style={{ fontSize: '1.35rem' }}>Mentico Master PDF Specifications</h3>
                   <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                    2026 EDITION // PRINTABLE // 12.6 MB HIGH-RES DELIVERABLE
+                    2026 EDITION // PRINTABLE // HIGH-RES DELIVERABLE
                   </div>
                 </div>
               </div>
 
               <div className="product-specs-grid">
                 <div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>FILE SIZE</div>
-                  <div style={{ fontWeight: 800, fontSize: '1.1rem' }}>12.6 MB</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>High-Res Vector</div>
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>DELIVERY</div>
+                  <div style={{ fontWeight: 800, fontSize: '1.1rem' }}>Instant</div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Digital Access</div>
                 </div>
                 <div>
                   <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>FORMAT</div>
@@ -341,7 +341,7 @@ export default function Product() {
               <h4 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Full Learning Assets Included:</h4>
               <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {[
-                  'Complete 12.6 MB Mentico Mastery Blueprint (High-Resolution Vector PDF)',
+                  'Complete Mentico Mastery Blueprint (High-Resolution Vector PDF)',
                   'Confidence Building Framework: Overcoming social anxiety & stage shivering',
                   'Public Speaking & Stage Presence: Keynotes, college viva & group discussions',
                   'Relationship & Dating Dynamics: Natural small talk & charisma cheatsheets',
@@ -429,7 +429,7 @@ export default function Product() {
                 {activePreviewTab === 'toc' && (
                   <div>
                     <div style={{ color: 'var(--red-primary)', fontWeight: 700, marginBottom: '0.5rem' }}>
-                      // MENTICO CURRICULUM OVERVIEW (12.6 MB PDF)
+                      // MENTICO CURRICULUM OVERVIEW
                     </div>
                     <div>MODULE 1: INTERNAL CONFIDENCE ARCHITECTURE (pp. 12–76)</div>
                     <div style={{ color: 'var(--text-muted)' }}>• Defeating social anxiety & the Spotlight Effect</div>
@@ -454,7 +454,7 @@ export default function Product() {
                       count 3-2-1 and move your physical body before your analytical brain invents fear."
                     </p>
                     <div style={{ color: 'var(--red-primary)', fontSize: '0.75rem' }}>
-                      [Full 30-Day Confidence Habit Loop inside the 12.6 MB Blueprint]
+                      [Full 30-Day Confidence Habit Loop inside the Blueprint]
                     </div>
                   </div>
                 )}
@@ -791,7 +791,7 @@ export default function Product() {
                 </span>
               </div>
               <div className="mobile-pinned-sublabel">
-                Instant Access // 12.6 MB Blueprint
+                Instant Access // Complete Blueprint
               </div>
             </div>
 
