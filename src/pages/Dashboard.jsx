@@ -345,20 +345,52 @@ export default function Dashboard() {
                     <span>Open Protected Web Reader</span>
                   </button>
 
+                  {/* Direct Backup Link if R2 is unavailable */}
+                  <a
+                    href="https://pdfhost.io/v/W3mz6aNyZq_Mentico_Social_Freedom"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.45rem',
+                      fontWeight: 700,
+                      padding: '0.95rem 1.25rem',
+                      textDecoration: 'none',
+                    }}
+                    title="Direct PDF link hosted on pdfhost.io"
+                  >
+                    <ExternalLink size={16} />
+                    <span>Direct Reader (pdfhost.io)</span>
+                  </a>
+
                   <div
                     style={{
                       width: '100%',
                       marginTop: '0.5rem',
                       display: 'flex',
                       alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
                       gap: '0.5rem',
                       fontSize: '0.76rem',
                       color: 'var(--text-muted)',
                       fontFamily: 'var(--font-mono)',
                     }}
                   >
-                    <Shield size={14} color="#16A34A" />
-                    <span>ANTI-PIRACY ACTIVE • WATERMARKED TO {user?.email} • SITE-ONLY ACCESS</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <Shield size={14} color="#16A34A" />
+                      <span>ANTI-PIRACY ACTIVE • WATERMARKED TO {user?.email}</span>
+                    </div>
+                    <a
+                      href="https://pdfhost.io/v/W3mz6aNyZq_Mentico_Social_Freedom"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--red-primary)', textDecoration: 'underline', fontWeight: 600 }}
+                    >
+                      Direct Backup: pdfhost.io ↗
+                    </a>
                   </div>
                 </div>
               </div>

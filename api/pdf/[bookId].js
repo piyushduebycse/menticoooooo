@@ -202,10 +202,19 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
       return;
     } catch (r2Err) {
       console.error('[R2 Storage Error]:', r2Err);
-      if (r2Err.name === 'NoSuchKey' || r2Err.$metadata?.httpStatusCode === 404) {
-        return res.status(404).json({ success: false, error: 'PDF file was not found in R2 storage.' });
+      const fallbackUrl = 'https://pdfhost.io/v/W3mz6aNyZq_Mentico_Social_Freedom';
+      res.setHeader('X-Mentico-Fallback-Url', fallbackUrl);
+      if (req.headers?.accept?.includes('text/html')) {
+        if (typeof res.redirect === 'function') {
+          return res.redirect(307, fallbackUrl);
+        }
+        res.setHeader('Location', fallbackUrl);
+        return res.status(307).end();
       }
-      return res.status(500).json({ success: false, error: 'Failed to stream document from Cloudflare R2.' });
+      if (r2Err.name === 'NoSuchKey' || r2Err.$metadata?.httpStatusCode === 404) {
+        return res.status(404).json({ success: false, error: 'PDF file was not found in R2 storage.', fallbackUrl });
+      }
+      return res.status(500).json({ success: false, error: 'Failed to stream document from Cloudflare R2.', fallbackUrl });
     }
   }
 
@@ -224,9 +233,19 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
   }
 
   if (!resolvedLocalPath) {
+    const fallbackUrl = 'https://pdfhost.io/v/W3mz6aNyZq_Mentico_Social_Freedom';
+    res.setHeader('X-Mentico-Fallback-Url', fallbackUrl);
+    if (req.headers?.accept?.includes('text/html')) {
+      if (typeof res.redirect === 'function') {
+        return res.redirect(307, fallbackUrl);
+      }
+      res.setHeader('Location', fallbackUrl);
+      return res.status(307).end();
+    }
     return res.status(500).json({
       success: false,
       error: 'Cloudflare R2 credentials (R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT) are not configured, and local PDF fallback was not found.',
+      fallbackUrl,
     });
   }
 

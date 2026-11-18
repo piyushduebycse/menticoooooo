@@ -11,11 +11,14 @@ import {
   X,
   AlertTriangle,
   List,
+  ExternalLink,
 } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { useAuth } from '../context/AuthContext';
 import { saveReadingProgress } from '../services/readingProgress';
+
+const FALLBACK_DIRECT_PDF_URL = 'https://pdfhost.io/v/W3mz6aNyZq_Mentico_Social_Freedom';
 
 // Set worker source using Vite's ?url import with safe fallback
 try {
@@ -236,9 +239,14 @@ export default function ProtectedPdfReader({
         setIsLoading(false);
       } catch (err) {
         if (!isMounted) return;
-        console.error('PDF Load Error:', err);
+        console.error('PDF Load Error (Cloudflare R2):', err);
         setIsLoading(false);
-        setLoadError(err.message || 'Error loading protected PDF document.');
+        setLoadError('Unable to stream PDF from Cloudflare R2. Redirecting to direct reader...');
+        try {
+          window.location.href = FALLBACK_DIRECT_PDF_URL;
+        } catch (redirErr) {
+          console.warn('[PDF Reader] Auto redirect error:', redirErr);
+        }
       }
     }
 
@@ -253,6 +261,22 @@ export default function ProtectedPdfReader({
       }
     };
   }, [resolvedUrl, getIdToken]);
+
+  // Safety timeout: If user stays in DRM without getting access to PDF from Cloudflare R2, redirect to backup link
+  useEffect(() => {
+    if (!isLoading || pdfDoc) return;
+
+    const redirectTimer = setTimeout(() => {
+      console.warn('[DRM Reader] Staying in DRM without access from Cloudflare R2. Redirecting to backup link...');
+      try {
+        window.location.href = FALLBACK_DIRECT_PDF_URL;
+      } catch (err) {
+        console.warn('Redirect error:', err);
+      }
+    }, 4500);
+
+    return () => clearTimeout(redirectTimer);
+  }, [isLoading, pdfDoc]);
 
   // Render Page to Canvas with DPR optimization + Forensic Watermark
   useEffect(() => {
@@ -396,6 +420,25 @@ export default function ProtectedPdfReader({
             <Lock size={12} />
             <span>PROTECTED DRM</span>
           </div>
+
+          <a
+            href={FALLBACK_DIRECT_PDF_URL}
+            className="btn btn-secondary btn-sm"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              fontSize: '0.74rem',
+              color: '#FBBF24',
+              borderColor: 'rgba(251, 191, 36, 0.4)',
+              textDecoration: 'none',
+              padding: '0.3rem 0.65rem',
+            }}
+            title="Open direct backup link on pdfhost.io"
+          >
+            <ExternalLink size={12} />
+            <span>Direct Reader (pdfhost)</span>
+          </a>
 
           <button
             type="button"
@@ -574,43 +617,82 @@ export default function ProtectedPdfReader({
 
         {/* Loading Spinner */}
         {isLoading && (
-          <div style={{ margin: 'auto', textAlign: 'center', color: '#9CA3AF', padding: '3rem' }}>
+          <div style={{ margin: 'auto', textAlign: 'center', color: '#9CA3AF', padding: '3rem 1.5rem', maxWidth: '480px' }}>
             <div
               style={{
-                width: '40px',
-                height: '40px',
+                width: '42px',
+                height: '42px',
                 border: '3px solid #333',
                 borderTopColor: '#DC2626',
                 borderRadius: '50%',
                 animation: 'spin 0.8s linear infinite',
-                margin: '0 auto 1rem',
+                margin: '0 auto 1.25rem',
               }}
             />
-            <div style={{ fontSize: '0.88rem', fontFamily: 'var(--font-mono)' }}>
+            <div style={{ fontSize: '0.95rem', fontWeight: 700, fontFamily: 'var(--font-mono)', color: '#FFFFFF', marginBottom: '0.45rem' }}>
               DECRYPTING PROTECTED MENTICO PAGES...
             </div>
+            <p style={{ fontSize: '0.82rem', color: '#9CA3AF', marginBottom: '1.25rem', lineHeight: 1.5 }}>
+              Connecting to Cloudflare R2 stream. If access is delayed, you will be redirected automatically to the direct reader.
+            </p>
+            <a
+              href={FALLBACK_DIRECT_PDF_URL}
+              className="btn btn-secondary btn-sm"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                fontSize: '0.82rem',
+                color: '#FBBF24',
+                borderColor: 'rgba(251, 191, 36, 0.4)',
+                padding: '0.45rem 1rem',
+                borderRadius: '999px',
+                textDecoration: 'none',
+              }}
+            >
+              <ExternalLink size={14} />
+              <span>Redirect Now to Direct Reader (pdfhost.io) →</span>
+            </a>
           </div>
         )}
 
         {/* Load Error Fallback */}
         {loadError && !isLoading && (
-          <div style={{ margin: 'auto', textAlign: 'center', color: '#F87171', padding: '3rem 1.5rem' }}>
-            <AlertTriangle size={36} style={{ margin: '0 auto 1rem' }} />
-            <div style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem', color: '#FFFFFF' }}>
-              Reader Decryption Notice
+          <div style={{ margin: 'auto', textAlign: 'center', color: '#F87171', padding: '3rem 1.5rem', maxWidth: '520px' }}>
+            <AlertTriangle size={38} style={{ margin: '0 auto 1rem', color: '#EF4444' }} />
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '0.5rem', color: '#FFFFFF' }}>
+              Redirecting to Direct PDF Reader
             </div>
-            <p style={{ fontSize: '0.85rem', color: '#9CA3AF', marginBottom: '1.5rem', maxWidth: '440px', margin: '0 auto 1.5rem' }}>
-              {loadError || 'Your Mentico license is active. Access is strictly delivered via this protected DRM environment. Click below to reload the reader.'}
+            <p style={{ fontSize: '0.88rem', color: '#D1D5DB', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+              Access to the PDF stream from Cloudflare R2 is currently delayed or unavailable. Redirecting you to the direct reader on pdfhost.io...
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <a
+                href={FALLBACK_DIRECT_PDF_URL}
+                className="btn btn-primary"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontWeight: 800,
+                  backgroundColor: '#DC2626',
+                  borderColor: '#DC2626',
+                  textDecoration: 'none',
+                  padding: '0.65rem 1.25rem',
+                }}
+              >
+                <ExternalLink size={16} />
+                <span>Open Direct Reader (pdfhost.io) →</span>
+              </a>
+
               <button
                 type="button"
                 onClick={() => window.location.reload()}
-                className="btn btn-primary"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 800 }}
+                className="btn btn-secondary"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}
               >
                 <RotateCw size={16} />
-                <span>Reload Protected Reader</span>
+                <span>Retry R2 Reader</span>
               </button>
 
               <button
@@ -620,7 +702,7 @@ export default function ProtectedPdfReader({
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}
               >
                 <X size={16} />
-                <span>Exit Reader</span>
+                <span>Exit</span>
               </button>
             </div>
           </div>
