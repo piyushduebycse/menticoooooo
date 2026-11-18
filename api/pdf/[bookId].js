@@ -2,7 +2,7 @@ import { GetObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import fs from 'fs';
 import path from 'path';
 import { verifyAuthUser } from '../_lib/server-auth.js';
-import { getR2Client, resolveBook } from '../_lib/r2-client.js';
+import { getR2Client, getR2Config, resolveBook } from '../_lib/r2-client.js';
 
 // In-memory cache for R2 object metadata (file size)
 // Avoids redundant HeadObjectCommand round-trips to Cloudflare R2 on every byte-range chunk
@@ -205,13 +205,22 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
       if (r2Err.name === 'NoSuchKey' || r2Err.$metadata?.httpStatusCode === 404) {
         return res.status(404).json({ success: false, error: 'PDF file was not found in R2 storage.' });
       }
+      const debugConfig = getR2Config();
       return res.status(500).json({
         success: false,
         error: 'Failed to stream document from Cloudflare R2.',
         msg: r2Err.message || String(r2Err),
         name: r2Err.name,
-        code: r2Err.code,
         status: r2Err['$metadata']?.httpStatusCode,
+        r2Config: {
+          accountId: debugConfig.accountId,
+          accessKeyId: debugConfig.accessKeyId ? debugConfig.accessKeyId.slice(0, 6) + '...' : 'MISSING',
+          secretKeyLen: debugConfig.secretAccessKey ? debugConfig.secretAccessKey.length : 0,
+          bucketName: debugConfig.bucketName,
+          region: debugConfig.region,
+          endpoint: debugConfig.endpoint,
+          isEu: debugConfig.isEu,
+        },
       });
     }
   }
