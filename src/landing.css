@@ -1450,32 +1450,35 @@
 }
 
 .mentico-sticky-title {
-  font-family: var(--font-primary-heading);
+  font-family: var(--font-body);
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 800;
   color: #24170F;
   margin-right: 4px;
+  letter-spacing: -0.01em;
 }
 
 .mentico-sticky-price {
-  font-family: var(--font-primary-heading);
+  font-family: var(--font-body);
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 800;
   color: #24170F;
   line-height: 1;
+  letter-spacing: -0.02em;
 }
 
 .mentico-sticky-original-price {
+  font-family: var(--font-body);
   font-size: 14px;
   text-decoration: line-through;
   color: #8C7B70;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .mentico-sticky-badge {
-  font-family: var(--font-label);
+  font-family: var(--font-body);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   color: #A4552D;
   background-color: rgba(164, 85, 45, 0.12);
   padding: 2px 8px;
@@ -1488,7 +1491,8 @@
 .mentico-sticky-sublabel {
   font-family: var(--font-body);
   font-size: 12.5px;
-  color: #77675B;
+  font-weight: 600;
+  color: #6E5E52;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1964,10 +1968,12 @@
 
   .mentico-sticky-price {
     font-size: 20px;
+    font-weight: 800;
   }
 
   .mentico-sticky-original-price {
     font-size: 13px;
+    font-weight: 600;
   }
 
   .mentico-sticky-badge {
