@@ -205,7 +205,13 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
       if (r2Err.name === 'NoSuchKey' || r2Err.$metadata?.httpStatusCode === 404) {
         return res.status(404).json({ success: false, error: 'PDF file was not found in R2 storage.' });
       }
-      return res.status(500).json({ success: false, error: 'Failed to stream document from Cloudflare R2.' });
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to stream document from Cloudflare R2.',
+        details: r2Err.message,
+        r2Name: r2Err.name,
+        r2Code: r2Err.code || r2Err['$metadata']?.httpStatusCode,
+      });
     }
   }
 
