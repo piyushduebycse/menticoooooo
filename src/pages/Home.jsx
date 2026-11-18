@@ -374,16 +374,9 @@ export default function Home() {
             </div>
 
             <div className="mentico-hero-media-wrapper">
-              <div className="mentico-hero-script-overlay">
-                More Confidence
-                <br />
-                More real conversations
-                <br />
-                A freer you
-              </div>
               <img
-                src="/images/hero_person_cliff.jpg"
-                alt="Man sitting freely on a cliff overlooking sunset and city"
+                src="/images/hero_social_freedom_journey.jpg?v=20261118"
+                alt="Social Freedom - Step-by-step journey from overthinking to confidence and meaningful connection"
                 className="mentico-hero-image"
                 loading="eager"
               />
