@@ -74,6 +74,7 @@ export function getR2Client({ forceEu = false } = {}) {
     r2EuClientInstance = new S3Client({
       region: config.region,
       endpoint: config.endpoint,
+      forcePathStyle: true,
       credentials: {
         accessKeyId: config.accessKeyId,
         secretAccessKey: config.secretAccessKey,
@@ -93,6 +94,7 @@ export function getR2Client({ forceEu = false } = {}) {
   r2ClientInstance = new S3Client({
     region: config.region,
     endpoint: config.endpoint,
+    forcePathStyle: true,
     credentials: {
       accessKeyId: config.accessKeyId,
       secretAccessKey: config.secretAccessKey,
