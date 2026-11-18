@@ -527,7 +527,7 @@ export default function Home() {
               {/* Card 1: Students and young adults */}
               <div className="mentico-who-card">
                 <img
-                  src="/images/who_students_sq.jpg"
+                  src="/images/who_students_custom.jpg?v=20261118"
                   alt="Students and young adults"
                   className="mentico-who-card-img"
                   loading="lazy"
@@ -543,7 +543,7 @@ export default function Home() {
               {/* Card 2: Working professionals */}
               <div className="mentico-who-card">
                 <img
-                  src="/images/who_professionals_sq.jpg"
+                  src="/images/who_professionals_custom.jpg?v=20261118"
                   alt="Working professionals"
                   className="mentico-who-card-img"
                   loading="lazy"
@@ -559,7 +559,7 @@ export default function Home() {
               {/* Card 3: Overthinkers and introverts */}
               <div className="mentico-who-card">
                 <img
-                  src="/images/who_introverts_sq.jpg"
+                  src="/images/who_introverts_custom.jpg?v=20261118"
                   alt="Overthinkers and introverts"
                   className="mentico-who-card-img"
                   loading="lazy"
@@ -575,7 +575,7 @@ export default function Home() {
               {/* Card 4: People starting afresh */}
               <div className="mentico-who-card">
                 <img
-                  src="/images/who_afresh_sq.jpg"
+                  src="/images/who_afresh_custom.jpg?v=20261118"
                   alt="People starting afresh"
                   className="mentico-who-card-img"
                   loading="lazy"
