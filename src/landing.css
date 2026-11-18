@@ -1491,6 +1491,7 @@
 
   .mentico-mobile-toggle {
     display: block;
+    margin-left: auto;
   }
 
   .mentico-brand {

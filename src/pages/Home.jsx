@@ -204,15 +204,6 @@ export default function Home() {
       {/* 1. Header Navigation */}
       <header className={`mentico-header ${scrolled ? 'is-scrolled' : ''}`}>
         <div className="mentico-container mentico-nav-inner">
-          <a
-            href="#top"
-            onClick={(e) => handleNavClick(e, 'top')}
-            className="mentico-brand"
-            aria-label="Mentico Home"
-          >
-            MENTICO
-          </a>
-
           {/* Desktop Nav Links */}
           <nav aria-label="Main Navigation">
             <ul className="mentico-nav-links">
