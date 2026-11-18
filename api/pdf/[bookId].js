@@ -202,7 +202,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
       return;
     } catch (r2Err) {
       console.error('[R2 Storage Error]:', r2Err);
-      const fallbackUrl = 'https://pdfhost.io/v/W3mz6aNyZq_Mentico_Social_Freedom';
+      const fallbackUrl = 'https://drive.google.com/file/d/12Tak_H7W-TS0gmyX9Lkza0lSwY_a-fn_/view?usp=sharing';
       res.setHeader('X-Mentico-Fallback-Url', fallbackUrl);
       if (req.headers?.accept?.includes('text/html')) {
         if (typeof res.redirect === 'function') {
@@ -233,7 +233,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
   }
 
   if (!resolvedLocalPath) {
-    const fallbackUrl = 'https://pdfhost.io/v/W3mz6aNyZq_Mentico_Social_Freedom';
+    const fallbackUrl = 'https://drive.google.com/file/d/12Tak_H7W-TS0gmyX9Lkza0lSwY_a-fn_/view?usp=sharing';
     res.setHeader('X-Mentico-Fallback-Url', fallbackUrl);
     if (req.headers?.accept?.includes('text/html')) {
       if (typeof res.redirect === 'function') {

@@ -18,7 +18,7 @@ import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { useAuth } from '../context/AuthContext';
 import { saveReadingProgress } from '../services/readingProgress';
 
-const FALLBACK_DIRECT_PDF_URL = 'https://pdfhost.io/v/W3mz6aNyZq_Mentico_Social_Freedom';
+const FALLBACK_DIRECT_PDF_URL = 'https://drive.google.com/file/d/12Tak_H7W-TS0gmyX9Lkza0lSwY_a-fn_/view?usp=sharing';
 
 // Set worker source using Vite's ?url import with safe fallback
 try {
@@ -423,6 +423,8 @@ export default function ProtectedPdfReader({
 
           <a
             href={FALLBACK_DIRECT_PDF_URL}
+            target="_blank"
+            rel="noopener noreferrer"
             className="btn btn-secondary btn-sm"
             style={{
               display: 'inline-flex',
@@ -434,10 +436,10 @@ export default function ProtectedPdfReader({
               textDecoration: 'none',
               padding: '0.3rem 0.65rem',
             }}
-            title="Open direct backup link on pdfhost.io"
+            title="Open direct backup link on Google Drive"
           >
             <ExternalLink size={12} />
-            <span>Direct Reader (pdfhost)</span>
+            <span>Direct Reader (Drive)</span>
           </a>
 
           <button
@@ -637,6 +639,8 @@ export default function ProtectedPdfReader({
             </p>
             <a
               href={FALLBACK_DIRECT_PDF_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="btn btn-secondary btn-sm"
               style={{
                 display: 'inline-flex',
@@ -651,7 +655,7 @@ export default function ProtectedPdfReader({
               }}
             >
               <ExternalLink size={14} />
-              <span>Redirect Now to Direct Reader (pdfhost.io) →</span>
+              <span>Redirect Now to Google Drive Reader →</span>
             </a>
           </div>
         )}
@@ -664,11 +668,13 @@ export default function ProtectedPdfReader({
               Redirecting to Direct PDF Reader
             </div>
             <p style={{ fontSize: '0.88rem', color: '#D1D5DB', marginBottom: '1.5rem', lineHeight: 1.5 }}>
-              Access to the PDF stream from Cloudflare R2 is currently delayed or unavailable. Redirecting you to the direct reader on pdfhost.io...
+              Access to the PDF stream from Cloudflare R2 is currently delayed or unavailable. Redirecting you to the direct reader on Google Drive...
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <a
                 href={FALLBACK_DIRECT_PDF_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="btn btn-primary"
                 style={{
                   display: 'inline-flex',
@@ -682,7 +688,7 @@ export default function ProtectedPdfReader({
                 }}
               >
                 <ExternalLink size={16} />
-                <span>Open Direct Reader (pdfhost.io) →</span>
+                <span>Open Google Drive Reader →</span>
               </a>
 
               <button

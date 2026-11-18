@@ -347,7 +347,7 @@ export default function Dashboard() {
 
                   {/* Direct Backup Link if R2 is unavailable */}
                   <a
-                    href="https://pdfhost.io/v/W3mz6aNyZq_Mentico_Social_Freedom"
+                    href="https://drive.google.com/file/d/12Tak_H7W-TS0gmyX9Lkza0lSwY_a-fn_/view?usp=sharing"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-secondary"
@@ -359,10 +359,10 @@ export default function Dashboard() {
                       padding: '0.95rem 1.25rem',
                       textDecoration: 'none',
                     }}
-                    title="Direct PDF link hosted on pdfhost.io"
+                    title="Direct PDF link hosted on Google Drive"
                   >
                     <ExternalLink size={16} />
-                    <span>Direct Reader (pdfhost.io)</span>
+                    <span>Direct Reader (Google Drive)</span>
                   </a>
 
                   <div
@@ -384,12 +384,12 @@ export default function Dashboard() {
                       <span>ANTI-PIRACY ACTIVE • WATERMARKED TO {user?.email}</span>
                     </div>
                     <a
-                      href="https://pdfhost.io/v/W3mz6aNyZq_Mentico_Social_Freedom"
+                      href="https://drive.google.com/file/d/12Tak_H7W-TS0gmyX9Lkza0lSwY_a-fn_/view?usp=sharing"
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color: 'var(--red-primary)', textDecoration: 'underline', fontWeight: 600 }}
                     >
-                      Direct Backup: pdfhost.io ↗
+                      Direct Backup: Google Drive ↗
                     </a>
                   </div>
                 </div>
