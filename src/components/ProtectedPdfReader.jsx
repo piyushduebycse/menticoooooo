@@ -15,6 +15,7 @@ import {
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { useAuth } from '../context/AuthContext';
+import { saveReadingProgress } from '../services/readingProgress';
 
 // Set worker source using Vite's ?url import with safe fallback
 try {
@@ -28,12 +29,14 @@ try {
 export default function ProtectedPdfReader({
   pdfUrl = '/api/pdf/social-freedom',
   bookId = 'social-freedom',
+  initialPage = 1,
+  onProgressUpdate,
   user,
   onClose,
 }) {
   const { getIdToken } = useAuth();
   const [pdfDoc, setPdfDoc] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(Math.max(1, Number(initialPage) || 1));
   const [totalPages, setTotalPages] = useState(90);
   const getInitialScale = () => {
     if (typeof window !== 'undefined') {
@@ -77,6 +80,51 @@ export default function ProtectedPdfReader({
     { page: 74, title: 'Module 5: The 30-Day Social Freedom Challenge' },
     { page: 86, title: 'Module 6: Summary Cheat Sheets & Final Field Cards' },
   ];
+
+  // Handle external jump to saved reading position
+  useEffect(() => {
+    if (initialPage && Number(initialPage) >= 1) {
+      setCurrentPage((prev) => {
+        const target = Math.max(1, Math.min(totalPages, Number(initialPage)));
+        return prev !== target ? target : prev;
+      });
+    }
+  }, [initialPage, totalPages]);
+
+  // Synchronize reading progress on page change
+  useEffect(() => {
+    const studentId = user?.uid || user?.email || storedPass?.email;
+    if (studentId && currentPage > 0) {
+      const updated = saveReadingProgress(studentId, bookId, {
+        lastPage: currentPage,
+        totalPages,
+      });
+      if (onProgressUpdate && updated) {
+        onProgressUpdate(updated);
+      }
+    }
+  }, [currentPage, totalPages, user, storedPass, bookId, onProgressUpdate]);
+
+  // Increment active reading time every 15 seconds while reader is actively viewed
+  useEffect(() => {
+    const studentId = user?.uid || user?.email || storedPass?.email;
+    if (!studentId) return;
+
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && !document.hidden && !isLoading && !loadError) {
+        const updated = saveReadingProgress(studentId, bookId, {
+          lastPage: currentPage,
+          totalPages,
+          additionalSeconds: 15,
+        });
+        if (onProgressUpdate && updated) {
+          onProgressUpdate(updated);
+        }
+      }
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [user, storedPass, bookId, currentPage, totalPages, isLoading, loadError, onProgressUpdate]);
 
   const triggerDrmWarning = useCallback((msg) => {
     setDrmToast(msg);

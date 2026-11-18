@@ -23,6 +23,8 @@ import { useSearchParams, useLocation } from 'react-router-dom';
 import Spinner from '../components/Spinner';
 import { DashboardSkeleton } from '../components/SkeletonLoader';
 import ProtectedPdfReader from '../components/ProtectedPdfReader';
+import LearningJourney from '../components/LearningJourney';
+import { getReadingProgress } from '../services/readingProgress';
 import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function Dashboard() {
@@ -50,6 +52,9 @@ export default function Dashboard() {
     licenseKey: location.state?.accessPass?.licenseKey || storedPass?.licenseKey || user?.licenseKey || 'MENTICO-IN-VIP',
   };
 
+  const studentId = effectiveUser?.uid || effectiveUser?.email;
+  const [readingProgress, setReadingProgress] = useState(() => getReadingProgress(studentId, 'social-freedom'));
+  const [initialPdfPage, setInitialPdfPage] = useState(1);
   const [isFetchingData, setIsFetchingData] = useState(false);
   const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(shouldAutoOpen);
 
@@ -59,31 +64,39 @@ export default function Dashboard() {
     }
   }, [shouldAutoOpen]);
 
-  // 30-Day Indian Youth Confidence & Speaking Checklist
-  const [checklist, setChecklist] = useState([
-    { id: 1, text: 'Open Chapter 1 in the Mentico Protected Web Reader', completed: true },
-    { id: 2, text: 'Complete Day 1 Drill: Diaphragm Breathing & Vocal Resonance', completed: true },
-    { id: 3, text: 'Day 2: 3-Second Eye Contact & Non-Apologetic Posture Drill', completed: true },
-    { id: 4, text: 'Day 3: Record a 60-second impromptu speech without filler words', completed: false },
-    { id: 5, text: 'Day 4: Initiate an effortless small-talk conversation with a stranger', completed: false },
-    { id: 6, text: 'Day 5: Practice the "Pause & Breathe" anchor during a college/office meeting', completed: false },
-  ]);
+  // Synchronize reading progress on mount and when studentId changes
+  useEffect(() => {
+    if (studentId) {
+      setReadingProgress(getReadingProgress(studentId, 'social-freedom'));
+    }
+  }, [studentId]);
+
+  // Listen to cross-component reading progress updates
+  useEffect(() => {
+    const handleProgressEvent = (e) => {
+      if (e.detail) {
+        setReadingProgress(e.detail);
+      }
+    };
+    window.addEventListener('mentico:reading-progress-updated', handleProgressEvent);
+    return () => window.removeEventListener('mentico:reading-progress-updated', handleProgressEvent);
+  }, []);
+
+  const handleResumeReading = (pageNumber = null) => {
+    const target = pageNumber || readingProgress.lastPage || 1;
+    setInitialPdfPage(target);
+    setIsPdfViewerOpen(true);
+  };
 
   const handleRefresh = () => {
     setIsFetchingData(true);
+    if (studentId) {
+      setReadingProgress(getReadingProgress(studentId, 'social-freedom'));
+    }
     setTimeout(() => {
       setIsFetchingData(false);
     }, 200);
   };
-
-  const toggleChecklist = (id) => {
-    setChecklist(prev =>
-      prev.map(item => (item.id === id ? { ...item, completed: !item.completed } : item))
-    );
-  };
-
-  const completedCount = checklist.filter(c => c.completed).length;
-  const progressPercent = Math.round((completedCount / checklist.length) * 100);
 
   if (isFetchingData) {
     return (
@@ -202,12 +215,14 @@ export default function Dashboard() {
 
           <div className="card card-solid" style={{ padding: '1.25rem' }}>
             <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-              30-DAY CHALLENGE
+              READING PROGRESS
             </div>
             <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>
-              {progressPercent}% Complete
+              {readingProgress.progressPercentage}% Complete
             </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{completedCount} of {checklist.length} Completed</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+              {readingProgress.isStarted ? `${readingProgress.lastPage} of ${readingProgress.totalPages} Pages Read` : 'Journey Not Started Yet'}
+            </div>
           </div>
 
           <div className="card card-solid" style={{ padding: '1.25rem' }}>
@@ -291,7 +306,7 @@ export default function Dashboard() {
                   <button
                     type="button"
                     className="btn btn-primary"
-                    onClick={() => setIsPdfViewerOpen(true)}
+                    onClick={() => handleResumeReading(readingProgress.lastPage)}
                     id="dashboard-open-reader-btn"
                     style={{ flex: 1, minWidth: '220px', padding: '0.95rem 1.5rem', fontWeight: 800 }}
                   >
@@ -344,7 +359,7 @@ export default function Dashboard() {
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
-                  onClick={() => setIsPdfViewerOpen(true)}
+                  onClick={() => handleResumeReading(readingProgress.lastPage)}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
                 >
                   <Eye size={14} color="var(--red-primary)" />
@@ -375,7 +390,7 @@ export default function Dashboard() {
                 <button
                   type="button"
                   className="btn btn-secondary btn-sm"
-                  onClick={() => setIsPdfViewerOpen(true)}
+                  onClick={() => handleResumeReading(readingProgress.lastPage)}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
                 >
                   <Eye size={14} color="var(--red-primary)" />
@@ -385,78 +400,11 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Right Column: 30-Day Daily Habit Tracker */}
-          <div className="card">
-            <div style={{ marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '1.3rem', marginBottom: '0.25rem' }}>30-Day Confidence Sprint</h3>
-              <p style={{ fontSize: '0.85rem' }}>Daily micro-habits to rewire speech & social poise.</p>
-            </div>
-
-            {/* Progress Bar */}
-            <div style={{ marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '0.4rem', fontWeight: 600 }}>
-                <span>Challenge Progress</span>
-                <span style={{ color: 'var(--red-primary)', fontFamily: 'var(--font-mono)' }}>{progressPercent}%</span>
-              </div>
-              <div
-                style={{
-                  width: '100%',
-                  height: '8px',
-                  backgroundColor: 'var(--bg-surface)',
-                  borderRadius: 'var(--radius-full)',
-                  overflow: 'hidden',
-                  border: '1px solid var(--border-main)',
-                }}
-              >
-                <div
-                  style={{
-                    width: `${progressPercent}%`,
-                    height: '100%',
-                    backgroundColor: 'var(--red-primary)',
-                    borderRadius: 'var(--radius-full)',
-                    transition: 'width 0.4s ease',
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Checklist Items */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {checklist.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => toggleChecklist(item.id)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.75rem',
-                    borderRadius: 'var(--radius-sm)',
-                    backgroundColor: item.completed ? 'var(--red-subtle)' : 'var(--bg-surface)',
-                    border: item.completed ? '1px solid var(--red-subtle-border)' : '1px solid var(--border-subtle)',
-                    cursor: 'pointer',
-                    transition: 'all var(--transition-fast)',
-                  }}
-                >
-                  {item.completed ? (
-                    <CheckSquare size={18} color="var(--red-primary)" style={{ flexShrink: 0 }} />
-                  ) : (
-                    <Square size={18} color="var(--text-muted)" style={{ flexShrink: 0 }} />
-                  )}
-                  <span
-                    style={{
-                      fontSize: '0.88rem',
-                      fontWeight: 500,
-                      color: item.completed ? 'var(--text-main)' : 'var(--text-secondary)',
-                      textDecoration: item.completed ? 'line-through' : 'none',
-                    }}
-                  >
-                    {item.text}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/* Right Column: Your Learning Journey Section */}
+          <LearningJourney
+            progress={readingProgress}
+            onResumeReading={handleResumeReading}
+          />
         </div>
 
       </div>
@@ -469,6 +417,8 @@ export default function Dashboard() {
           <ProtectedPdfReader
             bookId="social-freedom"
             pdfUrl="/api/pdf/social-freedom"
+            initialPage={initialPdfPage}
+            onProgressUpdate={(updated) => setReadingProgress(updated)}
             user={effectiveUser}
             onClose={() => setIsPdfViewerOpen(false)}
           />

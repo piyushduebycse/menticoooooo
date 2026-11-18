@@ -1769,6 +1769,32 @@ input, textarea, select {
   }
 }
 
+/* ==========================================================================
+   Mentico Learning Journey Dashboard Component
+   ========================================================================== */
+.learning-journey-card {
+  position: relative;
+  border: 1px solid var(--border-main);
+  background-color: var(--bg-card);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.learning-resume-box {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.learning-resume-box:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(36, 23, 15, 0.08);
+}
+
+@media (max-width: 480px) {
+  .learning-stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 0.45rem !important;
+  }
+}
+
 .sneak-peek-header {
   display: flex;
   justify-content: space-between;
