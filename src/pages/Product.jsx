@@ -11,6 +11,8 @@ import {
   X,
   AlertTriangle,
   Compass,
+  User,
+  Mail,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import Spinner from '../components/Spinner';
@@ -477,7 +479,13 @@ export default function Product() {
             <div
               className="card card-red-accent product-checkout-card"
               id="checkout-card"
-              style={{ padding: '2rem' }}
+              style={{
+                padding: '2.25rem 2rem',
+                backgroundColor: '#FAF6F0',
+                border: '2px solid #D6C7BC',
+                boxShadow: '0 14px 40px rgba(36, 23, 15, 0.14), 0 2px 10px rgba(36, 23, 15, 0.06)',
+                borderRadius: '16px',
+              }}
             >
               {hasPurchased ? (
                 <div>
@@ -565,7 +573,7 @@ export default function Product() {
                     Get instant access to Social Freedom by Mentico.
                   </h3>
                   
-                  {/* The requested line: ₹499 | One-time payment | Instant Digital PDF Access */}
+                  {/* Pricing row */}
                   <div
                     style={{
                       fontSize: '0.82rem',
@@ -584,9 +592,9 @@ export default function Product() {
                       display: 'flex',
                       alignItems: 'baseline',
                       gap: '0.75rem',
-                      marginBottom: '1.25rem',
+                      marginBottom: '1.35rem',
                       paddingBottom: '1.25rem',
-                      borderBottom: '1px solid var(--border-subtle)',
+                      borderBottom: '1.5px solid #E2D7CC',
                     }}
                   >
                     <div style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.2rem, 6vw, 2.8rem)', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1 }}>
@@ -602,54 +610,168 @@ export default function Product() {
                     </div>
                   </div>
 
-                  {/* Guest Checkout Inputs: Full Name & Email */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                        Your Full Name <span style={{ color: 'var(--red-primary)' }}>*</span>
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Rahul Sharma"
-                        value={buyerName}
-                        onChange={(e) => setBuyerName(e.target.value)}
+                  {/* HIGHLIGHTED, HIGH-CONTRAST CHECKOUT INPUTS CONTAINER */}
+                  <div
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                      border: '2px solid #D6C7BC',
+                      borderRadius: '12px',
+                      padding: '1.25rem',
+                      marginBottom: '1.35rem',
+                      boxShadow: '0 6px 20px rgba(36, 23, 15, 0.07)',
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        marginBottom: '1rem',
+                        paddingBottom: '0.65rem',
+                        borderBottom: '1.5px solid #F0E6DC',
+                      }}
+                    >
+                      <span
                         style={{
-                          width: '100%',
-                          padding: '0.7rem 0.9rem',
-                          borderRadius: '8px',
-                          border: '1px solid var(--border-subtle)',
-                          backgroundColor: 'var(--bg-main)',
-                          color: 'var(--text-main)',
-                          fontSize: '0.92rem',
-                          outline: 'none',
-                          transition: 'border-color 0.2s',
+                          width: '22px',
+                          height: '22px',
+                          borderRadius: '50%',
+                          backgroundColor: 'var(--red-primary)',
+                          color: '#FFFFFF',
+                          fontSize: '11px',
+                          fontWeight: 800,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
                         }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.35rem' }}>
-                        Your Email Address <span style={{ color: 'var(--red-primary)' }}>*</span>
-                      </label>
-                      <input
-                        type="email"
-                        placeholder="e.g. rahul@gmail.com"
-                        value={buyerEmail}
-                        onChange={(e) => setBuyerEmail(e.target.value)}
-                        style={{
-                          width: '100%',
-                          padding: '0.7rem 0.9rem',
-                          borderRadius: '8px',
-                          border: '1px solid var(--border-subtle)',
-                          backgroundColor: 'var(--bg-main)',
-                          color: 'var(--text-main)',
-                          fontSize: '0.92rem',
-                          outline: 'none',
-                          transition: 'border-color 0.2s',
-                        }}
-                      />
-                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>
-                        Instant digital PDF access link will be delivered directly here.
+                      >
+                        1
                       </span>
+                      <span
+                        style={{
+                          fontSize: '0.8rem',
+                          fontWeight: 800,
+                          letterSpacing: '0.6px',
+                          color: '#24170F',
+                          fontFamily: 'var(--font-mono)',
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Enter Your Details Below
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {/* Name Input Field */}
+                      <div>
+                        <label
+                          htmlFor="checkout-buyer-name"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.4rem',
+                            fontSize: '0.84rem',
+                            fontWeight: 700,
+                            color: '#24170F',
+                            marginBottom: '0.4rem',
+                          }}
+                        >
+                          <User size={15} color="var(--red-primary)" />
+                          <span>Your Full Name</span>
+                          <span style={{ color: 'var(--red-primary)', fontWeight: 800 }}>*</span>
+                        </label>
+                        <input
+                          id="checkout-buyer-name"
+                          type="text"
+                          placeholder="e.g. Rahul Sharma"
+                          value={buyerName}
+                          onChange={(e) => setBuyerName(e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '0.8rem 0.95rem',
+                            borderRadius: '8px',
+                            border: '2px solid #C4B5A5',
+                            backgroundColor: '#FFFFFF',
+                            color: '#1A110B',
+                            fontSize: '0.96rem',
+                            fontWeight: 600,
+                            outline: 'none',
+                            transition: 'all 0.2s ease',
+                            boxShadow: 'inset 0 1px 3px rgba(36, 23, 15, 0.05)',
+                          }}
+                          onFocus={(e) => {
+                            e.target.style.borderColor = 'var(--red-primary)';
+                            e.target.style.boxShadow = '0 0 0 3px rgba(229, 62, 62, 0.18)';
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = '#C4B5A5';
+                            e.target.style.boxShadow = 'inset 0 1px 3px rgba(36, 23, 15, 0.05)';
+                          }}
+                        />
+                      </div>
+
+                      {/* Email Input Field */}
+                      <div>
+                        <label
+                          htmlFor="checkout-buyer-email"
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.4rem',
+                            fontSize: '0.84rem',
+                            fontWeight: 700,
+                            color: '#24170F',
+                            marginBottom: '0.4rem',
+                          }}
+                        >
+                          <Mail size={15} color="var(--red-primary)" />
+                          <span>Your Email Address</span>
+                          <span style={{ color: 'var(--red-primary)', fontWeight: 800 }}>*</span>
+                        </label>
+                        <input
+                          id="checkout-buyer-email"
+                          type="email"
+                          placeholder="e.g. rahul@gmail.com"
+                          value={buyerEmail}
+                          onChange={(e) => setBuyerEmail(e.target.value)}
+                          style={{
+                            width: '100%',
+                            padding: '0.8rem 0.95rem',
+                            borderRadius: '8px',
+                            border: '2px solid #C4B5A5',
+                            backgroundColor: '#FFFFFF',
+                            color: '#1A110B',
+                            fontSize: '0.96rem',
+                            fontWeight: 600,
+                            outline: 'none',
+                            transition: 'all 0.2s ease',
+                            boxShadow: 'inset 0 1px 3px rgba(36, 23, 15, 0.05)',
+                          }}
+                          onFocus={(e) => {
+                            e.target.style.borderColor = 'var(--red-primary)';
+                            e.target.style.boxShadow = '0 0 0 3px rgba(229, 62, 62, 0.18)';
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = '#C4B5A5';
+                            e.target.style.boxShadow = 'inset 0 1px 3px rgba(36, 23, 15, 0.05)';
+                          }}
+                        />
+                        <div
+                          style={{
+                            fontSize: '0.74rem',
+                            color: '#5C4B40',
+                            marginTop: '0.45rem',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            fontWeight: 600,
+                          }}
+                        >
+                          <Lock size={12} color="#16A34A" />
+                          <span>PDF access link will be delivered directly here.</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -698,7 +820,15 @@ export default function Product() {
                   <button
                     type="button"
                     className="btn btn-primary btn-lg"
-                    style={{ width: '100%', marginBottom: '1rem' }}
+                    style={{
+                      width: '100%',
+                      marginBottom: '1rem',
+                      padding: '1rem 1.5rem',
+                      fontSize: '1.05rem',
+                      fontWeight: 800,
+                      boxShadow: '0 6px 22px rgba(229, 62, 62, 0.42)',
+                      letterSpacing: '0.2px',
+                    }}
                     onClick={handlePurchase}
                     disabled={isPurchasing || purchaseSuccess}
                     id="btn-purchase-blueprint"
