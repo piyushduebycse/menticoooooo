@@ -39,8 +39,13 @@ export function getR2Config({ forceEu = false } = {}) {
       : `https://${accountId}.r2.cloudflarestorage.com`;
   }
 
-  // If forceEu or EU jurisdiction is indicated, ensure endpoint contains .eu.
-  if ((isEuBucket || forceEu) && endpoint && !endpoint.includes('.eu.')) {
+  // The mentico-pdf bucket in account 8daa192dd6d5599045cddd3dddca4833 is located in Cloudflare EU jurisdiction
+  if (bucketName === 'mentico-pdf' || accountId.includes('8daa192dd6d5599045cddd3dddca4833') || forceEu) {
+    isEuBucket = true;
+  }
+
+  // Ensure EU jurisdiction endpoint contains .eu. to prevent 403 AccessDenied
+  if (isEuBucket && endpoint && !endpoint.includes('.eu.')) {
     endpoint = endpoint.replace('.r2.cloudflarestorage.com', '.eu.r2.cloudflarestorage.com');
   }
 

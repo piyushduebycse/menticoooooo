@@ -80,6 +80,39 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
 
   if (activeClient) {
     try {
+      async function sendR2WithRetry(command) {
+        try {
+          return await activeClient.send(command);
+        } catch (err) {
+          if ((err.name === 'AccessDenied' || err['$metadata']?.httpStatusCode === 403) && !activeClient.isEu) {
+            const euClient = getR2Client({ forceEu: true });
+            if (euClient) {
+              activeClient = euClient;
+              return await euClient.send(command);
+            }
+          }
+          throw err;
+        }
+      }
+
+      function pipeBodyToResponse(body, targetRes) {
+        if (!body) return targetRes.end();
+        if (typeof body.pipe === 'function') {
+          body.pipe(targetRes);
+          targetRes.on('close', () => {
+            if (typeof body.destroy === 'function') {
+              try { body.destroy(); } catch {}
+            }
+          });
+        } else if (typeof body.transformToByteArray === 'function') {
+          body.transformToByteArray().then((bytes) => {
+            targetRes.end(Buffer.from(bytes));
+          }).catch(() => targetRes.end());
+        } else {
+          targetRes.end();
+        }
+      }
+
       const cacheKey = `${book.r2Bucket}/${book.r2Key}`;
       let totalSize;
       const cached = R2_METADATA_CACHE.get(cacheKey);
@@ -93,24 +126,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
           Key: book.r2Key,
         });
 
-        let headResult;
-        try {
-          headResult = await activeClient.send(headCmd);
-        } catch (headErr) {
-          // If 403 AccessDenied and endpoint wasn't .eu, auto-retry with .eu endpoint
-          if ((headErr.name === 'AccessDenied' || headErr['$metadata']?.httpStatusCode === 403) && !activeClient.isEu) {
-            const euClient = getR2Client({ forceEu: true });
-            if (euClient) {
-              headResult = await euClient.send(headCmd);
-              activeClient = euClient;
-            } else {
-              throw headErr;
-            }
-          } else {
-            throw headErr;
-          }
-        }
-
+        const headResult = await sendR2WithRetry(headCmd);
         totalSize = Number(headResult.ContentLength);
         if (totalSize && totalSize > 0) {
           R2_METADATA_CACHE.set(cacheKey, { totalSize, expiresAt: Date.now() + R2_METADATA_TTL_MS });
@@ -152,7 +168,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
           Range: `bytes=${start}-${end}`,
         });
 
-        const r2Response = await activeClient.send(getCmd);
+        const r2Response = await sendR2WithRetry(getCmd);
 
         res.status(206);
         res.setHeader('Content-Range', `bytes ${start}-${end}/${totalSize}`);
@@ -163,14 +179,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
         res.setHeader('Content-Disposition', `inline; filename="${book.bookId}.pdf"`);
 
         // Stream range data directly to response
-        r2Response.Body.pipe(res);
-
-        res.on('close', () => {
-          if (r2Response.Body && typeof r2Response.Body.destroy === 'function') {
-            r2Response.Body.destroy();
-          }
-        });
-
+        pipeBodyToResponse(r2Response.Body, res);
         return;
       }
 
@@ -180,7 +189,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
         Key: book.r2Key,
       });
 
-      const r2Response = await activeClient.send(getCmd);
+      const r2Response = await sendR2WithRetry(getCmd);
 
       res.status(200);
       res.setHeader('Accept-Ranges', 'bytes');
@@ -189,14 +198,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
       res.setHeader('Cache-Control', 'private, no-transform, max-age=3600');
       res.setHeader('Content-Disposition', `inline; filename="${book.bookId}.pdf"`);
 
-      r2Response.Body.pipe(res);
-
-      res.on('close', () => {
-        if (r2Response.Body && typeof r2Response.Body.destroy === 'function') {
-          r2Response.Body.destroy();
-        }
-      });
-
+      pipeBodyToResponse(r2Response.Body, res);
       return;
     } catch (r2Err) {
       console.error('[R2 Storage Error]:', r2Err);

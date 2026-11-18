@@ -551,8 +551,8 @@ export default function ProtectedPdfReader({
             <div style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem', color: '#FFFFFF' }}>
               Reader Decryption Notice
             </div>
-            <p style={{ fontSize: '0.85rem', color: '#9CA3AF', marginBottom: '1.5rem', maxWidth: '400px', margin: '0 auto 1.5rem' }}>
-              Your Mentico license is active. Access is strictly delivered via this protected DRM environment. Click below to reload the reader.
+            <p style={{ fontSize: '0.85rem', color: '#9CA3AF', marginBottom: '1.5rem', maxWidth: '440px', margin: '0 auto 1.5rem' }}>
+              {loadError || 'Your Mentico license is active. Access is strictly delivered via this protected DRM environment. Click below to reload the reader.'}
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button

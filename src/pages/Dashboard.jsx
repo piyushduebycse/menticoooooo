@@ -39,7 +39,16 @@ export default function Dashboard() {
     }
   })();
 
-  const effectiveUser = user || (storedPass?.hasPurchased ? storedPass : location.state?.accessPass || null);
+  const effectiveUser = {
+    ...(user || {}),
+    ...(storedPass || {}),
+    ...(location.state?.accessPass || {}),
+    hasPurchased: Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased || location.state?.accessPass?.hasPurchased),
+    name: user?.displayName || storedPass?.name || location.state?.accessPass?.name || 'Mentico Student',
+    email: user?.email || storedPass?.email || location.state?.accessPass?.email || 'student@mentico.co.in',
+    accessToken: location.state?.accessPass?.accessToken || storedPass?.accessToken || user?.accessToken || null,
+    licenseKey: location.state?.accessPass?.licenseKey || storedPass?.licenseKey || user?.licenseKey || 'MENTICO-IN-VIP',
+  };
 
   const [isFetchingData, setIsFetchingData] = useState(false);
   const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(shouldAutoOpen);

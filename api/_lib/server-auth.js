@@ -51,6 +51,12 @@ export async function verifyAuthUser(req, res) {
       AUTH_CACHE.set(idToken, { user, expiresAt: Date.now() + AUTH_CACHE_TTL_MS });
       return user;
     }
+    res.status(401).json({
+      success: false,
+      error: 'Invalid or expired Mentico Access Pass. Please re-open your access link or log in.',
+      code: 'auth/invalid-pass',
+    });
+    return null;
   }
 
   let adminAuth;

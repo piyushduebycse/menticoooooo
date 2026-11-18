@@ -4,7 +4,7 @@ function getSigningSecret() {
   return (
     process.env.RAZORPAY_KEY_SECRET ||
     process.env.JWT_SECRET ||
-    'mentico-protected-vault-secret-key-2026'
+    'IZk4qfQ3m092dYIRKWSYVhLB'
   ).trim();
 }
 
