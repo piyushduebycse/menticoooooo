@@ -131,31 +131,24 @@ export default function Home() {
   const sneakPeekItems = [
     {
       id: 1,
-      badge: 'A Real Truth',
-      title: 'Social Confidence Without the Hype',
-      art: '/images/sneak_art_1.jpg',
-      full: '/images/preview_confidence_formula.jpg',
+      badge: 'Framework',
+      title: 'Charisma, Perspective & Connection',
+      art: '/images/sneak_peek_1.jpg',
+      full: '/images/sneak_peek_1.jpg',
     },
     {
       id: 2,
-      badge: 'Framework',
-      title: 'The Conversation Engine',
-      art: '/images/sneak_art_2.jpg',
-      full: '/images/preview_frameworks.jpg',
+      badge: 'A Real Truth',
+      title: 'The Belief Cycle & Overcoming Anxiety',
+      art: '/images/sneak_peek_2.jpg',
+      full: '/images/sneak_peek_2.jpg',
     },
     {
       id: 3,
-      badge: 'Action Plan',
-      title: 'The 30-Day Challenge',
-      art: '/images/sneak_art_3.jpg',
-      full: '/images/preview_30day_challenge.jpg',
-    },
-    {
-      id: 4,
-      badge: 'Quick Reference',
-      title: 'Final Field Card',
-      art: '/images/sneak_art_4.jpg',
-      full: '/images/book_open_preview.jpg',
+      badge: 'Action Guide',
+      title: 'Storytelling, Humour & Going Deeper',
+      art: '/images/sneak_peek_3.jpg',
+      full: '/images/sneak_peek_3.jpg',
     },
   ];
 
@@ -1229,6 +1222,7 @@ export default function Home() {
                   handlePurchaseClick();
                 }}
                 className="mentico-btn-cta"
+       
                 style={{ padding: '8px 18px', fontSize: '14px' }}
               >
                 {hasPurchased ? 'Read in Library' : 'Get Full Book'}
