@@ -27,6 +27,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import '../landing.css';
 
 export default function Home() {
@@ -64,6 +65,9 @@ export default function Home() {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [lightboxImage, setLightboxImage] = useState(null);
 
+  // Lock body scroll on mobile when mobile menu is open
+  useBodyScrollLock(mobileMenuOpen, () => setMobileMenuOpen(false));
+
   // Scroll listener for sticky header & floating bottom buy bar
   useEffect(() => {
     const handleScroll = () => {
@@ -75,7 +79,19 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close mobile drawer on desktop resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [mobileMenuOpen]);
+
   const handlePurchaseClick = () => {
+    setMobileMenuOpen(false);
     if (hasPurchased) {
       navigate('/library?openPdf=true');
     } else {
@@ -86,16 +102,26 @@ export default function Home() {
   const handleNavClick = (e, targetId) => {
     e.preventDefault();
     setMobileMenuOpen(false);
-    const element = document.getElementById(targetId);
-    if (element) {
-      const headerOffset = 80;
-      const elementPosition = element.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth',
-      });
-    }
+    // Allow body scroll-lock restore to finish before calculating target offsets
+    setTimeout(() => {
+      if (targetId === 'top') {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+        return;
+      }
+      const element = document.getElementById(targetId);
+      if (element) {
+        const headerOffset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth',
+        });
+      }
+    }, 60);
   };
 
   const toggleFaq = (index) => {
@@ -221,7 +247,7 @@ export default function Home() {
   return (
     <div className="mentico-home" id="top">
       {/* 1. Header Navigation */}
-      <header className={`mentico-header ${scrolled ? 'is-scrolled' : ''}`}>
+      <header className={`mentico-header ${scrolled ? 'is-scrolled' : ''} ${mobileMenuOpen ? 'is-menu-open' : ''}`}>
         <div className="mentico-container mentico-nav-inner">
           {/* Desktop Nav Links */}
           <nav aria-label="Main Navigation">
@@ -336,7 +362,15 @@ export default function Home() {
       </header>
 
       {/* Mobile Drawer Menu */}
-      <div className={`mentico-mobile-menu ${mobileMenuOpen ? 'is-open' : ''}`}>
+      <div
+        className={`mentico-mobile-menu ${mobileMenuOpen ? 'is-open' : ''}`}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            setMobileMenuOpen(false);
+          }
+        }}
+        aria-hidden={!mobileMenuOpen}
+      >
         <a
           href="#top"
           onClick={(e) => handleNavClick(e, 'top')}
@@ -546,7 +580,7 @@ export default function Home() {
               className="mentico-card-familiar-bg"
             />
             <div className="mentico-card-familiar-content">
-              <h2 className="mentico-card-familiar-title">Does This Sound Familiar?</h2>
+              <h3 className="mentico-card-familiar-title">Does This Sound Familiar?</h3>
               <ul className="mentico-familiar-list mentico-familiar-list-2col">
                 <li className="mentico-familiar-item">
                   <Check className="mentico-check-icon" size={18} />
@@ -1205,7 +1239,8 @@ export default function Home() {
       )}
       {/* Sticky Floating Buy Bar with Price (Desktop & Mobile) */}
       <aside
-        className={`mentico-sticky-bar ${showStickyBar ? 'is-visible' : ''}`}
+        className={`mentico-sticky-bar ${showStickyBar && !mobileMenuOpen ? 'is-visible' : ''}`}
+        style={mobileMenuOpen ? { display: 'none', visibility: 'hidden', pointerEvents: 'none' } : {}}
         aria-label="Sticky purchase bar"
       >
         <div className="mentico-sticky-bar-inner">

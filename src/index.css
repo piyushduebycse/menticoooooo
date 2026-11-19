@@ -685,15 +685,35 @@ input, textarea, select {
   top: var(--nav-height);
   left: 0;
   right: 0;
+  bottom: 0;
+  height: calc(100vh - var(--nav-height));
+  height: calc(100dvh - var(--nav-height));
   background-color: var(--bg-base);
   border-bottom: 2px solid var(--border-main);
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  z-index: 999;
+  z-index: 9990;
   box-shadow: var(--shadow-modal);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
+  touch-action: pan-y;
   animation: slideDown 0.25s ease-out;
+}
+
+body[data-menu-open="true"] .navbar,
+.navbar.is-menu-open {
+  z-index: 9995;
+}
+
+body[data-menu-open="true"] .mobile-pinned-bottom-bar {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 @keyframes slideDown {

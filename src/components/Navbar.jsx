@@ -1,12 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { Lock, Unlock, LogOut, Menu, X, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 export default function Navbar() {
   const { user, logout, openAuthModal } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+
+  // Lock body scroll on mobile when drawer is open
+  useBodyScrollLock(mobileMenuOpen, () => setMobileMenuOpen(false));
+
+  // Close mobile drawer on desktop resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 900 && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [mobileMenuOpen]);
 
   const storedPass = (() => {
     try {
@@ -49,7 +64,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="navbar" role="navigation" aria-label="Main Navigation">
+    <nav className={`navbar ${mobileMenuOpen ? 'is-menu-open' : ''}`} role="navigation" aria-label="Main Navigation">
       <div className="nav-container">
         {/* Brand Logo */}
         <Link to="/" className="brand-logo" onClick={() => setMobileMenuOpen(false)} aria-label="Mentico Home">
@@ -179,7 +194,14 @@ export default function Navbar() {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="mobile-drawer">
+        <div
+          className="mobile-drawer"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setMobileMenuOpen(false);
+            }
+          }}
+        >
           <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             <li key="/">
               <NavLink
