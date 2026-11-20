@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   MessageSquare,
@@ -152,20 +152,33 @@ export default function Home() {
     },
   ];
 
+  const touchStartXRef = useRef(null);
+
   const handleCarouselNext = () => {
-    setCarouselIndex((prev) => {
-      const nextIdx = (prev + 1) % sneakPeekItems.length;
-      setLightboxImage(sneakPeekItems[nextIdx]);
-      return nextIdx;
-    });
+    setCarouselIndex((prev) => (prev + 1) % sneakPeekItems.length);
   };
 
   const handleCarouselPrev = () => {
-    setCarouselIndex((prev) => {
-      const prevIdx = (prev - 1 + sneakPeekItems.length) % sneakPeekItems.length;
-      setLightboxImage(sneakPeekItems[prevIdx]);
-      return prevIdx;
-    });
+    setCarouselIndex((prev) => (prev - 1 + sneakPeekItems.length) % sneakPeekItems.length);
+  };
+
+  const handleTouchStart = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      touchStartXRef.current = e.touches[0].clientX;
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartXRef.current === null) return;
+    if (e.changedTouches && e.changedTouches.length > 0) {
+      const diffX = touchStartXRef.current - e.changedTouches[0].clientX;
+      if (diffX > 40) {
+        handleCarouselNext();
+      } else if (diffX < -40) {
+        handleCarouselPrev();
+      }
+    }
+    touchStartXRef.current = null;
   };
 
   const initialTestimonials = [
@@ -922,11 +935,15 @@ export default function Home() {
                 <ChevronLeft size={18} />
               </button>
 
-              <div className="mentico-sneak-items">
-                {sneakPeekItems.map((item) => (
+              <div
+                className="mentico-sneak-items"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+              >
+                {sneakPeekItems.map((item, idx) => (
                   <div
                     key={item.id}
-                    className="mentico-sneak-card"
+                    className={`mentico-sneak-card ${idx === carouselIndex ? 'is-active' : ''}`}
                     onClick={() => setLightboxImage(item)}
                     role="button"
                     tabIndex={0}
@@ -962,6 +979,22 @@ export default function Home() {
               >
                 <ChevronRight size={18} />
               </button>
+            </div>
+
+            {/* Mobile Carousel Pagination Dots & Counter */}
+            <div className="mentico-sneak-dots">
+              {sneakPeekItems.map((_, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCarouselIndex(idx)}
+                  className={`mentico-sneak-dot ${idx === carouselIndex ? 'is-active' : ''}`}
+                  aria-label={`Go to preview ${idx + 1} of ${sneakPeekItems.length}`}
+                />
+              ))}
+              <span className="mentico-sneak-counter">
+                {carouselIndex + 1} / {sneakPeekItems.length}
+              </span>
             </div>
           </div>
 
