@@ -321,9 +321,9 @@ export default function Home() {
               type="button"
               onClick={handlePurchaseClick}
               className="mentico-btn-cta"
-              aria-label={hasPurchased ? 'Open Your Book' : 'Get the Book'}
+              aria-label={hasPurchased ? 'Open Your Course' : 'Get the Course'}
             >
-              {hasPurchased ? 'Open Your Book' : 'Get the Book'}
+              {hasPurchased ? 'Open Your Course' : 'Get the Course'}
               <ArrowRight size={16} />
             </button>
 
@@ -425,7 +425,7 @@ export default function Home() {
           className="mentico-btn-cta"
           style={{ width: '100%', marginTop: '12px', height: '52px' }}
         >
-          {hasPurchased ? 'Open Your Book' : 'Get the Book'}
+          {hasPurchased ? 'Open Your Course' : 'Get the Course'}
           <ArrowRight size={16} />
         </button>
 
@@ -482,7 +482,7 @@ export default function Home() {
                 onClick={handlePurchaseClick}
                 className="mentico-btn-cta"
               >
-                {hasPurchased ? 'Access PDF Field Guide' : 'Get the PDF Book Now'}
+                {hasPurchased ? 'Access Field Guide' : 'Get the Course Now'}
                 <ArrowRight size={18} />
               </button>
             </div>
@@ -1078,7 +1078,7 @@ export default function Home() {
                   onClick={handlePurchaseClick}
                   className="mentico-btn-banner-cta"
                 >
-                  {hasPurchased ? 'Access PDF Book Now' : 'Get the PDF Book Now'}
+                  {hasPurchased ? 'Access Course Now' : 'Get the Course Now'}
                   <ArrowRight size={18} />
                 </button>
                 <div className="mentico-banner-subtext">
@@ -1142,7 +1142,7 @@ export default function Home() {
                 </li>
                 <li>
                   <Link to={hasPurchased ? '/library' : '/purchase'} className="mentico-footer-link">
-                    {hasPurchased ? 'My Library' : 'Get the Book'}
+                    {hasPurchased ? 'My Library' : 'Get the Course'}
                   </Link>
                 </li>
                 <li>
@@ -1258,7 +1258,7 @@ export default function Home() {
        
                 style={{ padding: '8px 18px', fontSize: '14px' }}
               >
-                {hasPurchased ? 'Read in Library' : 'Get Full Book'}
+                {hasPurchased ? 'Read in Library' : 'Get Full Course'}
               </button>
             </div>
           </div>
@@ -1315,9 +1315,9 @@ export default function Home() {
             onClick={handlePurchaseClick}
             className="mentico-sticky-btn"
             style={hasPurchased ? { backgroundColor: '#16a34a' } : {}}
-            aria-label={hasPurchased ? 'Open Protected Reader' : `Get the Book (₹${currentPrice})`}
+            aria-label={hasPurchased ? 'Open Protected Reader' : `Get the Course (₹${currentPrice})`}
           >
-            <span>{hasPurchased ? 'Open Your Book' : `Get the Book (₹${currentPrice})`}</span>
+            <span>{hasPurchased ? 'Open Your Course' : `Get the Course (₹${currentPrice})`}</span>
             <ArrowRight size={16} />
           </button>
         </div>
