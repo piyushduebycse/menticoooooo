@@ -2229,9 +2229,9 @@ body[data-menu-open="true"] .mentico-sticky-bar,
   .mentico-approach-strip { mask-image: none; }
 }
 
-/* Give the complete hero artwork room inside its frame. */
+/* Enlarge the hero artwork beyond its original framing. */
 .mentico-hero-media-wrapper {
-  aspect-ratio: 1280 / 830;
+  aspect-ratio: 1280 / 930;
   background: #f7e9dd;
   border: 1px solid var(--border-light);
   border-radius: 20px;
@@ -2239,7 +2239,8 @@ body[data-menu-open="true"] .mentico-sticky-bar,
   overflow: hidden;
 }
 .mentico-hero-image {
-  width: 86%;
+  width: 112%;
+  flex-shrink: 0;
   max-width: none;
   object-fit: contain;
   border: 0;
