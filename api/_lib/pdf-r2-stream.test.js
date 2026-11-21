@@ -12,7 +12,9 @@ let fixturePath;
 before(() => {
   fixtureDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'mentico-pdf-test-'));
   fixturePath = path.join(fixtureDirectory, 'synthetic.pdf');
-  fs.writeFileSync(fixturePath, Buffer.alloc(11 * 1024 * 1024, 32));
+  const fixture = Buffer.alloc(11 * 1024 * 1024, 32);
+  fixture.write('%PDF-1.7\n');
+  fs.writeFileSync(fixturePath, fixture);
 });
 after(() => fs.rmSync(fixtureDirectory, { recursive: true, force: true }));
 function handlePdfStream(req, res, options = {}) {
