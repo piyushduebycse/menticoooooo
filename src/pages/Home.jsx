@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   MessageSquare,
   Users,
@@ -12,14 +12,10 @@ import {
   Check,
   X,
   ArrowRight,
-  ChevronDown,
-  ChevronUp,
   ChevronLeft,
   ChevronRight,
   Zap,
   FileText,
-  Menu,
-  LogOut,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
@@ -27,7 +23,7 @@ import '../landing.css';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const storedPass = (() => {
     try {
       return typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('mentico_access_pass') || '{}') : {};
@@ -37,38 +33,20 @@ export default function Home() {
   })();
   const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased);
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (err) {
-      console.warn('[Home] Logout error:', err);
-    }
-    try {
-      localStorage.removeItem('mentico_access_pass');
-      window.dispatchEvent(new Event('storage'));
-    } catch {}
-    setMobileMenuOpen(false);
-  };
   const originalPrice = 999;
   const envPrice = Number(import.meta.env.VITE_PRODUCT_PRICE_INR);
   const currentPrice = (Number.isFinite(envPrice) && envPrice > 1) ? envPrice : 499;
 
-  const [scrolled, setScrolled] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [lightboxImage, setLightboxImage] = useState(null);
-
-  // Lock body scroll on mobile when mobile menu is open
-  useBodyScrollLock(mobileMenuOpen, () => setMobileMenuOpen(false));
 
   useBodyScrollLock(Boolean(lightboxImage), () => setLightboxImage(null));
 
   // Scroll listener for sticky header & floating bottom buy bar
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
       setShowStickyBar(window.scrollY > 260);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -76,49 +54,12 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile drawer on desktop resize
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768 && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [mobileMenuOpen]);
-
   const handlePurchaseClick = () => {
-    setMobileMenuOpen(false);
     if (hasPurchased) {
       navigate('/library?openPdf=true');
     } else {
       navigate('/purchase');
     }
-  };
-
-  const handleNavClick = (e, targetId) => {
-    e.preventDefault();
-    setMobileMenuOpen(false);
-    // Allow body scroll-lock restore to finish before calculating target offsets
-    setTimeout(() => {
-      if (targetId === 'top') {
-        window.scrollTo({
-          top: 0,
-          behavior: 'smooth',
-        });
-        return;
-      }
-      const element = document.getElementById(targetId);
-      if (element) {
-        const headerOffset = 80;
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth',
-        });
-      }
-    }, 60);
   };
 
   const toggleFaq = (index) => {
@@ -249,217 +190,7 @@ export default function Home() {
 
   return (
     <div className="mentico-home" id="top">
-      {/* 1. Header Navigation */}
-      <header className={`mentico-header ${scrolled ? 'is-scrolled' : ''} ${mobileMenuOpen ? 'is-menu-open' : ''}`}>
-        <div className="mentico-container mentico-nav-inner">
-          {/* Desktop Nav Links */}
-          <nav aria-label="Main Navigation">
-            <ul className="mentico-nav-links">
-              <li>
-                <a
-                  href="#top"
-                  onClick={(e) => handleNavClick(e, 'top')}
-                  className="mentico-nav-link"
-                >
-                  Home
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#whats-inside"
-                  onClick={(e) => handleNavClick(e, 'whats-inside')}
-                  className="mentico-nav-link"
-                >
-                  About the Book
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#what-youll-learn"
-                  onClick={(e) => handleNavClick(e, 'what-youll-learn')}
-                  className="mentico-nav-link"
-                >
-                  What You'll Learn
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#challenge"
-                  onClick={(e) => handleNavClick(e, 'challenge')}
-                  className="mentico-nav-link"
-                >
-                  Challenge
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#reviews"
-                  onClick={(e) => handleNavClick(e, 'reviews')}
-                  className="mentico-nav-link"
-                >
-                  Reviews
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#faq"
-                  onClick={(e) => handleNavClick(e, 'faq')}
-                  className="mentico-nav-link"
-                >
-                  FAQ
-                </a>
-              </li>
-            </ul>
-          </nav>
-
-          {/* Header Action Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <button
-              type="button"
-              onClick={handlePurchaseClick}
-              className="mentico-btn-cta"
-              aria-label={hasPurchased ? 'Open Your Course' : 'Get the Course'}
-            >
-              {hasPurchased ? 'Open Your Course' : 'Get the Course'}
-              <ArrowRight size={16} />
-            </button>
-
-            {(user || hasPurchased) && (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="mentico-btn-logout-header"
-                title="Sign Out"
-                aria-label="Sign Out"
-                style={{
-                  background: 'transparent',
-                  border: '1px solid rgba(0, 0, 0, 0.14)',
-                  borderRadius: '999px',
-                  padding: '7px 14px',
-                  fontSize: '0.82rem',
-                  fontWeight: 600,
-                  color: 'var(--mentico-charcoal)',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                <LogOut size={14} />
-                <span>Sign Out</span>
-              </button>
-            )}
-          </div>
-
-          <div className="mentico-approach-strip" role="note" aria-label="YOU DON'T HAVE A PEOPLE PROBLEM. YOU HAVE AN APPROACH PROBLEM.">
-            <div className="mentico-approach-track" aria-hidden="true">
-              {[0, 1].map((copy) => <span key={copy}>YOU DON'T HAVE A PEOPLE PROBLEM. YOU HAVE AN APPROACH PROBLEM. <b>✦</b> </span>)}
-            </div>
-          </div>
-
-          {/* Mobile Menu Toggle Button */}
-          <button
-            type="button"
-            className="mentico-mobile-toggle"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle navigation menu"
-          >
-            {mobileMenuOpen ? <X size={26} /> : <Menu size={26} />}
-          </button>
-        </div>
-      </header>
-
-      {/* Mobile Drawer Menu */}
-      <div
-        className={`mentico-mobile-menu ${mobileMenuOpen ? 'is-open' : ''}`}
-        onClick={(e) => {
-          if (e.target === e.currentTarget) {
-            setMobileMenuOpen(false);
-          }
-        }}
-        aria-hidden={!mobileMenuOpen}
-      >
-        <a
-          href="#top"
-          onClick={(e) => handleNavClick(e, 'top')}
-          className="mentico-mobile-nav-link"
-        >
-          Home
-        </a>
-        <a
-          href="#whats-inside"
-          onClick={(e) => handleNavClick(e, 'whats-inside')}
-          className="mentico-mobile-nav-link"
-        >
-          About the Book
-        </a>
-        <a
-          href="#what-youll-learn"
-          onClick={(e) => handleNavClick(e, 'what-youll-learn')}
-          className="mentico-mobile-nav-link"
-        >
-          What You'll Learn
-        </a>
-        <a
-          href="#challenge"
-          onClick={(e) => handleNavClick(e, 'challenge')}
-          className="mentico-mobile-nav-link"
-        >
-          Challenge
-        </a>
-        <a
-          href="#reviews"
-          onClick={(e) => handleNavClick(e, 'reviews')}
-          className="mentico-mobile-nav-link"
-        >
-          Reviews
-        </a>
-        <a
-          href="#faq"
-          onClick={(e) => handleNavClick(e, 'faq')}
-          className="mentico-mobile-nav-link"
-        >
-          FAQ
-        </a>
-        <button
-          type="button"
-          onClick={handlePurchaseClick}
-          className="mentico-btn-cta"
-          style={{ width: '100%', marginTop: '12px', height: '52px' }}
-        >
-          {hasPurchased ? 'Open Your Course' : 'Get the Course'}
-          <ArrowRight size={16} />
-        </button>
-
-        {(user || hasPurchased) && (
-          <button
-            type="button"
-            onClick={handleLogout}
-            style={{
-              width: '100%',
-              marginTop: '10px',
-              padding: '12px',
-              background: 'transparent',
-              border: '1px solid var(--mentico-border)',
-              borderRadius: '999px',
-              fontSize: '0.9rem',
-              fontWeight: 600,
-              color: 'var(--mentico-charcoal)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              cursor: 'pointer',
-            }}
-          >
-            <LogOut size={16} />
-            <span>Sign Out</span>
-          </button>
-        )}
-      </div>
-
-      <main>
+      <div className="home-sections">
         {/* 2. Hero Section */}
         <section className="mentico-hero">
           <div className="mentico-container mentico-hero-grid">
@@ -1057,102 +788,7 @@ export default function Home() {
             </div>
           </div>
         </section>
-      </main>
-
-      {/* 11. Footer */}
-      <footer className="mentico-site-footer">
-        <div className="mentico-container">
-          <div className="mentico-footer-grid">
-            <div className="mentico-footer-col">
-              <span className="mentico-brand" style={{ marginBottom: '12px', display: 'block' }}>
-                MENTICO
-              </span>
-              <p style={{ fontSize: '14.5px', lineHeight: 1.6, maxWidth: '280px', margin: 0 }}>
-                A practical psychology-informed field guide to natural confidence, honest
-                connections, and social courage.
-              </p>
-            </div>
-
-            <div className="mentico-footer-col">
-              <h4>Navigation</h4>
-              <ul className="mentico-footer-links">
-                <li>
-                  <a href="#top" onClick={(e) => handleNavClick(e, 'top')} className="mentico-footer-link">
-                    Home
-                  </a>
-                </li>
-                <li>
-                  <a href="#whats-inside" onClick={(e) => handleNavClick(e, 'whats-inside')} className="mentico-footer-link">
-                    What's Inside
-                  </a>
-                </li>
-                <li>
-                  <a href="#challenge" onClick={(e) => handleNavClick(e, 'challenge')} className="mentico-footer-link">
-                    30-Day Challenge
-                  </a>
-                </li>
-                <li>
-                  <a href="#reviews" onClick={(e) => handleNavClick(e, 'reviews')} className="mentico-footer-link">
-                    Reviews & Proof
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div className="mentico-footer-col">
-              <h4>Resources</h4>
-              <ul className="mentico-footer-links">
-                <li>
-                  <Link to="/about" className="mentico-footer-link">
-                    About Mentico
-                  </Link>
-                </li>
-                <li>
-                  <Link to={hasPurchased ? '/library' : '/purchase'} className="mentico-footer-link">
-                    {hasPurchased ? 'My Library' : 'Get the Course'}
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/contact" className="mentico-footer-link">
-                    Support & Contact
-                  </Link>
-                </li>
-                <li>
-                  <a href="#faq" onClick={(e) => handleNavClick(e, 'faq')} className="mentico-footer-link">
-                    Common Questions
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div className="mentico-footer-col">
-              <h4>Terms &amp; Policies</h4>
-              <ul className="mentico-footer-links">
-                <li>
-                  <Link to="/terms" className="mentico-footer-link">
-                    Terms &amp; Conditions
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/terms" className="mentico-footer-link">
-                    No Refund Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/terms" className="mentico-footer-link">
-                    Intellectual Property
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="mentico-footer-bottom">
-            <span>© 2026 Mentico. All rights reserved.</span>
-            <span>Designed for real-world social freedom.</span>
-          </div>
-        </div>
-      </footer>
+      </div>
 
       {/* Lightbox Modal for Full Preview Spread */}
       {lightboxImage && (
@@ -1234,8 +870,7 @@ export default function Home() {
       )}
       {/* Sticky Floating Buy Bar with Price (Desktop & Mobile) */}
       <aside
-        className={`mentico-sticky-bar ${showStickyBar && !mobileMenuOpen ? 'is-visible' : ''}`}
-        style={mobileMenuOpen ? { display: 'none', visibility: 'hidden', pointerEvents: 'none' } : {}}
+        className={`mentico-sticky-bar ${showStickyBar ? 'is-visible' : ''}`}
         aria-label="Sticky purchase bar"
       >
         <div className="mentico-sticky-bar-inner">

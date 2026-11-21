@@ -142,7 +142,7 @@ export default function ProtectedPdfReader({
   const drawCanvasWatermark = useCallback((ctx, width, height, dpr = 1) => {
     ctx.save();
     ctx.font = `bold ${Math.round(15 * dpr)}px monospace`;
-    ctx.fillStyle = 'rgba(220, 38, 38, 0.14)';
+    ctx.fillStyle = 'rgba(78, 35, 19, 0.14)';
     ctx.rotate((-25 * Math.PI) / 180);
 
     const text = `LICENSED TO: ${studentEmail} • ID: ${licenseKey} • MENTICO PROTECTED VAULT`;
@@ -374,7 +374,7 @@ export default function ProtectedPdfReader({
             style={{
               width: '32px',
               height: '32px',
-              backgroundColor: '#DC2626',
+              backgroundColor: 'var(--red-primary)',
               borderRadius: '6px',
               display: 'flex',
               alignItems: 'center',
@@ -387,10 +387,10 @@ export default function ProtectedPdfReader({
           </div>
           <div>
             <div style={{ fontSize: '0.98rem', fontWeight: 800, letterSpacing: '-0.01em' }}>
-              MENTICO SOCIAL FREEDOM // PROTECTED WEB READER
+              Social Freedom · Mentico
             </div>
-            <div style={{ fontSize: '0.72rem', color: '#9CA3AF', fontFamily: 'var(--font-mono)' }}>
-              AUTHENTICATED AS <span style={{ color: '#EF4444' }}>{studentEmail}</span> • LICENSE: {licenseKey}
+            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+              AUTHENTICATED AS <span style={{ color: 'var(--red-primary)' }}>{studentEmail}</span> • LICENSE: {licenseKey}
             </div>
           </div>
         </div>
@@ -402,9 +402,9 @@ export default function ProtectedPdfReader({
               display: 'flex',
               alignItems: 'center',
               gap: '0.35rem',
-              backgroundColor: 'rgba(220, 38, 38, 0.15)',
-              border: '1px solid rgba(220, 38, 38, 0.3)',
-              color: '#EF4444',
+              backgroundColor: 'rgba(78, 35, 19, 0.15)',
+              border: '1px solid rgba(78, 35, 19, 0.3)',
+              color: 'var(--red-primary)',
               padding: '0.3rem 0.65rem',
               borderRadius: 'var(--radius-full)',
               fontSize: '0.72rem',
@@ -413,7 +413,7 @@ export default function ProtectedPdfReader({
             }}
           >
             <Lock size={12} />
-            <span>PROTECTED DRM</span>
+            <span>PERSONAL ACCESS</span>
           </div>
 
           <button
@@ -469,7 +469,7 @@ export default function ProtectedPdfReader({
               style={{
                 fontFamily: 'var(--font-mono)',
                 fontSize: '0.82rem',
-                color: '#E5E7EB',
+                color: 'var(--text-main)',
                 padding: '0 0.5rem',
                 minWidth: '105px',
                 textAlign: 'center',
@@ -537,23 +537,23 @@ export default function ProtectedPdfReader({
               position: 'absolute',
               top: '1rem',
               left: '1rem',
-              width: '320px',
-              backgroundColor: '#0F0F0F',
-              border: '1px solid #2A2A2A',
+              width: 'min(320px, calc(100% - 2rem))',
+              backgroundColor: 'var(--bg-card)',
+              border: '1px solid var(--border-main)',
               borderRadius: 'var(--radius-md)',
               padding: '1rem',
               zIndex: 100,
               boxShadow: 'var(--shadow-modal)',
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', borderBottom: '1px solid #262626', paddingBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.82rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: '#EF4444' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', borderBottom: '1px solid var(--border-main)', paddingBottom: '0.5rem' }}>
+              <span style={{ fontSize: '0.82rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--red-primary)' }}>
                 TABLE OF CONTENTS
               </span>
               <button
                 type="button"
                 onClick={() => setShowToc(false)}
-                style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
               >
                 <X size={15} />
               </button>
@@ -574,15 +574,15 @@ export default function ProtectedPdfReader({
                     padding: '0.5rem 0.65rem',
                     borderRadius: '4px',
                     textAlign: 'left',
-                    background: currentPage >= ch.page && (idx === chapters.length - 1 || currentPage < chapters[idx + 1].page) ? '#1E1E1E' : 'transparent',
+                    background: currentPage >= ch.page && (idx === chapters.length - 1 || currentPage < chapters[idx + 1].page) ? 'var(--bg-surface)' : 'transparent',
                     border: 'none',
-                    color: '#F3F4F6',
+                    color: 'var(--text-main)',
                     cursor: 'pointer',
                     fontSize: '0.78rem',
                   }}
                 >
                   <span style={{ flex: 1, paddingRight: '0.5rem' }}>{ch.title}</span>
-                  <span style={{ color: '#EF4444', fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>
+                  <span style={{ color: 'var(--red-primary)', fontFamily: 'var(--font-mono)', fontSize: '0.72rem' }}>
                     p.{ch.page}
                   </span>
                 </button>
@@ -593,7 +593,7 @@ export default function ProtectedPdfReader({
 
         {/* Loading Spinner */}
         {isLoading && (
-          <div style={{ margin: 'auto', textAlign: 'center', color: '#9CA3AF', padding: '3rem 1.5rem', maxWidth: '440px' }}>
+          <div style={{ margin: 'auto', textAlign: 'center', color: 'var(--text-muted)', padding: '3rem 1.5rem', maxWidth: '440px' }}>
             <div
               style={{
                 width: '42px',
@@ -605,10 +605,10 @@ export default function ProtectedPdfReader({
                 margin: '0 auto 1.25rem',
               }}
             />
-            <div style={{ fontSize: '0.95rem', fontWeight: 700, fontFamily: 'var(--font-mono)', color: '#FFFFFF', marginBottom: '0.45rem' }}>
+            <div style={{ fontSize: '0.95rem', fontWeight: 700, fontFamily: 'var(--font-mono)', color: 'var(--text-main)', marginBottom: '0.45rem' }}>
               VERIFYING ENTITLEMENT & DECRYPTING PAGES...
             </div>
-            <p style={{ fontSize: '0.82rem', color: '#9CA3AF', margin: 0 }}>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0 }}>
               Connecting to secure Cloudflare R2 vault with forensic DRM protection.
             </p>
           </div>
@@ -616,13 +616,13 @@ export default function ProtectedPdfReader({
 
         {/* Access Denied (Unpurchased / Cancelled / Tampered) */}
         {isAccessDenied && !isLoading && (
-          <div style={{ margin: 'auto', textAlign: 'center', color: '#FFFFFF', padding: '3rem 1.5rem', maxWidth: '480px' }}>
+          <div style={{ margin: 'auto', textAlign: 'center', color: 'var(--text-main)', padding: '3rem 1.5rem', maxWidth: '480px' }}>
             <ShieldAlert size={46} color="var(--red-primary)" style={{ margin: '0 auto 1rem' }} />
-            <div style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '0.5rem', color: '#FFFFFF' }}>
+            <div style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text-main)' }}>
               Verified Purchase Required
             </div>
-            <p style={{ fontSize: '0.88rem', color: '#D1D5DB', marginBottom: '1.5rem', lineHeight: 1.6 }}>
-              This publication is strictly protected under Mentico DRM. An independently verified active purchase is required to unlock this document. Cancelled, failed, or unpaid sessions cannot access this manual.
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+              Sign in with the account you used to purchase Social Freedom, or complete checkout to open your field guide.
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button
@@ -662,11 +662,11 @@ export default function ProtectedPdfReader({
         {/* Load Error Fallback (Network / Vault Error for legitimate purchasers) */}
         {loadError && !isAccessDenied && !isLoading && (
           <div style={{ margin: 'auto', textAlign: 'center', color: '#F87171', padding: '3rem 1.5rem', maxWidth: '480px' }}>
-            <AlertTriangle size={42} style={{ margin: '0 auto 1rem', color: '#EF4444' }} />
-            <div style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '0.5rem', color: '#FFFFFF' }}>
-              Reader Decryption Notice
+            <AlertTriangle size={42} style={{ margin: '0 auto 1rem', color: 'var(--red-primary)' }} />
+            <div style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--text-main)' }}>
+              Your field guide could not load
             </div>
-            <p style={{ fontSize: '0.86rem', color: '#D1D5DB', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: 1.5 }}>
               {loadError || 'Unable to stream pages from the secure document vault. Please check your connection and reload.'}
             </p>
             <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>

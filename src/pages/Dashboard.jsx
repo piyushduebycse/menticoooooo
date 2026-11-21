@@ -145,7 +145,7 @@ export default function Dashboard() {
                   width: '60px',
                   height: '60px',
                   borderRadius: '50%',
-                  backgroundColor: 'var(--pure-black)',
+                  backgroundColor: 'var(--red-primary)',
                   border: '2px solid var(--red-primary)',
                   display: 'flex',
                   alignItems: 'center',
@@ -164,11 +164,11 @@ export default function Dashboard() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                   <h2 style={{ fontSize: '1.6rem' }}>{effectiveUser?.name || effectiveUser?.displayName || 'Mentico Student'}</h2>
                   <span className="badge-red" style={{ fontSize: '0.7rem' }}>
-                    PRO MEMBER // 18–30
+                    SOCIAL FREEDOM MEMBER
                   </span>
                 </div>
                 <div style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
-                  {effectiveUser?.email || 'student@mentico.co.in'} • Enrolled in Mentico 3-in-1 Mastery Program
+                  {effectiveUser?.email || 'student@mentico.co.in'} • Social Freedom by Mentico
                 </div>
               </div>
             </div>
@@ -261,16 +261,16 @@ export default function Dashboard() {
             <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
               FIELD MANUAL
             </div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>16 Core Modules</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>180 Comprehensive Pages</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>Practical frameworks</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>90 pages to put into practice</div>
           </div>
 
           <div className="card card-solid" style={{ padding: '1.25rem' }}>
             <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
               SPEECH TEMPLATES
             </div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--red-primary)' }}>15 Cheatsheets</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Viva, GD & Dating Scripts</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--red-primary)' }}>Field reference cards</div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Conversation prompts & exercises</div>
           </div>
         </div>
 
@@ -282,8 +282,8 @@ export default function Dashboard() {
           <div className="card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
               <div>
-                <h3 style={{ fontSize: '1.4rem' }}>Primary Student Deliverable</h3>
-                <p style={{ fontSize: '0.88rem' }}>Official High-Resolution Mentico Blueprint PDF.</p>
+                <h3 style={{ fontSize: '1.4rem' }}>Your Social Freedom field guide</h3>
+                <p style={{ fontSize: '0.88rem' }}>Your complete manual, ready when you are.</p>
               </div>
               <span className="badge-red" style={{ fontSize: '0.7rem' }}>
                 DIGITAL PDF MANUAL
@@ -293,43 +293,17 @@ export default function Dashboard() {
             {/* Featured PDF Protected Reader Showcase */}
             <div className="deliverable-card-inner">
               {/* PDF Document Icon Visual */}
-              <div
-                style={{
-                  width: '95px',
-                  height: '120px',
-                  backgroundColor: 'var(--pure-black)',
-                  border: '2px solid var(--red-primary)',
-                  borderRadius: 'var(--radius-sm)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  padding: '0.75rem',
-                  color: '#FFFFFF',
-                  position: 'relative',
-                  boxShadow: '0 8px 24px rgba(220, 38, 38, 0.25)',
-                  flexShrink: 0,
-                }}
-              >
-                <div style={{ fontSize: '0.62rem', fontFamily: 'var(--font-mono)', color: 'var(--red-primary)', fontWeight: 800 }}>
-                  MENTICO
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <FileText size={32} color="var(--red-primary)" style={{ margin: '0 auto' }} />
-                </div>
-                <div style={{ fontSize: '0.6rem', textAlign: 'center', color: '#A1A1AA', fontFamily: 'var(--font-mono)' }}>
-                  FULL MANUAL
-                </div>
-              </div>
+              <img src="/images/book_isolated.jpg" alt="Social Freedom by Mentico field guide" className="library-book-cover" loading="lazy" />
 
               {/* PDF Metadata and CTAs */}
               <div style={{ flex: 1, minWidth: '220px' }}>
                 <div style={{ fontWeight: 800, fontSize: '1.25rem', marginBottom: '0.35rem' }}>
-                  The Mentico Mastery Blueprint (PDF)
+                  Social Freedom by Mentico
                 </div>
                 <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
                   Official Course Manual • High-Res Digital PDF • Licensed to:{' '}
                   <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--red-primary)', fontWeight: 700 }}>
-                    {user?.displayName || user?.email}
+                    {effectiveUser.name || effectiveUser.email}
                   </span>
                 </div>
 
@@ -343,7 +317,7 @@ export default function Dashboard() {
                     style={{ flex: 1, minWidth: '220px', padding: '0.95rem 1.5rem', fontWeight: 800 }}
                   >
                     <BookOpen size={18} />
-                    <span>Open Protected Web Reader</span>
+                    <span>Open your field guide</span>
                   </button>
 
                   <div
@@ -359,7 +333,7 @@ export default function Dashboard() {
                     }}
                   >
                     <Shield size={14} color="#16A34A" />
-                    <span>ANTI-PIRACY ACTIVE • FORENSIC WATERMARK ACTIVE • SITE-ONLY DRM</span>
+                    <span>Personal reading access • Watermarked for your account</span>
                   </div>
                 </div>
               </div>

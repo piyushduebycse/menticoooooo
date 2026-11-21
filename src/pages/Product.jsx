@@ -24,6 +24,15 @@ export default function Product() {
   const { user, getIdToken, markPurchased } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [checkoutVisible, setCheckoutVisible] = useState(false);
+  useEffect(() => {
+    const card = document.getElementById('checkout-card');
+    if (!card) return;
+    const observer = new IntersectionObserver(([entry]) => setCheckoutVisible(entry.isIntersecting), { rootMargin: '-76px 0px -30px 0px' });
+    observer.observe(card);
+    return () => observer.disconnect();
+  }, []);
+
 
   const storedPass = (() => {
     try {
@@ -258,9 +267,9 @@ export default function Product() {
         {/* ==================================================================
             HERO SECTION
             ================================================================== */}
-        <div style={{ maxWidth: '880px', margin: '0 auto 3rem', textAlign: 'left' }}>
+        <div className="product-intro" style={{ maxWidth: '880px', margin: '0 auto 3rem', textAlign: 'left' }}>
           <div className="badge-red" style={{ marginBottom: '1.25rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span>MENTICO // SOCIAL FREEDOM</span>
+            <span>SOCIAL FREEDOM BY MENTICO</span>
           </div>
 
           <h1
@@ -274,7 +283,7 @@ export default function Product() {
               letterSpacing: '-0.02em',
             }}
           >
-            You're One Step Away From Social Freedom.
+            Your next conversation starts here.
           </h1>
 
           <p
@@ -826,7 +835,7 @@ export default function Product() {
                       padding: '1rem 1.5rem',
                       fontSize: '1.05rem',
                       fontWeight: 800,
-                      boxShadow: '0 6px 22px rgba(229, 62, 62, 0.42)',
+                      boxShadow: '0 6px 22px rgba(78, 35, 19, 0.18)',
                       letterSpacing: '0.2px',
                     }}
                     onClick={handlePurchase}
@@ -885,7 +894,7 @@ export default function Product() {
       {/* ==================================================================
           MOBILE PINNED BOTTOM ACTION BAR
           ================================================================== */}
-      <div className="mobile-pinned-bottom-bar" id="mobile-bottom-bar">
+      <div className={`mobile-pinned-bottom-bar ${checkoutVisible ? 'checkout-visible' : ''}`} id="mobile-bottom-bar">
         {hasPurchased ? (
           <>
             <div className="mobile-pinned-pricing-box">

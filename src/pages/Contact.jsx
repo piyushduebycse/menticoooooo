@@ -80,25 +80,23 @@ export default function Contact() {
           <div>
             <div
               style={{
-                fontSize: 'clamp(1.1rem, 3vw, 1.45rem)',
+                fontSize: 'clamp(1rem, 3vw, 1.2rem)',
                 fontWeight: 800,
                 color: 'var(--text-main)',
                 marginBottom: '0.5rem',
               }}
             >
-              Contact us on{' '}
               <a
                 href={`mailto:${contactEmail}`}
                 style={{
                   color: 'var(--red-primary)',
                   textDecoration: 'none',
                   borderBottom: '2px solid var(--red-primary)',
-                  wordBreak: 'break-all',
+                  overflowWrap: 'anywhere',
                 }}
               >
                 {contactEmail}
-              </a>{' '}
-              for any query
+              </a>
             </div>
             <p style={{ fontSize: '0.92rem', color: 'var(--text-muted)', margin: 0 }}>
               We typically respond within 24 business hours.

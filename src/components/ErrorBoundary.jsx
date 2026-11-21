@@ -58,8 +58,8 @@ export class ErrorBoundary extends React.Component {
                 width: '54px',
                 height: '54px',
                 borderRadius: '50%',
-                backgroundColor: 'rgba(220, 38, 38, 0.1)',
-                color: 'var(--red-primary, #DC2626)',
+                backgroundColor: 'rgba(78, 35, 19, 0.08)',
+                color: 'var(--red-primary, #4E2313)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -150,7 +150,7 @@ export class ErrorBoundary extends React.Component {
                   overflowX: 'auto',
                 }}
               >
-                <summary style={{ cursor: 'pointer', fontWeight: 600, color: 'var(--red-primary, #DC2626)' }}>
+                <summary style={{ cursor: 'pointer', fontWeight: 600, color: 'var(--red-primary, #4E2313)' }}>
                   Technical Details (Debug)
                 </summary>
                 <pre style={{ marginTop: '0.5rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>

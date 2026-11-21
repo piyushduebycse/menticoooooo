@@ -1,5 +1,5 @@
 import React, { useEffect, Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
@@ -51,6 +51,8 @@ function ScrollToTop() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    const titles = { '/': 'Social Freedom', '/purchase': 'Get the course', '/about': 'About Mentico', '/contact': 'Contact & support', '/terms': 'Terms & policies', '/login': 'Member sign in', '/library': 'My library' };
+    document.title = `${titles[pathname] || 'Mentico'} · Mentico`;
   }, [pathname]);
 
   return null;
@@ -62,8 +64,9 @@ function AppLayout() {
 
   return (
     <div className={`app-wrapper ${isLandingPage ? 'landing-mode' : ''}`}>
-      {!isLandingPage && <Navbar />}
-      <main className={isLandingPage ? 'landing-main-content' : 'main-content'}>
+      <a className="skip-link" href="#main-content">Skip to content</a>
+      <Navbar />
+      <main id="main-content" tabIndex={-1} data-page={location.pathname.split('/')[1] || 'home'} className={isLandingPage ? 'landing-main-content' : 'main-content'}>
         <ErrorBoundary>
           <Suspense fallback={<PageLoadingFallback />}>
             <Routes>
@@ -96,12 +99,12 @@ function AppLayout() {
               <Route path="/legal" element={<Navigate to="/terms" replace />} />
 
               {/* Fallback route */}
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="*" element={<section className="brand-not-found container-narrow"><span className="badge-red">PAGE NOT FOUND</span><h1>A little off the path.</h1><p>This page isn't available. Head home to explore Social Freedom, or contact us if you need help.</p><div><Link className="btn btn-primary" to="/">Back to Mentico</Link><Link className="btn btn-secondary" to="/contact">Get help</Link></div></section>} />
             </Routes>
           </Suspense>
         </ErrorBoundary>
       </main>
-      {!isLandingPage && <Footer />}
+      <Footer />
       <AuthModal />
     </div>
   );

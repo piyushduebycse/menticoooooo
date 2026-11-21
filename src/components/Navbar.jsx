@@ -1,276 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
-import { Lock, Unlock, LogOut, Menu, X, ArrowRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Menu, X, ArrowRight, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 
 export default function Navbar() {
-  const { user, logout, openAuthModal } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const navigate = useNavigate();
-
-  // Lock body scroll on mobile when drawer is open
-  useBodyScrollLock(mobileMenuOpen, () => setMobileMenuOpen(false));
-
-  // Close mobile drawer on desktop resize
+  const { user, logout } = useAuth();
+  const location = useLocation();
+  const [open, setOpen] = useState(false);
+  useBodyScrollLock(open, () => setOpen(false));
+  useEffect(() => { setOpen(false); }, [location.pathname, location.hash]);
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 900 && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [mobileMenuOpen]);
-
-  const storedPass = (() => {
-    try {
-      return typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('mentico_access_pass') || '{}') : {};
-    } catch {
-      return {};
-    }
-  })();
-
-  const effectiveUser = user || (storedPass?.hasPurchased ? storedPass : null);
-  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (err) {
-      console.warn('[Navbar] Logout error:', err);
-    }
-    try {
-      localStorage.removeItem('mentico_access_pass');
-      window.dispatchEvent(new Event('storage'));
-    } catch {}
-    setMobileMenuOpen(false);
-    navigate('/');
+    const resize = () => { if (window.innerWidth >= 900) setOpen(false); };
+    window.addEventListener('resize', resize);
+    return () => window.removeEventListener('resize', resize);
+  }, []);
+  const links = [['/', 'Home'], ['/about', 'About Mentico'], ['/purchase', 'The course'], ['/library', 'My library'], ['/contact', 'Contact']];
+  const signOut = async () => {
+    await logout();
+    localStorage.removeItem('mentico_access_pass');
+    window.dispatchEvent(new Event('storage'));
+    setOpen(false);
   };
-
-  const navItems = [
-    { label: 'About', path: '/about' },
-    {
-      label: hasPurchased ? 'Read the Book' : 'The Manual',
-      path: hasPurchased ? '/library?openPdf=true' : '/purchase',
-    },
-    {
-      label: 'Library',
-      path: '/library',
-      isProtected: true,
-    },
-    { label: 'Contact', path: '/contact' },
-    { label: 'Terms & Conditions', path: '/terms' },
-  ];
-
-  return (
-    <nav className={`navbar ${mobileMenuOpen ? 'is-menu-open' : ''}`} role="navigation" aria-label="Main Navigation">
-      <div className="nav-container">
-        {/* Brand Logo */}
-        <Link to="/" className="brand-logo" onClick={() => setMobileMenuOpen(false)} aria-label="Mentico Home">
-          <img
-            src="/logo-trans-light.png"
-            alt="MENTICO"
-            className="brand-logo-img"
-          />
-        </Link>
-
-        {/* Desktop Nav Links */}
-        <ul className="nav-links">
-          {navItems.map((item) => (
-            <li key={item.path}>
-              <NavLink
-                to={item.path}
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-              >
-                {item.label}
-                {item.isProtected && (
-                  <span
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      padding: '2px',
-                      color: effectiveUser ? 'var(--red-primary)' : 'var(--text-muted)',
-                    }}
-                    title={effectiveUser ? 'Hub Unlocked' : 'Member Access Only'}
-                  >
-                    {effectiveUser ? <Unlock size={12} /> : <Lock size={12} />}
-                  </span>
-                )}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-
-        {/* Nav Actions: CTA */}
-        <div className="nav-actions">
-          {/* User Account or Blueprint CTA Button */}
-          {effectiveUser ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <Link
-                to={hasPurchased ? '/library' : '/purchase'}
-                className="btn btn-secondary btn-sm"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
-                title={hasPurchased ? 'Open Library' : 'Complete Purchase'}
-              >
-                <div
-                  style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    backgroundColor: hasPurchased ? '#22c55e' : 'var(--red-primary)',
-                  }}
-                />
-                <span style={{ maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {effectiveUser.displayName?.split(' ')[0] || effectiveUser.name?.split(' ')[0] || 'Member'}
-                </span>
-              </Link>
-
-              {/* Show 'Read the Book' or 'Get the Manual' */}
-              <Link
-                to={hasPurchased ? '/library?openPdf=true' : '/purchase'}
-                className="btn btn-primary btn-sm nav-cta-desktop"
-                style={{
-                  backgroundColor: hasPurchased ? '#16a34a' : 'var(--red-primary)',
-                  borderColor: hasPurchased ? '#16a34a' : 'var(--red-primary)',
-                  color: '#FFFFFF',
-                  fontWeight: 700,
-                  padding: '0.45rem 1rem',
-                  borderRadius: 'var(--radius-full)',
-                }}
-              >
-                <span>{hasPurchased ? 'Read the Book' : 'Get the Manual'}</span>
-                <ArrowRight size={14} />
-              </Link>
-
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm btn-icon-only"
-                onClick={handleLogout}
-                title="Sign Out"
-                aria-label="Sign Out"
-              >
-                <LogOut size={15} />
-              </button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Link
-                to="/login"
-                className="btn btn-secondary btn-sm"
-                style={{ fontSize: '0.82rem', padding: '0.45rem 0.85rem' }}
-              >
-                Sign In
-              </Link>
-              <Link
-                to="/purchase"
-                className="btn btn-primary btn-sm nav-cta-desktop"
-                style={{
-                  backgroundColor: 'var(--red-primary)',
-                  color: '#FFFFFF',
-                  fontWeight: 700,
-                  padding: '0.5rem 1.1rem',
-                  borderRadius: 'var(--radius-full)',
-                }}
-              >
-                <span>Get the Manual</span>
-                <ArrowRight size={14} />
-              </Link>
-            </div>
-          )}
-
-          {/* Mobile Hamburger Button */}
-          <button
-            type="button"
-            className="mobile-menu-btn"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle navigation menu"
-          >
-            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
+  return <header className={`site-header ${open ? 'is-open' : ''}`}>
+    <div className="site-nav">
+      <Link className="site-wordmark" to="/" aria-label="Mentico home"><span>mentico<span className="wordmark-dot">.</span></span><small>Social Freedom</small></Link>
+      <div className="site-ticker" role="note" aria-label="YOU DON'T HAVE A PEOPLE PROBLEM. YOU HAVE AN APPROACH PROBLEM.">
+        <div aria-hidden="true">{[0, 1].map(copy => <span key={copy}>YOU DON'T HAVE A PEOPLE PROBLEM. YOU HAVE AN APPROACH PROBLEM. <b>✦</b></span>)}</div>
       </div>
-
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div
-          className="mobile-drawer"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) {
-              setMobileMenuOpen(false);
-            }
-          }}
-        >
-          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            <li key="/">
-              <NavLink
-                to="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                style={{ fontSize: '1.05rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.45rem 0' }}
-              >
-                <span>Home</span>
-              </NavLink>
-            </li>
-            {navItems.map((item) => (
-              <li key={item.path}>
-                <NavLink
-                  to={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-                  style={{ fontSize: '1.05rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.45rem 0' }}
-                >
-                  <span>{item.label}</span>
-                  {item.isProtected && (
-                    <span className="badge-mono" style={{ fontSize: '0.72rem' }}>
-                      {effectiveUser ? 'ACCESS GRANTED' : 'LOGIN REQUIRED'}
-                    </span>
-                  )}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-
-          <div style={{ borderTop: '1px solid var(--border-main)', paddingTop: '1.25rem', marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
-            {effectiveUser && (
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <span style={{ fontSize: '0.84rem', color: 'var(--text-secondary)' }}>
-                  Logged in as <strong>{effectiveUser.email || effectiveUser.displayName || effectiveUser.name || 'Student'}</strong>
-                </span>
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={handleLogout}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
-                >
-                  <LogOut size={13} />
-                  <span>Sign Out</span>
-                </button>
-              </div>
-            )}
-
-            {/* Prominent CTA in mobile drawer */}
-            <Link
-              to={hasPurchased ? '/library?openPdf=true' : '/purchase'}
-              className="btn btn-primary"
-              onClick={() => setMobileMenuOpen(false)}
-              style={{
-                width: '100%',
-                backgroundColor: hasPurchased ? '#16a34a' : 'var(--red-primary)',
-                borderColor: hasPurchased ? '#16a34a' : 'var(--red-primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-                padding: '0.75rem',
-              }}
-            >
-              <span>{hasPurchased ? 'Read the Book →' : 'Get the Manual Now'}</span>
-            </Link>
-          </div>
-        </div>
-      )}
-    </nav>
-  );
+      <nav className="site-desktop-nav" aria-label="Main navigation">{links.map(([path, label]) => <NavLink key={path} to={path} end={path === '/'}>{label}</NavLink>)}</nav>
+      <Link className="btn btn-primary site-nav-cta" to={user ? '/library' : '/purchase'}>{user ? 'My library' : 'Get the course'}<ArrowRight size={16}/></Link>
+      <button type="button" className="site-menu-toggle" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="site-mobile-nav" aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}>{open ? <X size={25}/> : <Menu size={25}/>}</button>
+    </div>
+    {open && <nav id="site-mobile-nav" className="site-mobile-nav" aria-label="Mobile navigation">
+      <span className="site-menu-label">Explore Mentico</span>
+      {links.map(([path, label]) => <NavLink key={path} to={path} end={path === '/'}>{label}<ArrowRight size={18}/></NavLink>)}
+      <Link to="/terms">Terms & policies</Link>
+      {user ? <button className="btn btn-secondary" onClick={signOut}><LogOut size={16}/>Sign out</button> : <Link to="/login" className="btn btn-secondary">Member sign in</Link>}
+      <Link className="btn btn-primary" to="/purchase">Get the course<ArrowRight size={18}/></Link>
+    </nav>}
+  </header>;
 }

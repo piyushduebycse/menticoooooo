@@ -22,7 +22,7 @@ export default function Terms() {
               letterSpacing: '-0.02em',
             }}
           >
-            TERMS &amp; CONDITIONS
+            Terms &amp; conditions
           </h1>
           <p
             style={{
