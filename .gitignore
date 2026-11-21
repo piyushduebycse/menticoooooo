@@ -32,3 +32,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Paid document fixtures must never enter version control or static assets.
+/private/*.pdf

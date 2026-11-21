@@ -1,8 +1,26 @@
-import test from 'node:test';
+import test, { before, after } from 'node:test';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import assert from 'node:assert/strict';
 import { EventEmitter } from 'node:events';
-import handler, { handlePdfStream } from '../pdf/[bookId].js';
+import handler, { handlePdfStream as streamPdf } from '../pdf/[bookId].js';
 import { resolveBook } from './r2-client.js';
+
+let fixtureDirectory;
+let fixturePath;
+before(() => {
+  fixtureDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'mentico-pdf-test-'));
+  fixturePath = path.join(fixtureDirectory, 'synthetic.pdf');
+  fs.writeFileSync(fixturePath, Buffer.alloc(11 * 1024 * 1024, 32));
+});
+after(() => fs.rmSync(fixtureDirectory, { recursive: true, force: true }));
+function handlePdfStream(req, res, options = {}) {
+  return streamPdf(req, res, { ...options, resolvePublication: (id) => {
+    const book = resolveBook(id);
+    return book ? { ...book, localFallback: fixturePath, privateFallback: fixturePath } : null;
+  } });
+}
 
 function createMockResponse() {
   const res = new EventEmitter();

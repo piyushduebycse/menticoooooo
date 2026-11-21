@@ -23,7 +23,7 @@ export function clearMetadataCache() {
  * 3. Server-Controlled Book Allowlist (prevents arbitrary storage key access)
  * 4. Byte-Range Streaming (Fast first-page display without full download)
  */
-export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser } = {}) {
+export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser, resolvePublication = resolveBook } = {}) {
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
   res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
   res.setHeader('CDN-Cache-Control', 'no-store');
@@ -58,7 +58,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
 
   // 4. Resolve Book via Server-side Allowlist
   const rawBookId = req.query?.bookId || req.url.split('?')[0].split('/').pop();
-  const book = resolveBook(rawBookId);
+  const book = resolvePublication(rawBookId);
 
   if (!book) {
     return res.status(404).json({
