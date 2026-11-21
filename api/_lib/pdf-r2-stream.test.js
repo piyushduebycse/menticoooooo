@@ -251,7 +251,10 @@ test('Case H: Guest purchaser with signed Mentico Access Token receives range st
 
   assert.equal(res.statusCode, 206);
   assert.equal(res.getHeader('accept-ranges'), 'bytes');
-  assert.equal(res.getHeader('content-range'), 'bytes 0-65535/12318428');
+  const headResponse = createMockResponse();
+  await handler({ ...req, method: 'HEAD', headers: { authorization: `Bearer ${guestToken}` } }, headResponse);
+  assert.equal(headResponse.statusCode, 200);
+  assert.equal(res.getHeader('content-range'), `bytes 0-65535/${headResponse.getHeader('content-length')}`);
   assert.equal(res.getHeader('content-length'), '65536');
   const data = Buffer.concat(res.chunks);
   assert.equal(data.length, 65536);

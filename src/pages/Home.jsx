@@ -68,6 +68,8 @@ export default function Home() {
   // Lock body scroll on mobile when mobile menu is open
   useBodyScrollLock(mobileMenuOpen, () => setMobileMenuOpen(false));
 
+  useBodyScrollLock(Boolean(lightboxImage), () => setLightboxImage(null));
+
   // Scroll listener for sticky header & floating bottom buy bar
   useEffect(() => {
     const handleScroll = () => {
@@ -711,36 +713,20 @@ export default function Home() {
             </div>
 
             <div className="mentico-challenge-timeline">
-              <div className="mentico-timeline-step">
-                <span className="mentico-timeline-pill">Days 1 – 3</span>
-                <span className="mentico-timeline-arrow">→</span>
-                <h4 className="mentico-timeline-title">Presence</h4>
-                <p className="mentico-timeline-desc">Be more aware and present.</p>
-              </div>
-
-              <div className="mentico-timeline-step">
-                <span className="mentico-timeline-pill">Days 4 – 9</span>
-                <span className="mentico-timeline-arrow">→</span>
-                <h4 className="mentico-timeline-title">Small Actions</h4>
-                <p className="mentico-timeline-desc">Start simple conversations.</p>
-              </div>
-
-              <div className="mentico-timeline-step">
-                <span className="mentico-timeline-pill">Days 10 – 21</span>
-                <span className="mentico-timeline-arrow">→</span>
-                <h4 className="mentico-timeline-title">Build Momentum</h4>
-                <p className="mentico-timeline-desc">
-                  Go deeper, join groups, explore new situations.
-                </p>
-              </div>
-
-              <div className="mentico-timeline-step">
-                <span className="mentico-timeline-pill">Days 22 – 30</span>
-                <h4 className="mentico-timeline-title">Real Progress</h4>
-                <p className="mentico-timeline-desc">
-                  Handle uncertainty, notice attraction and intimacy.
-                </p>
-              </div>
+              {[
+                { phase: '01', days: 'Days 1–10', title: 'Presence & small actions', description: 'Get comfortable being present. Take small steps and start simple conversations.' },
+                { phase: '02', days: 'Days 11–20', title: 'Build momentum', description: 'Go deeper in conversations, join groups and explore new social situations.' },
+                { phase: '03', days: 'Days 21–30', title: 'Put it into practice', description: 'Handle uncertainty, build meaningful connections and reflect on your progress.' },
+              ].map((phase) => (
+                <article className="mentico-timeline-step" key={phase.phase}>
+                  <span className="mentico-phase-number" aria-hidden="true">{phase.phase}</span>
+                  <div>
+                    <span className="mentico-timeline-pill">Phase {phase.phase} · {phase.days}</span>
+                    <h3 className="mentico-timeline-title">{phase.title}</h3>
+                    <p className="mentico-timeline-desc">{phase.description}</p>
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
         </section>
@@ -1194,6 +1180,7 @@ export default function Home() {
           onClick={() => setLightboxImage(null)}
           role="dialog"
           aria-modal="true"
+          aria-label="Book preview"
         >
           <div className="mentico-lightbox-card" onClick={(e) => e.stopPropagation()}>
             <button

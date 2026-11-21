@@ -12,13 +12,13 @@
 
 :root {
   /* Typography tokens */
-  --font-primary-heading: 'Playfair Display', Georgia, serif;
-  --font-secondary-heading: 'Playfair Display', Georgia, serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-subheading: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-cta: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-decorative: 'Cormorant Garamond', Garamond, Georgia, serif;
-  --font-label: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-primary-heading: 'Manrope', sans-serif;
+  --font-secondary-heading: 'Manrope', sans-serif;
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-subheading: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-cta: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-decorative: 'Manrope', sans-serif;
+  --font-label: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* Color tokens */
   --color-primary-heading: #24170F;
@@ -2123,4 +2123,73 @@ body[data-menu-open="true"] .mentico-sticky-bar,
     font-size: 13.5px;
     gap: 6px;
   }
+}
+
+/* Mobile reading pass: clear type, full illustrations and three readable phases. */
+.mentico-home :is(h1, h2, h3, h4) {
+  text-transform: none;
+  text-wrap: balance;
+  letter-spacing: -0.035em;
+}
+.mentico-home p { text-wrap: pretty; }
+.mentico-home { --color-body: #655448; }
+.mentico-home :is(button, a):focus-visible {
+  outline: 3px solid #a4552d;
+  outline-offset: 4px;
+}
+.mentico-home button:active { transform: scale(.98); }
+.mentico-challenge-timeline { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.mentico-timeline-step { align-items: flex-start; text-align: left; gap: 16px; }
+.mentico-phase-number { font: 700 30px/1 'Manrope', sans-serif; color: #a4552d; }
+.mentico-timeline-pill { display: inline-block; font-size: 12px; }
+.mentico-timeline-title { font-size: 19px; line-height: 1.35; }
+.mentico-timeline-desc { font-size: 15px; line-height: 1.6; }
+.mentico-sneak-card { height: auto; min-width: 0; }
+.mentico-sneak-card-art-wrap { height: auto; }
+.mentico-sneak-card-art { height: auto; object-fit: contain; }
+.mentico-sneak-card-header { padding: 16px; }
+.mentico-sneak-card-title { font-size: 17px; display: block; }
+.mentico-sneak-card-badge { font-size: 11px; }
+.mentico-carousel-btn { min-width: 44px; min-height: 44px; }
+.mentico-lightbox-overlay { z-index: 100; }
+@media (max-width: 767px) {
+  .mentico-home { padding-bottom: calc(100px + env(safe-area-inset-bottom)); }
+  .mentico-home .mentico-hero-title-main,
+  .mentico-home .mentico-hero-title-accent { font-size: clamp(32px, 9vw, 44px); line-height: 1.15; }
+  .mentico-home .mentico-section-heading { font-size: clamp(24px, 6.5vw, 30px); line-height: 1.25; }
+  .mentico-hero-desc, .mentico-section-subheading { font-size: 16px; line-height: 1.65; }
+  .mentico-hero-grid { gap: 28px; }
+  .mentico-hero-media-wrapper { margin-inline: -8px; }
+  .mentico-hero-image { max-width: none; border-radius: 14px; }
+  .mentico-card-challenge.mentico-card-challenge-full { padding: 24px 20px; }
+  .mentico-challenge-timeline { grid-template-columns: 1fr; gap: 0; margin-top: 24px; }
+  .mentico-timeline-step { flex-direction: row; gap: 16px; padding: 22px 0; border-top: 1px solid var(--border-light); }
+  .mentico-phase-number { flex: 0 0 34px; margin-top: 4px; font-size: 26px; }
+  .mentico-timeline-title { font-size: 18px; }
+  .mentico-timeline-desc { font-size: 15px; }
+  .mentico-card-sneak { padding: 24px 14px; }
+  .mentico-sneak-carousel { position: relative; display: block; padding-bottom: 56px; }
+  .mentico-sneak-carousel .mentico-carousel-btn { position: absolute; bottom: 0; width: 44px; height: 44px; }
+  .mentico-sneak-carousel .mentico-carousel-btn:first-child { left: calc(50% - 54px); }
+  .mentico-sneak-carousel .mentico-carousel-btn:last-child { right: calc(50% - 54px); }
+  .mentico-sneak-card { max-width: none; width: 100%; }
+  .mentico-sneak-card-art-wrap, .mentico-sneak-card-art { height: auto; }
+  .mentico-sneak-card-title { font-size: 18px; line-height: 1.4; }
+  .mentico-sneak-card-badge { font-size: 12px; }
+  .mentico-sneak-card:hover .mentico-sneak-card-art { transform: none; }
+  .mentico-sneak-dots { margin-top: 4px; }
+  .mentico-sneak-dot { width: 28px; height: 28px; background: radial-gradient(circle, #a48e7c 4px, transparent 5px); }
+  .mentico-sneak-dot.is-active { width: 28px; background: radial-gradient(circle, #4e2313 6px, transparent 7px); }
+  .mentico-card-familiar-title { white-space: normal; font-size: 26px; }
+  .mentico-sticky-bar { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  .mentico-lightbox-caption { flex-wrap: wrap; gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .mentico-home *, .mentico-home *::before, .mentico-home *::after { animation: none !important; transition: none !important; }
+}
+@media (max-width: 767px) {
+  .mentico-sneak-items { padding-bottom: 8px; }
+  .mentico-card-sneak { scroll-margin-block: 90px 120px; }
+  .mentico-sticky-bar .mentico-sticky-btn { min-height: 46px; }
 }

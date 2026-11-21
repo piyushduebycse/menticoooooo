@@ -6,8 +6,8 @@ export const FONT_PAIRINGS = {
   modern: {
     id: 'modern',
     name: 'Modern Executive',
-    subtitle: 'Oswald + DM Sans',
-    headingFont: "'Oswald', sans-serif",
+    subtitle: 'Manrope + DM Sans',
+    headingFont: "'Manrope', sans-serif",
     bodyFont: "'DM Sans', sans-serif",
   },
 };

@@ -7,10 +7,10 @@
   /* ==========================================================================
      High-End Typography: Modern Executive (Oswald + DM Sans)
      ========================================================================== */
-  --font-display: 'Oswald', sans-serif;
+  --font-display: 'Manrope', sans-serif;
   --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --heading-transform: uppercase;
+  --heading-transform: none;
 
   /* Default Light Theme */
   --bg-base: #FFFFFF;
@@ -62,9 +62,9 @@
    Modern Executive Typography: Oswald (Headings) + DM Sans (Body)
    ========================================================================== */
 [data-font='modern'] {
-  --font-display: 'Oswald', sans-serif;
+  --font-display: 'Manrope', sans-serif;
   --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --heading-transform: uppercase;
+  --heading-transform: none;
 }
 
 /* ==========================================================================
@@ -1116,7 +1116,7 @@ body[data-menu-open="true"] .mobile-pinned-bottom-bar {
 
 /* Handwritten script annotation */
 .handwritten-annotation {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Manrope', sans-serif;
   font-style: italic;
   color: var(--text-muted);
   font-size: 1.05rem;
