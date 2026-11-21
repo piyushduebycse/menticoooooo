@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
   CheckCircle2,
   Lock,
@@ -879,9 +879,9 @@ export default function Product() {
               >
                 <Shield size={22} color="var(--red-primary)" style={{ flexShrink: 0 }} />
                 <div>
-                  <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>30-Day Money-Back Guarantee</div>
+                  <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>One-time digital purchase</div>
                   <div style={{ color: 'var(--text-muted)', fontSize: '0.74rem' }}>
-                    Practice the frameworks. If you don't feel a real difference, get a 100% full refund.
+                    Purchases are non-refundable once course access is provided, except where required by law.{' '}<Link to="/terms" style={{ textDecoration: 'underline', color: 'var(--red-primary)' }}>Read the terms</Link>
                   </div>
                 </div>
               </div>
