@@ -1,3 +1,4 @@
+import { PRODUCT_PRICE_INR } from '../../shared/product.js';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -34,8 +35,7 @@ export default function Home() {
   const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased);
 
   const originalPrice = 999;
-  const envPrice = Number(import.meta.env.VITE_PRODUCT_PRICE_INR);
-  const currentPrice = (Number.isFinite(envPrice) && envPrice > 1) ? envPrice : 499;
+  const currentPrice = PRODUCT_PRICE_INR;
 
   const [showStickyBar, setShowStickyBar] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
@@ -903,7 +903,7 @@ export default function Home() {
                     <span className="mentico-sticky-title">Social Freedom</span>
                     <span className="mentico-sticky-price">₹{currentPrice.toLocaleString('en-IN')}</span>
                     <span className="mentico-sticky-original-price">₹{originalPrice.toLocaleString('en-IN')}</span>
-                    <span className="mentico-sticky-badge">50% OFF</span>
+                    <span className="mentico-sticky-badge">SPECIAL PRICE</span>
                   </div>
                   <div className="mentico-sticky-sublabel">
                     Instant PDF Access • 30-Day Challenge Included

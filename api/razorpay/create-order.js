@@ -1,3 +1,4 @@
+import { PRODUCT_PRICE_INR, PRODUCT_AMOUNT_IN_PAISE } from '../../shared/product.js';
 import { verifyAuthUser } from '../_lib/server-auth.js';
 import { getRazorpayClient } from '../_lib/razorpay-admin.js';
 import { requirePaymentDatabase } from '../_lib/payment-fulfillment.js';
@@ -46,9 +47,9 @@ export default async function handler(req, res) {
     });
   }
 
-  // 3. Price resolution: Default ₹499 INR = 49900 paise
-  const priceINR = Number(process.env.PRODUCT_PRICE_INR || 499);
-  const amountInPaise = Math.round(priceINR * 100);
+  // Use the same authoritative catalog price shown on the website.
+  const priceINR = PRODUCT_PRICE_INR;
+  const amountInPaise = PRODUCT_AMOUNT_IN_PAISE;
   if (req.body?.displayedAmountInPaise != null && Number(req.body.displayedAmountInPaise) !== amountInPaise) {
     return res.status(409).json({ success: false, error: 'The price has changed. Please refresh before paying.' });
   }

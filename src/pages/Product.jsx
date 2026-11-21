@@ -1,3 +1,4 @@
+import { PRODUCT_PRICE_INR } from '../../shared/product.js';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
@@ -81,9 +82,7 @@ export default function Product() {
   }, [user]);
 
   const originalPrice = 999; // in INR
-  const envPrice = Number(import.meta.env.VITE_PRODUCT_PRICE_INR);
-  const basePrice = (Number.isFinite(envPrice) && envPrice > 1) ? envPrice : 499;
-  const currentPrice = basePrice;
+  const currentPrice = PRODUCT_PRICE_INR;
 
   const handlePurchase = async () => {
     setCouponError('');
@@ -593,7 +592,7 @@ export default function Product() {
                       marginBottom: '1.25rem',
                     }}
                   >
-                    ₹499 | One-time payment | Instant Digital PDF Access
+                    ₹{currentPrice} | One-time payment | Instant Digital PDF Access
                   </div>
 
                   {/* Price display in INR */}
@@ -615,7 +614,7 @@ export default function Product() {
                         ₹{originalPrice.toLocaleString('en-IN')}
                       </span>
                       <span style={{ fontSize: '0.72rem', color: 'var(--red-primary)', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
-                        50% SPECIAL LAUNCH PRICE
+                        SPECIAL PRICE
                       </span>
                     </div>
                   </div>
@@ -925,7 +924,7 @@ export default function Product() {
               <div className="mobile-pinned-price-line">
                 <span className="mobile-pinned-price">₹{currentPrice.toLocaleString('en-IN')}</span>
                 <span className="mobile-pinned-original-price">₹{originalPrice.toLocaleString('en-IN')}</span>
-                <span className="mobile-pinned-badge">50% OFF</span>
+                <span className="mobile-pinned-badge">SPECIAL PRICE</span>
               </div>
               <div className="mobile-pinned-sublabel">
                 Social Freedom // Instant PDF Access

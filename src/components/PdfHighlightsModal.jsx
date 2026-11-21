@@ -1,7 +1,8 @@
+import { PRODUCT_PRICE_INR } from '../../shared/product.js';
 import React from 'react';
 import { X, Lock, CheckCircle2, BookOpen, ArrowRight, Sparkles, Shield, Eye } from 'lucide-react';
 
-export default function PdfHighlightsModal({ isOpen, onClose, onUnlock, currentPrice = 1, originalPrice = 999 }) {
+export default function PdfHighlightsModal({ isOpen, onClose, onUnlock, currentPrice = PRODUCT_PRICE_INR, originalPrice = 999 }) {
   if (!isOpen) return null;
 
   return (
@@ -181,7 +182,7 @@ export default function PdfHighlightsModal({ isOpen, onClose, onUnlock, currentP
                 ₹{originalPrice.toLocaleString('en-IN')}
               </span>
               <span className="badge-red" style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem' }}>
-                50% OFF
+                SPECIAL PRICE
               </span>
             </div>
             <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>

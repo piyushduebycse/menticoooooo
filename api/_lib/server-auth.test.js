@@ -47,10 +47,9 @@ test('guest signature verification has no built-in default secret', async () => 
 });
 test('client cannot lower the checkout price', async () => {
   const { default: createOrder } = await import('../razorpay/create-order.js');
-  process.env.PRODUCT_PRICE_INR = '499';
   const res = response();
   await createOrder({ method: 'POST', headers: {}, body: {
-    email: 'test@example.com', name: 'Test Buyer', displayedAmountInPaise: 100,
+    email: 'test@example.com', name: 'Test Buyer', displayedAmountInPaise: 1,
   } }, res);
   assert.equal(res.code, 409);
 });
