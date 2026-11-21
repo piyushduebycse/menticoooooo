@@ -2228,3 +2228,25 @@ body[data-menu-open="true"] .mentico-sticky-bar,
   .mentico-approach-track span + span { display: none; }
   .mentico-approach-strip { mask-image: none; }
 }
+
+/* Give the complete hero artwork room inside its frame. */
+.mentico-hero-media-wrapper {
+  aspect-ratio: 1280 / 830;
+  background: #f7e9dd;
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  box-shadow: 0 16px 40px -10px rgba(78, 35, 19, .12);
+  overflow: hidden;
+}
+.mentico-hero-image {
+  width: 86%;
+  max-width: none;
+  object-fit: contain;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+@media (max-width: 767px) {
+  .mentico-hero-media-wrapper { margin-inline: 0; border-radius: 14px; }
+  .mentico-hero-image { border-radius: 0; }
+}
