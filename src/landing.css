@@ -10,7 +10,8 @@
    7. Small Labels: Inter, SemiBold (600), 12–14px, letter-spacing 1px, Uppercase
    ========================================================================== */
 
-:root {
+.mentico-home {
+  /* Homepage-specific tokens stay scoped so lazy route loading cannot restyle other pages. */
   /* Typography tokens */
   --font-primary-heading: 'Outfit', sans-serif;
   --font-secondary-heading: 'Outfit', sans-serif;
