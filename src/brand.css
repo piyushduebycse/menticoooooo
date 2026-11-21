@@ -59,7 +59,7 @@ button,a,input,textarea,select { -webkit-tap-highlight-color: transparent; }
 .site-footer-bottom { margin-top: 36px; padding-top: 22px; border-top: 1px solid #ddcebd; display: flex; justify-content: space-between; gap: 14px; font-size: 12px; }
 .skip-link { position: fixed; top: 8px; left: 8px; transform: translateY(-200%); z-index: 11000; background: var(--brand-brown); color: white; padding: 12px 20px; border-radius: 8px; }
 .skip-link:focus { transform: none; }
-.product-intro { max-width: none !important; margin-bottom: 36px !important; }
+.product-intro { max-width: none !important; margin-bottom: 24px !important; }
 .product-intro > p:first-of-type { font-family: var(--font-display); color: #673b24 !important; font-weight: 500 !important; }
 .product-overview-grid { gap: 32px; grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); }
 .product-overview-grid > div { min-width: 0; }
@@ -132,4 +132,27 @@ body[data-menu-open="true"] .mentico-sticky-bar { visibility: hidden !important;
   .reader-header > div:first-child > div:first-child { flex-shrink: 0; }
   .reader-drm-badge { display: none !important; }
   .reader-toolbar { padding: 10px 12px; }
+}
+
+/* Compact purchase layout: remove stacked spacer allowances. */
+.main-content[data-page="purchase"] > .section { padding-top: 28px !important; padding-bottom: 28px !important; }
+.product-page-container { padding-bottom: 0 !important; }
+.product-overview-grid { margin-bottom: 0; gap: 24px; }
+.product-intro .badge-red { margin-bottom: 12px !important; }
+.product-intro h1 { margin-bottom: 12px !important; }
+.product-intro > p:first-of-type { margin-bottom: 8px !important; }
+.product-intro > p:last-of-type { line-height: 1.5 !important; }
+.product-inclusions > div:first-child { margin-bottom: 16px !important; }
+.product-inclusion-item { padding: 6px 0 !important; border: 0 !important; background: transparent !important; }
+.product-buyer-details { padding: 16px !important; margin-bottom: 16px !important; box-shadow: none !important; }
+@media (max-width: 767px) {
+  .main-content[data-page="purchase"] > .section { padding-top: 20px !important; padding-bottom: 24px !important; }
+  .product-intro { margin-bottom: 20px !important; }
+  .product-overview-grid { gap: 20px; }
+  .product-overview-grid .card { padding: 20px 18px !important; }
+}
+@media (max-width: 767px) {
+  /* Reset the desktop sticky offset when the checkout enters normal mobile flow. */
+  .product-checkout-card { top: auto !important; }
+  .product-details > .card:last-child > div { gap: 12px !important; }
 }

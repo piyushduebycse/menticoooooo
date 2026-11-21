@@ -316,10 +316,10 @@ export default function Product() {
         <div className="product-overview-grid" style={{ alignItems: 'start' }}>
           
           {/* Left Column: What You're Getting, Practice Philosophy & Call to Action */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <div className="product-details" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             
             {/* Section 1: What You're Getting */}
-            <div className="card" style={{ padding: '2rem' }}>
+            <div className="card product-inclusions" style={{ padding: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
                 <div
                   style={{
@@ -348,6 +348,7 @@ export default function Product() {
                 {whatYoureGetting.map((item, idx) => (
                   <div
                     key={idx}
+                    className="product-inclusion-item"
                     style={{
                       display: 'flex',
                       alignItems: 'flex-start',
@@ -619,11 +620,11 @@ export default function Product() {
                     </div>
                   </div>
 
-                  {/* HIGHLIGHTED, HIGH-CONTRAST CHECKOUT INPUTS CONTAINER */}
-                  <div
+                  {/* Buyer details */}
+                  <div className="product-buyer-details"
                     style={{
                       backgroundColor: '#FFFFFF',
-                      border: '2px solid #D6C7BC',
+                      border: '1px solid #D6C7BC',
                       borderRadius: '12px',
                       padding: '1.25rem',
                       marginBottom: '1.35rem',
