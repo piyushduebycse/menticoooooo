@@ -18,11 +18,6 @@ import {
   ChevronRight,
   Zap,
   FileText,
-  Footprints,
-  BookOpen,
-  BarChart3,
-  Brain,
-  RotateCw,
   Menu,
   LogOut,
 } from 'lucide-react';
@@ -355,6 +350,12 @@ export default function Home() {
                 <span>Sign Out</span>
               </button>
             )}
+          </div>
+
+          <div className="mentico-approach-strip" role="note" aria-label="YOU DON'T HAVE A PEOPLE PROBLEM. YOU HAVE AN APPROACH PROBLEM.">
+            <div className="mentico-approach-track" aria-hidden="true">
+              {[0, 1].map((copy) => <span key={copy}>YOU DON'T HAVE A PEOPLE PROBLEM. YOU HAVE AN APPROACH PROBLEM. <b>✦</b> </span>)}
+            </div>
           </div>
 
           {/* Mobile Menu Toggle Button */}
@@ -714,14 +715,14 @@ export default function Home() {
 
             <div className="mentico-challenge-timeline">
               {[
-                { phase: '01', days: 'Days 1–10', title: 'Presence & small actions', description: 'Get comfortable being present. Take small steps and start simple conversations.' },
-                { phase: '02', days: 'Days 11–20', title: 'Build momentum', description: 'Go deeper in conversations, join groups and explore new social situations.' },
-                { phase: '03', days: 'Days 21–30', title: 'Put it into practice', description: 'Handle uncertainty, build meaningful connections and reflect on your progress.' },
+                { phase: '01', days: 'Days 1–10', title: 'PRESENCE & SMALL ACTIONS', description: 'Get comfortable being present. Take small steps and start simple conversations.' },
+                { phase: '02', days: 'Days 11–20', title: 'BUILD MOMENTUM', description: 'Go deeper in conversations, join groups and explore new social situations.' },
+                { phase: '03', days: 'Days 21–30', title: 'PUT IT INTO PRACTICE', description: 'Handle uncertainty, build meaningful connections and reflect on your progress.' },
               ].map((phase) => (
                 <article className="mentico-timeline-step" key={phase.phase}>
                   <span className="mentico-phase-number" aria-hidden="true">{phase.phase}</span>
                   <div>
-                    <span className="mentico-timeline-pill">Phase {phase.phase} · {phase.days}</span>
+                    <span className="mentico-timeline-pill">PHASE {phase.phase} · {phase.days}</span>
                     <h3 className="mentico-timeline-title">{phase.title}</h3>
                     <p className="mentico-timeline-desc">{phase.description}</p>
                   </div>
@@ -788,41 +789,21 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Card: The Confidence Formula */}
           <div className="mentico-card-formula">
-            <h2 className="mentico-section-heading">The Confidence Formula</h2>
-
-            <div className="mentico-formula-steps">
-              <div className="mentico-formula-step">
-                <Footprints className="mentico-formula-icon" />
-                <span className="mentico-formula-name">Action</span>
-                <span className="mentico-formula-desc">Take small steps consistently.</span>
-              </div>
-
-              <div className="mentico-formula-step">
-                <BookOpen className="mentico-formula-icon" />
-                <span className="mentico-formula-name">Experience</span>
-                <span className="mentico-formula-desc">See what actually happens.</span>
-              </div>
-
-              <div className="mentico-formula-step">
-                <BarChart3 className="mentico-formula-icon" />
-                <span className="mentico-formula-name">Evidence</span>
-                <span className="mentico-formula-desc">Build your own proof.</span>
-              </div>
-
-              <div className="mentico-formula-step">
-                <Brain className="mentico-formula-icon" />
-                <span className="mentico-formula-name">Confidence</span>
-                <span className="mentico-formula-desc">Your confidence grows.</span>
-              </div>
-
-              <div className="mentico-formula-step">
-                <RotateCw className="mentico-formula-icon" />
-                <span className="mentico-formula-name">More Action</span>
-                <span className="mentico-formula-desc">Keep repeating.</span>
-              </div>
-            </div>
+            <span className="mentico-formula-eyebrow">THE CONFIDENCE FORMULA</span>
+            <h2 className="mentico-section-heading">Give your courage a receipt.</h2>
+            <p className="mentico-formula-intro">Every small conversation gives you something overthinking never can: proof you can handle it.</p>
+            <ol className="mentico-proof-loop">
+              {[
+                ['01', 'Make the first move', 'Ask a question. Say hello. Give yourself one small moment to try.'],
+                ['02', 'Let reality answer', 'Notice what actually happened, rather than the outcome you imagined.'],
+                ['03', 'Keep the evidence', 'Write down what you handled, what you learned and what you would try again.'],
+                ['04', 'Raise the stakes a little', 'Take that proof into your next conversation. Confidence grows through practice.'],
+              ].map(([number, title, description]) => (
+                <li key={number}><span className="mentico-proof-number">{number}</span><div><h3>{title}</h3><p>{description}</p></div></li>
+              ))}
+            </ol>
+            <p className="mentico-formula-note">One hello → one real experience → one reason to try again.</p>
           </div>
         </div>
 

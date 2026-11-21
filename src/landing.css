@@ -12,12 +12,12 @@
 
 :root {
   /* Typography tokens */
-  --font-primary-heading: 'Manrope', sans-serif;
-  --font-secondary-heading: 'Manrope', sans-serif;
+  --font-primary-heading: 'Outfit', sans-serif;
+  --font-secondary-heading: 'Outfit', sans-serif;
   --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-subheading: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-cta: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-decorative: 'Manrope', sans-serif;
+  --font-decorative: 'Outfit', sans-serif;
   --font-label: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* Color tokens */
@@ -1800,14 +1800,14 @@ body[data-menu-open="true"] .mentico-sticky-bar,
     -webkit-mask-image: none;
   }
 
-  .mentico-card-familiar-content {
+  .mentico-card-familiar.mentico-card-familiar-full .mentico-card-familiar-content {
     max-width: 100%;
     width: 100%;
   }
 
   .mentico-card-familiar-title {
-    font-size: clamp(16px, 4.8vw, 21px);
-    white-space: nowrap;
+    font-size: 26px;
+    white-space: normal;
     letter-spacing: -0.3px;
   }
 
@@ -2140,7 +2140,7 @@ body[data-menu-open="true"] .mentico-sticky-bar,
 .mentico-home button:active { transform: scale(.98); }
 .mentico-challenge-timeline { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .mentico-timeline-step { align-items: flex-start; text-align: left; gap: 16px; }
-.mentico-phase-number { font: 700 30px/1 'Manrope', sans-serif; color: #a4552d; }
+.mentico-phase-number { font: 700 30px/1 'Outfit', sans-serif; color: #a4552d; }
 .mentico-timeline-pill { display: inline-block; font-size: 12px; }
 .mentico-timeline-title { font-size: 19px; line-height: 1.35; }
 .mentico-timeline-desc { font-size: 15px; line-height: 1.6; }
@@ -2192,4 +2192,39 @@ body[data-menu-open="true"] .mentico-sticky-bar,
   .mentico-sneak-items { padding-bottom: 8px; }
   .mentico-card-sneak { scroll-margin-block: 90px 120px; }
   .mentico-sticky-bar .mentico-sticky-btn { min-height: 46px; }
+}
+
+@media (max-width: 767px) {
+  .mentico-card-familiar-title { max-width: 18ch; line-height: 1.25; }
+  .mentico-familiar-item { font-size: 16px; line-height: 1.6; }
+  .mentico-familiar-item span { min-width: 0; white-space: normal; text-wrap: pretty; }
+  .mentico-card-familiar.mentico-card-familiar-full .mentico-familiar-list-2col { gap: 18px; }
+}
+
+.mentico-approach-strip { display: none; }
+.mentico-formula-eyebrow { display: block; font-size: 11px; font-weight: 700; letter-spacing: .12em; color: #a4552d; margin-bottom: 12px; }
+.mentico-formula-intro { font-size: 16px; line-height: 1.65; max-width: 45ch; }
+.mentico-proof-loop { list-style: none; padding: 0; margin: 24px 0; }
+.mentico-proof-loop li { display: flex; gap: 16px; padding: 18px 0; border-top: 1px solid var(--border-light); }
+.mentico-proof-number { font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 600; color: #a4552d; flex: 0 0 30px; }
+.mentico-proof-loop h3 { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; color: var(--color-primary-heading); margin: 0 0 6px; }
+.mentico-proof-loop p { font-size: 15px; line-height: 1.6; margin: 0; }
+.mentico-formula-note { font-size: 14px; font-weight: 600; line-height: 1.6; color: #542a18; }
+@media (max-width: 767px) {
+  .mentico-header .mentico-nav-inner { gap: 12px; }
+  .mentico-header .mentico-nav-inner > nav,
+  .mentico-header .mentico-nav-inner > div[style] { display: none; }
+  .mentico-approach-strip { display: block; flex: 1; min-width: 0; overflow: hidden; color: #542a18; mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent); }
+  .mentico-approach-track { display: flex; width: max-content; animation: mentico-approach-scroll 23s linear infinite; }
+  .mentico-approach-track span { flex-shrink: 0; white-space: nowrap; font: 600 12px/1.5 'DM Sans', sans-serif; letter-spacing: .06em; padding-right: 24px; }
+  .mentico-approach-track b { padding-left: 20px; color: #a4552d; }
+  .mentico-approach-strip:hover .mentico-approach-track { animation-play-state: paused; }
+  .mentico-mobile-toggle { flex: 0 0 44px; min-height: 44px; margin-left: 0; }
+}
+@keyframes mentico-approach-scroll { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .mentico-approach-track { animation: none; width: auto; }
+  .mentico-approach-track span { white-space: normal; font-size: 10px; padding: 0; }
+  .mentico-approach-track span + span { display: none; }
+  .mentico-approach-strip { mask-image: none; }
 }
