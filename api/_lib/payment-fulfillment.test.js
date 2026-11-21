@@ -67,7 +67,7 @@ test('fulfillment requires ownership, captured status, order and exact amount', 
   const db = fakeDatabase();
   const payment = { id: 'pay_1', order_id: 'order_1', status: 'captured', amount: 49900, currency: 'INR' };
   await assert.rejects(fulfillCapturedPayment({ orderId: 'order_1', payment, userId: 'user_2' }, db), /another user/);
-  for (const changes of [{ status: 'authorized' }, { amount: 100 }, { order_id: 'order_2' }]) {
+  for (const changes of [{ status: 'authorized' }, { status: undefined }, { amount: 100 }, { amount: undefined }, { currency: undefined }, { order_id: 'order_2' }]) {
     await assert.rejects(fulfillCapturedPayment({ orderId: 'order_1', payment: { ...payment, ...changes }, userId: 'user_1' }, db), /does not match/);
   }
   assert.equal(db.docs.has('users/user_1'), false);
