@@ -9,11 +9,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, error: 'Method Not Allowed' });
   }
 
+  res.setHeader('Cache-Control', 'private, no-store');
+
   // Support both logged-in users and guest purchasers
   let authUser = null;
   const authHeader = req.headers.authorization || req.headers.Authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
     authUser = await verifyAuthUser(req, res);
+    if (!authUser) return;
   }
 
   const { orderId, paymentId, signature } = req.body || {};

@@ -1,11 +1,9 @@
 import crypto from 'node:crypto';
 
 function getSigningSecret() {
-  return (
-    process.env.RAZORPAY_KEY_SECRET ||
-    process.env.JWT_SECRET ||
-    'IZk4qfQ3m092dYIRKWSYVhLB'
-  ).trim();
+  const secret = (process.env.ACCESS_TOKEN_SECRET || process.env.RAZORPAY_KEY_SECRET || '').trim();
+  if (!secret) throw new Error('Access token signing secret is not configured.');
+  return secret;
 }
 
 /**
@@ -46,7 +44,8 @@ export function verifyAccessToken(token) {
   }
 
   const [b64Payload, signature] = parts;
-  const secret = getSigningSecret();
+  let secret;
+  try { secret = getSigningSecret(); } catch { return null; }
   const expectedSignature = crypto.createHmac('sha256', secret).update(b64Payload).digest('hex');
 
   try {
@@ -59,7 +58,7 @@ export function verifyAccessToken(token) {
 
     const raw = Buffer.from(b64Payload, 'base64url').toString('utf8');
     const data = JSON.parse(raw);
-    if (!data.email) return null;
+    if (!data.email || !data.orderId || !data.paymentId || !Number.isFinite(data.exp)) return null;
     if (data.exp && data.exp < Math.floor(Date.now() / 1000)) {
       return null;
     }

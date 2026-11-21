@@ -69,25 +69,15 @@ if (isRealFirebaseConfigured) {
             try {
               const userRef = doc(db, 'users', credential.user.uid);
               const userSnap = await getDoc(userRef);
-              const localPurchase = getStoredPurchase(credential.user.uid, credential.user.email);
-              const hasPriorPurchase = Boolean(localPurchase?.hasPurchased);
               if (!userSnap.exists()) {
                 await setDoc(userRef, {
                   displayName: credential.user.displayName || 'Mentico Student',
                   email: credential.user.email,
                   createdAt: serverTimestamp(),
-                  hasPurchased: hasPriorPurchase,
-                  hasPurchasedPdf: hasPriorPurchase,
-                  licenseKey: localPurchase?.licenseKey || (hasPriorPurchase ? 'MENTICO-IN-7701-VIP' : null),
+                  hasPurchased: false,
+                  hasPurchasedPdf: false,
                   role: 'Mentico Student',
                 });
-              } else if (hasPriorPurchase && (!userSnap.data()?.hasPurchased || !userSnap.data()?.hasPurchasedPdf)) {
-                await setDoc(userRef, {
-                  hasPurchased: true,
-                  hasPurchasedPdf: true,
-                  licenseKey: localPurchase?.licenseKey || 'MENTICO-IN-7701-VIP',
-                  updatedAt: serverTimestamp(),
-                }, { merge: true });
               }
             } catch (e) {
               console.warn('[Firebase] Firestore user profile sync error on redirect:', e);
@@ -275,9 +265,8 @@ export const firebaseAuthService = {
               displayName: name,
               email,
               createdAt: serverTimestamp(),
-              hasPurchased,
-              hasPurchasedPdf: hasPurchased,
-              licenseKey,
+              hasPurchased: false,
+              hasPurchasedPdf: false,
               role: 'Mentico Student',
             })
           );
@@ -343,7 +332,6 @@ export const firebaseAuthService = {
 
         let extraData = {};
         const localPurchase = getStoredPurchase(credential.user.uid, credential.user.email);
-        const hasPriorPurchase = Boolean(localPurchase?.hasPurchased);
 
         // Sync new Google user to Firestore if not already registered
         if (db && credential?.user) {
@@ -355,9 +343,8 @@ export const firebaseAuthService = {
                 displayName: credential.user.displayName || 'Mentico Student',
                 email: credential.user.email,
                 createdAt: serverTimestamp(),
-                hasPurchased: hasPriorPurchase,
-                hasPurchasedPdf: hasPriorPurchase,
-                licenseKey: localPurchase?.licenseKey || (hasPriorPurchase ? 'MENTICO-IN-7701-VIP' : null),
+                hasPurchased: false,
+                hasPurchasedPdf: false,
                 role: 'Mentico Student',
               });
             } else {
@@ -379,15 +366,6 @@ export const firebaseAuthService = {
           localPurchase?.licenseKey ||
           (hasPurchased ? (localPurchase?.licenseKey || 'MENTICO-IN-7701-VIP') : null);
 
-        // Auto-heal Firestore if missing
-        if (hasPurchased && (!extraData.hasPurchased || !extraData.hasPurchasedPdf) && db) {
-          setDoc(doc(db, 'users', credential.user.uid), {
-            hasPurchased: true,
-            hasPurchasedPdf: true,
-            licenseKey,
-            updatedAt: serverTimestamp(),
-          }, { merge: true }).catch(() => {});
-        }
 
         return {
           ...extraData,
@@ -478,7 +456,7 @@ export const firebaseAuthService = {
     return true;
   },
 
-  // Save Purchase to both LocalStorage and Client Firestore
+  // Cache the verified checkout response for UI display; the server authorizes PDF access.
   savePurchase: async (uid, purchaseData = {}) => {
     const enrichedData = {
       hasPurchased: true,
@@ -507,24 +485,6 @@ export const firebaseAuthService = {
         );
       } catch (e) {
         console.warn('[Firebase] Local storage write error (Email):', e);
-      }
-    }
-
-    // 3. Persist directly to real Firestore Cloud DB via client SDK
-    if (isRealFirebaseConfigured && db && uid) {
-      try {
-        const userDocRef = doc(db, 'users', uid);
-        await setDoc(userDocRef, {
-          hasPurchased: true,
-          hasPurchasedPdf: true,
-          licenseKey: enrichedData.licenseKey,
-          purchasedAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-          orderId: purchaseData.orderId || null,
-          paymentId: purchaseData.paymentId || null,
-        }, { merge: true });
-      } catch (err) {
-        console.warn('[Firebase] savePurchase Firestore client write notice:', err);
       }
     }
 
@@ -570,15 +530,6 @@ export const firebaseAuthService = {
         localPurchase?.licenseKey ||
         (hasPurchased ? (localPurchase?.licenseKey || 'MENTICO-IN-7701-VIP') : null);
 
-      // Auto-heal Firestore if missing
-      if (hasPurchased && (!extraData.hasPurchased || !extraData.hasPurchasedPdf) && db) {
-        setDoc(doc(db, 'users', auth.currentUser.uid), {
-          hasPurchased: true,
-          hasPurchasedPdf: true,
-          licenseKey,
-          updatedAt: serverTimestamp(),
-        }, { merge: true }).catch(() => {});
-      }
 
       return {
         ...extraData,

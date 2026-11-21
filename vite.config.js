@@ -102,7 +102,16 @@ export default defineConfig(({ mode }) => {
   Object.assign(process.env, env);
 
   return {
-    plugins: [react(), vercelApiDevPlugin()],
+    plugins: [react(), vercelApiDevPlugin(), {
+      name: 'prevent-public-pdf-distribution',
+      buildStart() {
+        const publicDir = path.resolve(__dirname, 'public');
+        const files = fs.readdirSync(publicDir, { recursive: true });
+        if (files.some((file) => /\.pdf$/i.test(file))) {
+          throw new Error('Paid PDFs must remain in private storage, never public assets.');
+        }
+      },
+    }],
     build: {
       target: 'es2020',
       cssCodeSplit: true,

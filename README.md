@@ -73,7 +73,7 @@ The checkout uses server-created Razorpay orders. Copy `.env.example` to `.env` 
 
 Deploy [Firestore rules](firestore.rules) to the Firebase project so browsers cannot set their own purchase entitlement. Enable automatic payment capture in Razorpay. On the Razorpay dashboard, register `https://<your-domain>/api/razorpay/webhook` and subscribe to `payment.captured`; use the same webhook secret in the server environment. Deploy all server variables to Vercel as well as your local `.env`. Run `npm test`, `npm run lint`, and `npm run build` before release.
 
-Demo accounts and sample checkout codes do not activate paid access. A real Firebase session is required for payments. The current full PDF remains under `public/`, so its direct URL is still accessible; move it to private storage with an authenticated delivery route before selling access to the file itself.
+Demo accounts and sample checkout codes do not activate paid access. A real Firebase session is required for payments. The development PDF fixture is under `private/` and must never be copied to `public/` or `dist/`. Production PDF delivery requires private R2 storage. Disable the bucket public development URL and any public custom domain in Cloudflare. Every PDF request must match a paid purchase record; browser storage and profile flags are not authorization. Firebase Admin credentials and the deployed Firestore rules are required. Previously issued passes without a matching ledger record need purchase reconciliation through a trusted server process. Browsers necessarily receive readable document bytes; these controls prevent unpaid access, not copying by authorized readers.
 
 ### Building for Production
 

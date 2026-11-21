@@ -47,13 +47,11 @@ export default async function handler(req, res) {
   }
 
   // 3. Price resolution: Default ₹499 INR = 49900 paise
-  const envPrice = Number(process.env.PRODUCT_PRICE_INR || process.env.VITE_PRODUCT_PRICE_INR);
-  const envPriceINR = (Number.isFinite(envPrice) && envPrice > 1) ? envPrice : 499;
-  const clientAmountInPaise = Number(req.body?.displayedAmountInPaise);
-  const amountInPaise = (Number.isSafeInteger(clientAmountInPaise) && clientAmountInPaise >= 100)
-    ? clientAmountInPaise
-    : Math.round(envPriceINR * 100);
-  const priceINR = amountInPaise / 100;
+  const priceINR = Number(process.env.PRODUCT_PRICE_INR || 499);
+  const amountInPaise = Math.round(priceINR * 100);
+  if (req.body?.displayedAmountInPaise != null && Number(req.body.displayedAmountInPaise) !== amountInPaise) {
+    return res.status(409).json({ success: false, error: 'The price has changed. Please refresh before paying.' });
+  }
 
   if (!Number.isFinite(priceINR) || amountInPaise < 100 || !Number.isSafeInteger(amountInPaise)) {
     return res.status(500).json({ success: false, error: 'Product price is misconfigured.' });
@@ -90,22 +88,18 @@ export default async function handler(req, res) {
     });
 
     // Save order in Firestore under 'purchases' collection with status 'created'
-    try {
-      await adminDb.collection('purchases').doc(order.id).set({
-        orderId: order.id,
-        receipt: receiptId,
-        userId: authUser.uid,
-        userEmail: authUser.email || '',
-        amount: priceINR,
-        amountInPaise,
-        currency: 'INR',
-        status: 'created',
-        productName: 'Mentico - Social Freedom (PDF Field Manual)',
-        createdAt: FieldValue.serverTimestamp(),
-      });
-    } catch (dbErr) {
-      console.warn('[Razorpay Order] Firestore write warning:', dbErr.message);
-    }
+    await adminDb.collection('purchases').doc(order.id).set({
+      orderId: order.id,
+      receipt: receiptId,
+      userId: authUser.uid,
+      userEmail: authUser.email || '',
+      amount: priceINR,
+      amountInPaise,
+      currency: 'INR',
+      status: 'created',
+      productName: 'Mentico - Social Freedom (PDF Field Manual)',
+      createdAt: FieldValue.serverTimestamp(),
+    });
 
     return res.status(200).json({
       success: true,

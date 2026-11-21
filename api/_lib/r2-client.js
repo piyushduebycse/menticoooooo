@@ -128,7 +128,7 @@ export const BOOK_ALLOWLIST = {
     r2Bucket: process.env.R2_BUCKET_NAME || 'mentico-pdf',
     r2Key: 'PDF/DOC-20261018-WA0013_compressed-compressed.pdf',
     localFallback: 'DOC-20261018-WA0013_compressed-compressed.pdf',
-    publicFallback: 'public/Mentico_Mastery_Blueprint.pdf',
+    privateFallback: 'private/Mentico_Mastery_Blueprint.pdf',
   },
   'blueprint': {
     bookId: 'blueprint',
@@ -136,7 +136,7 @@ export const BOOK_ALLOWLIST = {
     r2Bucket: process.env.R2_BUCKET_NAME || 'mentico-pdf',
     r2Key: 'PDF/DOC-20261018-WA0013_compressed-compressed.pdf',
     localFallback: 'DOC-20261018-WA0013_compressed-compressed.pdf',
-    publicFallback: 'public/Mentico_Mastery_Blueprint.pdf',
+    privateFallback: 'private/Mentico_Mastery_Blueprint.pdf',
   },
   'mentico-mastery-blueprint': {
     bookId: 'mentico-mastery-blueprint',
@@ -144,7 +144,7 @@ export const BOOK_ALLOWLIST = {
     r2Bucket: process.env.R2_BUCKET_NAME || 'mentico-pdf',
     r2Key: 'PDF/DOC-20261018-WA0013_compressed-compressed.pdf',
     localFallback: 'DOC-20261018-WA0013_compressed-compressed.pdf',
-    publicFallback: 'public/Mentico_Mastery_Blueprint.pdf',
+    privateFallback: 'private/Mentico_Mastery_Blueprint.pdf',
   },
 };
 

@@ -24,17 +24,12 @@ export function clearMetadataCache() {
  * 4. Byte-Range Streaming (Fast first-page display without full download)
  */
 export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser } = {}) {
-  // 1. CORS & Preflight handling
-  const origin = req.headers?.origin;
-  if (origin) {
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-  } else {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-  }
-  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Range, Content-Type');
-  res.setHeader('Access-Control-Expose-Headers', 'Content-Range, Accept-Ranges, Content-Length, Content-Type');
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
+  res.setHeader('CDN-Cache-Control', 'no-store');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+  res.setHeader('Referrer-Policy', 'no-referrer');
 
   if (req.method === 'OPTIONS') {
     return res.status(204).end();
@@ -138,7 +133,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
         res.setHeader('Accept-Ranges', 'bytes');
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Length', totalSize);
-        res.setHeader('Cache-Control', 'private, no-transform, max-age=3600');
+        res.setHeader('Cache-Control', 'private, no-store, max-age=0');
         res.setHeader('Content-Disposition', `inline; filename="${book.bookId}.pdf"`);
         return res.status(200).end();
       }
@@ -175,7 +170,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
         res.setHeader('Accept-Ranges', 'bytes');
         res.setHeader('Content-Length', chunkSize);
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Cache-Control', 'private, no-transform, max-age=3600');
+        res.setHeader('Cache-Control', 'private, no-store, max-age=0');
         res.setHeader('Content-Disposition', `inline; filename="${book.bookId}.pdf"`);
 
         // Stream range data directly to response
@@ -195,7 +190,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
       res.setHeader('Accept-Ranges', 'bytes');
       res.setHeader('Content-Length', totalSize);
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Cache-Control', 'private, no-transform, max-age=3600');
+      res.setHeader('Cache-Control', 'private, no-store, max-age=0');
       res.setHeader('Content-Disposition', `inline; filename="${book.bookId}.pdf"`);
 
       pipeBodyToResponse(r2Response.Body, res);
@@ -209,10 +204,14 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
     }
   }
 
+  if (process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production') {
+    return res.status(503).json({ success: false, error: 'Private document storage is unavailable.' });
+  }
+
   // 6. Local Development Fallback (when R2 environment variables are not yet configured)
   const localCandidates = [
     path.resolve(process.cwd(), book.localFallback),
-    path.resolve(process.cwd(), book.publicFallback),
+    path.resolve(process.cwd(), book.privateFallback),
   ];
 
   let resolvedLocalPath = null;
@@ -238,7 +237,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
       res.setHeader('Accept-Ranges', 'bytes');
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Length', totalSize);
-      res.setHeader('Cache-Control', 'private, no-transform, max-age=3600');
+      res.setHeader('Cache-Control', 'private, no-store, max-age=0');
       return res.status(200).end();
     }
 
@@ -265,7 +264,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
       res.setHeader('Accept-Ranges', 'bytes');
       res.setHeader('Content-Length', chunkSize);
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Cache-Control', 'private, no-transform, max-age=3600');
+      res.setHeader('Cache-Control', 'private, no-store, max-age=0');
 
       const stream = fs.createReadStream(resolvedLocalPath, { start, end });
       stream.pipe(res);
@@ -281,7 +280,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser 
     res.setHeader('Accept-Ranges', 'bytes');
     res.setHeader('Content-Length', totalSize);
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Cache-Control', 'private, no-transform, max-age=3600');
+    res.setHeader('Cache-Control', 'private, no-store, max-age=0');
 
     const stream = fs.createReadStream(resolvedLocalPath);
     stream.pipe(res);

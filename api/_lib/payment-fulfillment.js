@@ -4,7 +4,7 @@ import { clearAuthCache } from './server-auth.js';
 export function requirePaymentDatabase() {
   const hasCreds = Boolean(process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY);
   if (!hasCreds) {
-    console.warn('[Payment Database] FIREBASE_CLIENT_EMAIL / FIREBASE_PRIVATE_KEY not configured. Falling back to resilient database adapter.');
+    throw new Error('Firebase Admin credentials are required for payment access.');
   }
   return getFirebaseAdmin();
 }
@@ -23,6 +23,8 @@ export async function fulfillCapturedPayment({ orderId, payment, userId, order }
     console.warn('[Payment Fulfillment] Notice: Could not read purchase doc from DB:', err.message);
   }
 
+  if (!purchase) throw new Error('Unknown payment order.');
+  if (['refunded', 'cancelled'].includes(purchase.status)) throw new Error('Payment access was revoked.');
   const effectiveUserId = userId || purchase?.userId || order?.notes?.userId || payment?.notes?.userId;
   const cleanId = String(payment.id || '').replace(/^pay_/, '');
   const licenseKey = purchase?.licenseKey || `MENTICO-IN-${cleanId}-VIP`;
@@ -32,10 +34,10 @@ export async function fulfillCapturedPayment({ orderId, payment, userId, order }
   }
 
   if (purchase) {
-    if ((payment.order_id && payment.order_id !== orderId) ||
-        (payment.status && payment.status !== 'captured') ||
-        (purchase.amountInPaise && payment.amount && payment.amount !== purchase.amountInPaise) ||
-        (purchase.currency && payment.currency && payment.currency !== purchase.currency)) {
+    if (payment.order_id !== orderId ||
+        payment.status !== 'captured' ||
+        (payment.amount !== purchase.amountInPaise) ||
+        (payment.currency !== purchase.currency)) {
       throw new Error('Payment does not match the captured order and amount.');
     }
   }
@@ -54,6 +56,7 @@ export async function fulfillCapturedPayment({ orderId, payment, userId, order }
       orderId,
       paymentId: payment.id,
       userId: effectiveUserId,
+      userEmail: purchase.userEmail || order?.notes?.userEmail || payment.email || '',
       amount: (payment.amount || 0) / 100,
       amountInPaise: payment.amount,
       currency: payment.currency || 'INR',
@@ -74,7 +77,7 @@ export async function fulfillCapturedPayment({ orderId, payment, userId, order }
     }
     await batch.commit();
   } catch (writeErr) {
-    console.warn('[Payment Fulfillment] Notice: Firestore write skipped (resilient adapter in use):', writeErr.message);
+    throw writeErr;
   }
 
   return { licenseKey, alreadyFulfilled: false };
