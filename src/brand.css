@@ -72,7 +72,7 @@ button,a,input,textarea,select { -webkit-tap-highlight-color: transparent; }
   .site-desktop-nav,.site-nav-cta { display: none; }
   .site-menu-toggle { display: inline-flex; }
   .site-ticker { display: block; flex: 1; min-width: 0; overflow: hidden; mask-image: linear-gradient(to right,transparent,black 8%,black 92%,transparent); }
-  .site-ticker > div { display: flex; width: max-content; animation: site-message-scroll 23s linear infinite; }
+  .site-ticker > div { display: flex; width: max-content; animation: site-message-scroll 11s linear infinite; }
   .site-ticker span { flex-shrink: 0; white-space: nowrap; font: 600 11px/1.5 'DM Sans', sans-serif; letter-spacing: .05em; padding-right: 24px; color: #673b24; }
   .site-ticker b { padding-left: 20px; color: var(--brand-terra); }
 }
