@@ -11,8 +11,8 @@ const payment = { id:'pay_test1', order_id:order.id, amount:100, currency:'INR',
 const args = { orderId:order.id, paymentId:payment.id, order, payment };
 const response = () => ({ setHeader(){}, status(code){ this.code=code; return this; }, json(body){this.body=body;return this;} });
 const client = (o=order,p=payment) => ({ orders:{fetch:async()=>o},payments:{fetch:async()=>p} });
-test('catalog keeps 799 original and 299 live sale; server charges 29900 paise',()=>{
- assert.equal(price.PRODUCT_ORIGINAL_PRICE_INR,799); assert.equal(price.PRODUCT_SALE_PRICE_INR,299); assert.equal(price.PRODUCT_PRICE_INR,299); assert.equal(price.PRODUCT_AMOUNT_IN_PAISE,29900);
+test('catalog keeps regular prices and charges the configured mode price',()=>{
+ assert.equal(price.PRODUCT_ORIGINAL_PRICE_INR,799); assert.equal(price.PRODUCT_SALE_PRICE_INR,299); const expectedPrice = price.PRODUCT_TESTING_PRICE_ENABLED ? 1 : 299; assert.equal(price.PRODUCT_PRICE_INR,expectedPrice); assert.equal(price.PRODUCT_AMOUNT_IN_PAISE,expectedPrice * 100);
 });
 test('only matching captured, fully paid, unrefunded purchases grant access',()=>{
  assert.equal(assertPaidPurchase(args).email,'buyer@example.com');
@@ -29,8 +29,8 @@ test('each access reads authoritative provider state and fails closed on outage'
 });
 test('create order requires buyer identity and enforces server amount without Firebase',async()=>{
  let created; const c={key_id:'rzp_test_dummy',orders:{create:async data=>{created=data;return {id:order.id,...data};}}};
- const body={name:'Buyer',email:'BUYER@example.com',displayedAmountInPaise:29900}; let res=response();
- await handleCreateOrder({method:'POST',body},res,{getClient:()=>c}); assert.equal(res.code,200); assert.equal(created.amount,29900); assert.equal(created.partial_payment,false); assert.equal(created.notes.userEmail,'buyer@example.com');
+ const body={name:'Buyer',email:'BUYER@example.com',displayedAmountInPaise:price.PRODUCT_AMOUNT_IN_PAISE}; let res=response();
+ await handleCreateOrder({method:'POST',body},res,{getClient:()=>c}); assert.equal(res.code,200); assert.equal(created.amount,price.PRODUCT_AMOUNT_IN_PAISE); assert.equal(created.partial_payment,false); assert.equal(created.notes.userEmail,'buyer@example.com');
  for(const [patch,code] of [[{displayedAmountInPaise:1},409],[{email:'bad'},400],[{name:''},400]]){res=response();await handleCreateOrder({method:'POST',body:{...body,...patch}},res,{getClient:()=>{throw Error('must not call');}});assert.equal(res.code,code);}
 });
 test('checkout validates HMAC and provider state; ignores client purchase claims',async()=>{
