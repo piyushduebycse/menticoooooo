@@ -60,7 +60,7 @@ export async function openRazorpayCheckout({ order, user, onSuccess, onFailure }
         manual: 'Social Freedom Blueprint',
       },
       theme: {
-        color: '#E53E3E', // Mentico Red
+        color: '#4E2313', // Mentico brown
       },
       modal: {
         confirm_close: true,
@@ -88,7 +88,7 @@ export async function openRazorpayCheckout({ order, user, onSuccess, onFailure }
     const rzp = new window.Razorpay(options);
 
     rzp.on('payment.failed', function (response) {
-      const errorMsg = response.error?.description || 'Payment was not completed. Your account has not been debited and access is locked.';
+      const errorMsg = response.error?.description || 'Payment did not complete. If you were charged, contact support before trying again.';
       const failErr = new Error(errorMsg);
       failErr.isFailed = true;
       failErr.code = 'PAYMENT_FAILED';

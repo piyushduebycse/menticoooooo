@@ -1,144 +1,51 @@
-import { getFirebaseAdmin } from './firebase-admin.js';
-import { clearAuthCache } from './server-auth.js';
+import { getRazorpayClient } from './razorpay-admin.js';
 
-export function requirePaymentDatabase() {
-  const hasCreds = Boolean(process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY);
-  if (!hasCreds) {
-    throw new Error('Firebase Admin credentials are required for payment access.');
-  }
-  return getFirebaseAdmin();
+export class PurchaseError extends Error {
+  constructor(message, status = 403) { super(message); this.status = status; }
 }
 
-export async function fulfillCapturedPayment({ orderId, payment, userId, order }, database = requirePaymentDatabase()) {
-  const { adminDb, FieldValue } = database;
-  const purchaseRef = adminDb.collection('purchases').doc(orderId);
-  let purchase = null;
-
-  try {
-    const purchaseSnap = await purchaseRef.get();
-    if (purchaseSnap && purchaseSnap.exists) {
-      purchase = purchaseSnap.data();
-    }
-  } catch (err) {
-    console.warn('[Payment Fulfillment] Notice: Could not read purchase doc from DB:', err.message);
-  }
-
-  if (!purchase) throw new Error('Unknown payment order.');
-  if (['refunded', 'cancelled'].includes(purchase.status)) throw new Error('Payment access was revoked.');
-  const effectiveUserId = userId || purchase?.userId || order?.notes?.userId || payment?.notes?.userId;
-  const cleanId = String(payment.id || '').replace(/^pay_/, '');
-  const licenseKey = purchase?.licenseKey || `MENTICO-IN-${cleanId}-VIP`;
-
-  if (userId && purchase?.userId && purchase.userId !== userId) {
-    throw new Error('Payment order belongs to another user.');
-  }
-
-  if (purchase) {
-    if (payment.order_id !== orderId ||
-        payment.status !== 'captured' ||
-        (payment.amount !== purchase.amountInPaise) ||
-        (payment.currency !== purchase.currency)) {
-      throw new Error('Payment does not match the captured order and amount.');
-    }
-  }
-
-  if (purchase?.status === 'paid') {
-    if (purchase.paymentId && purchase.paymentId !== payment.id) {
-      throw new Error('Order was fulfilled with another payment.');
-    }
-    return { licenseKey, alreadyFulfilled: true };
-  }
-
-  // Attempt database write to Firestore
-  try {
-    const batch = adminDb.batch();
-    batch.set(purchaseRef, {
-      orderId,
-      paymentId: payment.id,
-      userId: effectiveUserId,
-      userEmail: purchase.userEmail || order?.notes?.userEmail || payment.email || '',
-      amount: (payment.amount || 0) / 100,
-      amountInPaise: payment.amount,
-      currency: payment.currency || 'INR',
-      status: 'paid',
-      paidAt: FieldValue.serverTimestamp(),
-      licenseKey,
-      method: payment.method || null,
-    }, { merge: true });
-
-    if (effectiveUserId) {
-      batch.set(adminDb.collection('users').doc(effectiveUserId), {
-        hasPurchased: true,
-        hasPurchasedPdf: true,
-        licenseKey,
-        purchasedAt: FieldValue.serverTimestamp(),
-        updatedAt: FieldValue.serverTimestamp(),
-      }, { merge: true });
-    }
-    await batch.commit();
-  } catch (writeErr) {
-    throw writeErr;
-  }
-
-  return { licenseKey, alreadyFulfilled: false };
-}
-
-export async function recordPaymentFailure({ orderId, paymentId = null, reason = 'failed' }, database = requirePaymentDatabase()) {
-  const { adminDb, FieldValue } = database;
-  if (!adminDb || !orderId) return;
-  try {
-    const purchaseRef = adminDb.collection('purchases').doc(orderId);
-    await purchaseRef.set({
-      orderId,
-      paymentId: paymentId || null,
-      status: 'failed',
-      failureReason: reason,
-      failedAt: FieldValue.serverTimestamp(),
-    }, { merge: true });
-  } catch (err) {
-    console.warn('[Payment Failure Record Notice]:', err.message);
+export function validatePurchaseIds(orderId, paymentId) {
+  if (!/^order_[a-zA-Z0-9]{1,80}$/.test(orderId || '') || !/^pay_[a-zA-Z0-9]{1,80}$/.test(paymentId || '')) {
+    throw new PurchaseError('Invalid payment reference.', 400);
   }
 }
 
-export async function revokePaymentRefund({ orderId = null, paymentId = null, refundId = null, reason = 'refunded' }, database = requirePaymentDatabase()) {
-  const { adminDb, FieldValue } = database;
-  if (!adminDb) return;
-  try {
-    let orderRef = null;
-    let userId = null;
-
-    if (orderId) {
-      orderRef = adminDb.collection('purchases').doc(orderId);
-      const snap = await orderRef.get();
-      if (snap.exists) userId = snap.data()?.userId;
-    } else if (paymentId) {
-      const snap = await adminDb.collection('purchases').where('paymentId', '==', paymentId).limit(1).get();
-      if (!snap.empty) {
-        orderRef = snap.docs[0].ref;
-        userId = snap.docs[0].data()?.userId;
-      }
-    }
-
-    if (orderRef) {
-      await orderRef.set({
-        status: 'refunded',
-        refundId: refundId || null,
-        refundReason: reason,
-        refundedAt: FieldValue.serverTimestamp(),
-      }, { merge: true });
-    }
-
-    if (userId) {
-      await adminDb.collection('users').doc(userId).set({
-        hasPurchased: false,
-        hasPurchasedPdf: false,
-        status: 'refunded',
-        updatedAt: FieldValue.serverTimestamp(),
-      }, { merge: true });
-    }
-
-    clearAuthCache();
-  } catch (err) {
-    console.warn('[Payment Refund Revocation Notice]:', err.message);
+export function assertMenticoOrder(order) {
+  const isMentico = order?.notes?.productId === 'social-freedom' ||
+    order?.notes?.productName === 'Mentico - Social Freedom (PDF Field Manual)';
+  if (!isMentico || order.currency !== 'INR' || !Number.isSafeInteger(order.amount) || order.amount < 100 ||
+      order.partial_payment === true || typeof order.notes?.userEmail !== 'string' || !order.notes.userEmail.includes('@')) {
+    throw new PurchaseError('This order does not match the Social Freedom course.');
   }
+}
+
+// Both arguments must come from Razorpay's authenticated server API, never request JSON.
+export function assertPaidPurchase({ orderId, paymentId, order, payment, email }) {
+  assertMenticoOrder(order);
+  if (order.id !== orderId || payment?.id !== paymentId || payment.order_id !== orderId ||
+      payment.amount !== order.amount || payment.currency !== order.currency) {
+    throw new PurchaseError('Payment does not match the order and amount.');
+  }
+  if (payment.amount_refunded !== 0 || payment.refund_status !== null) {
+    throw new PurchaseError('Access is unavailable for a refunded payment.');
+  }
+  if (payment.status !== 'captured' || payment.captured === false || order.status !== 'paid' ||
+      order.amount_paid !== order.amount || order.amount_due !== 0) {
+    throw new PurchaseError('Payment is awaiting confirmation. Please confirm it again shortly; do not pay again.', 409);
+  }
+  const buyerEmail = order.notes.userEmail.trim().toLowerCase();
+  if (email && buyerEmail !== email.trim().toLowerCase()) {
+    throw new PurchaseError('The access pass does not match this purchase.');
+  }
+  return {
+    orderId, paymentId, email: buyerEmail, name: order.notes.userName || '',
+    uid: order.notes.userId || `buyer_${paymentId}`,
+    licenseKey: `MENTICO-IN-${paymentId.slice(4)}-VIP`,
+  };
+}
+
+export async function getVerifiedPurchase({ orderId, paymentId, email }, { client = getRazorpayClient() } = {}) {
+  validatePurchaseIds(orderId, paymentId);
+  const [order, payment] = await Promise.all([client.orders.fetch(orderId), client.payments.fetch(paymentId)]);
+  return assertPaidPurchase({ orderId, paymentId, email, order, payment });
 }

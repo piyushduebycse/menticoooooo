@@ -2,13 +2,10 @@ import { verifyAuthUser } from '../_lib/server-auth.js';
 
 /**
  * GET /api/auth/me
- * Protected endpoint to verify client Firebase ID token server-side.
+ * Protected endpoint to verify a signed purchase pass against Razorpay.
  */
 export default async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+  res.setHeader('Cache-Control', 'private, no-store');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();

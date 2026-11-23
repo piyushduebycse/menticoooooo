@@ -15,6 +15,8 @@ export default function Navbar() {
     window.addEventListener('resize', resize);
     return () => window.removeEventListener('resize', resize);
   }, []);
+  let hasPass = false;
+  try { hasPass = Boolean(JSON.parse(localStorage.getItem('mentico_access_pass') || 'null')?.accessToken); } catch {}
   const links = [['/', 'Home'], ['/about', 'About Mentico'], ['/purchase', 'The course'], ['/library', 'My library'], ['/contact', 'Contact']];
   const signOut = async () => {
     await logout();
@@ -29,7 +31,7 @@ export default function Navbar() {
         <div aria-hidden="true">{[0, 1].map(copy => <span key={copy}>YOU DON'T HAVE A PEOPLE PROBLEM. YOU HAVE AN APPROACH PROBLEM. <b>✦</b></span>)}</div>
       </div>
       <nav className="site-desktop-nav" aria-label="Main navigation">{links.map(([path, label]) => <NavLink key={path} to={path} end={path === '/'}>{label}</NavLink>)}</nav>
-      <Link className="btn btn-primary site-nav-cta" to={user ? '/library' : '/purchase'}>{user ? 'My library' : 'Get the course'}<ArrowRight size={16}/></Link>
+      <Link className="btn btn-primary site-nav-cta" to={hasPass ? '/library' : '/purchase'}>{hasPass ? 'My library' : 'Get the course'}<ArrowRight size={16}/></Link>
       <button type="button" className="site-menu-toggle" onClick={() => setOpen(!open)} aria-expanded={open} aria-controls="site-mobile-nav" aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}>{open ? <X size={25}/> : <Menu size={25}/>}</button>
     </div>
     {open && <nav id="site-mobile-nav" className="site-mobile-nav" aria-label="Mobile navigation">

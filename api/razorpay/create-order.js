@@ -1,124 +1,38 @@
-import { PRODUCT_PRICE_INR, PRODUCT_AMOUNT_IN_PAISE } from '../../shared/product.js';
-import { verifyAuthUser } from '../_lib/server-auth.js';
+import crypto from 'node:crypto';
+import { PRODUCT_AMOUNT_IN_PAISE, PRODUCT_CURRENCY } from '../../shared/product.js';
 import { getRazorpayClient } from '../_lib/razorpay-admin.js';
-import { requirePaymentDatabase } from '../_lib/payment-fulfillment.js';
 
-/**
- * POST /api/razorpay/create-order
- * Generates an authorized Razorpay order for Mentico Manual in INR.
- */
-export default async function handler(req, res) {
+export async function handleCreateOrder(req, res, { getClient = getRazorpayClient } = {}) {
+  res.setHeader('Cache-Control', 'private, no-store');
   if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
+    res.setHeader('Allow', 'POST');
     return res.status(405).json({ success: false, error: 'Method Not Allowed' });
   }
-
-  // 1. Authenticate user: Either via Bearer Token (logged-in) OR via Guest Checkout (Name & Email)
-  let authUser = null;
-  const authHeader = req.headers.authorization || req.headers.Authorization;
-
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    authUser = await verifyAuthUser(req, res);
-    if (!authUser) return; // verifyAuthUser handles 401 response
-  } else {
-    // Guest Checkout flow: Validate direct Name and Email
-    const email = (req.body?.email || '').trim().toLowerCase();
-    const name = (req.body?.name || '').trim();
-    if (!email || !email.includes('@')) {
-      return res.status(400).json({ success: false, error: 'A valid email address is required.' });
-    }
-    if (!name) {
-      return res.status(400).json({ success: false, error: 'Name is required to personalize your book.' });
-    }
-    authUser = {
-      uid: `guest_${email.replace(/[^a-zA-Z0-9]/g, '_')}`,
-      email,
-      name,
-      hasPurchased: false,
-    };
+  const { name, email, phone, displayedAmountInPaise } = req.body || {};
+  if (typeof name !== 'string' || !name.trim() || name.length > 120 ||
+      typeof email !== 'string' || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+    return res.status(400).json({ success: false, error: 'Please enter your name and a valid email address.' });
   }
-
-  // 2. Check if user already owns the manual
-  if (authUser.hasPurchased) {
-    return res.status(200).json({
-      success: true,
-      alreadyPurchased: true,
-      message: 'User has already purchased Mentico - Social Freedom manual.',
-    });
-  }
-
-  // Use the same authoritative catalog price shown on the website.
-  const priceINR = PRODUCT_PRICE_INR;
-  const amountInPaise = PRODUCT_AMOUNT_IN_PAISE;
-  if (req.body?.displayedAmountInPaise != null && Number(req.body.displayedAmountInPaise) !== amountInPaise) {
+  if (displayedAmountInPaise != null && displayedAmountInPaise !== PRODUCT_AMOUNT_IN_PAISE) {
     return res.status(409).json({ success: false, error: 'The price has changed. Please refresh before paying.' });
   }
-
-  if (!Number.isFinite(priceINR) || amountInPaise < 100 || !Number.isSafeInteger(amountInPaise)) {
-    return res.status(500).json({ success: false, error: 'Product price is misconfigured.' });
-  }
-
-  const keyId = (process.env.RAZORPAY_KEY_ID || process.env.VITE_RAZORPAY_KEY_ID || '').trim();
-  const keySecret = (process.env.RAZORPAY_KEY_SECRET || '').trim();
-
-  if (!keyId || !keySecret || keyId.includes('YOUR_KEY_ID')) {
-    return res.status(500).json({
-      success: false,
-      error: 'Razorpay keys not configured on server. Please add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to environment variables.',
-      code: 'razorpay/not-configured',
-    });
-  }
-
   try {
-    const { adminDb, FieldValue } = requirePaymentDatabase();
-    const razorpay = getRazorpayClient();
-    const receiptId = `rcpt_${authUser.uid.slice(0, 10)}_${Date.now()}`;
-
-    // Create Razorpay Order
-    const order = await razorpay.orders.create({
-      amount: amountInPaise,
-      currency: 'INR',
-      receipt: receiptId,
+    const client = getClient();
+    const order = await client.orders.create({
+      amount: PRODUCT_AMOUNT_IN_PAISE, currency: PRODUCT_CURRENCY,
+      receipt: `mtc_${crypto.randomBytes(12).toString('hex')}`,
+      partial_payment: false,
       notes: {
-        userId: authUser.uid,
-        userName: authUser.name || '',
-        userEmail: authUser.email || '',
-        userPhone: (req.body?.phone || '').trim(),
-        productName: 'Mentico - Social Freedom (PDF Field Manual)',
+        productId: 'social-freedom', productName: 'Mentico - Social Freedom (PDF Field Manual)',
+        userName: name.trim(), userEmail: email.trim().toLowerCase(),
+        userPhone: typeof phone === 'string' ? phone.trim().slice(0, 30) : '',
       },
     });
-
-    // Save order in Firestore under 'purchases' collection with status 'created'
-    await adminDb.collection('purchases').doc(order.id).set({
-      orderId: order.id,
-      receipt: receiptId,
-      userId: authUser.uid,
-      userEmail: authUser.email || '',
-      amount: priceINR,
-      amountInPaise,
-      currency: 'INR',
-      status: 'created',
-      productName: 'Mentico - Social Freedom (PDF Field Manual)',
-      createdAt: FieldValue.serverTimestamp(),
-    });
-
-    return res.status(200).json({
-      success: true,
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      keyId,
-      productName: 'Mentico - Social Freedom (PDF Manual)',
-      user: {
-        name: authUser.name || '',
-        email: authUser.email || '',
-      },
-    });
+    return res.status(200).json({ success: true, orderId: order.id, amount: order.amount,
+      currency: order.currency, keyId: client.key_id, productName: 'Social Freedom by Mentico' });
   } catch (err) {
-    console.error('[Razorpay Create Order Error]:', err);
-    return res.status(500).json({
-      success: false,
-      error: err.error?.description || err.message || 'Could not create payment order. Please try again or contact support.',
-    });
+    console.error('[Create order failed]', err.message);
+    return res.status(503).json({ success: false, error: 'Checkout is temporarily unavailable. Please retry shortly.' });
   }
 }
+export default function handler(req, res) { return handleCreateOrder(req, res); }

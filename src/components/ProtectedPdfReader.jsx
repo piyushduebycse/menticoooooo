@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
-import { useAuth } from '../context/AuthContext';
 import { saveReadingProgress } from '../services/readingProgress';
 
 // Set worker source using Vite's ?url import with safe fallback
@@ -38,7 +37,6 @@ export default function ProtectedPdfReader({
   onClose,
 }) {
   const navigate = useNavigate();
-  const { getIdToken } = useAuth();
   const [pdfDoc, setPdfDoc] = useState(null);
   const [currentPage, setCurrentPage] = useState(Math.max(1, Number(initialPage) || 1));
   const [totalPages, setTotalPages] = useState(90);
@@ -193,17 +191,12 @@ export default function ProtectedPdfReader({
     let isMounted = true;
     setIsLoading(true);
     setLoadError(null);
+    setIsAccessDenied(false);
 
     async function initializePdf() {
       try {
-        let idToken = user?.accessToken || storedPass?.accessToken || null;
-        if (!idToken && typeof getIdToken === 'function') {
-          try {
-            idToken = await getIdToken();
-          } catch (tokErr) {
-            console.warn('[PDF Reader] Token notice:', tokErr.message);
-          }
-        }
+        const idToken = user?.accessToken || storedPass?.accessToken;
+        if (!idToken) throw Object.assign(new Error('A purchase access pass is required.'), { status: 401 });
 
         const httpHeaders = idToken ? { Authorization: `Bearer ${idToken}` } : {};
 
@@ -219,7 +212,7 @@ export default function ProtectedPdfReader({
          * - disableRange: false -> Enables HTTP 206 Partial Content byte ranges
          * - disableStream: false -> Allows progressive data streaming chunk-by-chunk
          * - disableAutoFetch: true -> CRITICAL: Stops PDF.js from downloading all 20-50 MB in the background!
-         * - rangeChunkSize: 65536 -> 64 KB chunk size for fastest first-page display
+         * - rangeChunkSize: 262144 -> 64 KB chunk size for fastest first-page display
          */
         const loadingTask = pdfjsLib.getDocument({
           url: resolvedUrl,
@@ -227,7 +220,7 @@ export default function ProtectedPdfReader({
           disableRange: false,
           disableStream: false,
           disableAutoFetch: true,
-          rangeChunkSize: 65536,
+          rangeChunkSize: 262144,
           cMapPacked: true,
         });
 
@@ -271,7 +264,7 @@ export default function ProtectedPdfReader({
         } catch {}
       }
     };
-  }, [resolvedUrl, getIdToken]);
+  }, [resolvedUrl, user?.accessToken, storedPass?.accessToken]);
 
   // Render Page to Canvas with DPR optimization + Forensic Watermark
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { PRODUCT_PRICE_INR } from '../../shared/product.js';
+import { PRODUCT_PRICE_INR, PRODUCT_ORIGINAL_PRICE_INR } from '../../shared/product.js';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -18,13 +18,11 @@ import {
   Zap,
   FileText,
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import '../landing.css';
 
 export default function Home() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const storedPass = (() => {
     try {
       return typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('mentico_access_pass') || '{}') : {};
@@ -32,9 +30,9 @@ export default function Home() {
       return {};
     }
   })();
-  const hasPurchased = Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased);
+  const hasPurchased = Boolean(storedPass?.accessToken);
 
-  const originalPrice = 999;
+  const originalPrice = PRODUCT_ORIGINAL_PRICE_INR;
   const currentPrice = PRODUCT_PRICE_INR;
 
   const [showStickyBar, setShowStickyBar] = useState(false);

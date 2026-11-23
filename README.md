@@ -7,7 +7,7 @@ A modern, high-performance career acceleration & mentorship web platform designe
 ## ✨ Features
 
 - **🎓 Interactive Learning & Course Blueprint**: Guided curriculum with milestone tracking.
-- **📄 Protected In-Browser PDF Reader**: Secure, custom-styled document viewer powered by PDF.js with watermarking, anti-screenshot measures, and chapter bookmarks.
+- **📄 Protected In-Browser PDF Reader**: Secure, custom-styled document viewer powered by PDF.js with watermarking and chapter bookmarks.
 - **🔐 Multi-Tier Authentication**: Seamless Firebase Auth integration with instant guest/demo simulation mode.
 - **🌓 Theme Support**: Polished Dark & Light mode system with smooth CSS variable transitions.
 - **🎉 Gamified Micro-Interactions**: Confetti rewards, interactive milestones, and responsive animations.
@@ -22,7 +22,7 @@ A modern, high-performance career acceleration & mentorship web platform designe
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **PDF Engine**: [PDF.js](https://mozilla.github.io/pdf.js/) (`pdfjs-dist`)
 - **Effects**: [canvas-confetti](https://www.npmjs.com/package/canvas-confetti)
-- **Backend / Auth**: [Firebase](https://firebase.google.com/) (Auth & Firestore) with fallback demo simulation
+- **Backend / Auth**: Vercel functions, Razorpay payment verification, private R2 storage; optional Firebase login
 
 ---
 
@@ -30,7 +30,7 @@ A modern, high-performance career acceleration & mentorship web platform designe
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) (v18 or higher recommended)
+- [Node.js](https://nodejs.org/) (v20 or higher)
 - `npm` or `pnpm`
 
 ### Installation
@@ -69,11 +69,15 @@ Visit `http://localhost:5173` in your browser.
 
 ### Razorpay checkout setup
 
-The checkout uses server-created Razorpay orders. Copy `.env.example` to `.env` and configure real Firebase Web and Admin credentials, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET`. Set the shared catalog price in `shared/product.js`; browser displays and server orders use that same source. Use Razorpay test keys for test payments and live keys only after testing the full flow.
+Checkout and PDF access do not require Firebase Admin or Firestore. The server creates Razorpay orders, validates the checkout signature, and confirms the captured amount and current refund state directly with Razorpay before issuing or accepting a signed purchase pass. Browser profile flags never authorize PDF access. Firebase login is optional and separate from purchase verification.
 
-Deploy [Firestore rules](firestore.rules) to the Firebase project so browsers cannot set their own purchase entitlement. Enable automatic payment capture in Razorpay. On the Razorpay dashboard, register `https://<your-domain>/api/razorpay/webhook` and subscribe to `payment.captured`; use the same webhook secret in the server environment. Deploy all server variables to Vercel as well as your local `.env`. Run `npm test`, `npm run lint`, and `npm run build` before release.
+Configure `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` and private R2 credentials from `.env.example` in the Vercel runtime. `ACCESS_TOKEN_SECRET` is optional; otherwise the Razorpay key secret signs passes. Keep that signing key stable to preserve existing passes. Prices live in `shared/product.js`: original ₹799, normal sale ₹299, active testing price ₹1. Set `PRODUCT_TESTING_PRICE_ENABLED` to false when testing is complete.
 
-Demo accounts and sample checkout codes do not activate paid access. A real Firebase session is required for payments. The development PDF fixture is under `private/` and must never be copied to `public/` or `dist/`. Production PDF delivery requires private R2 storage. Disable the bucket public development URL and any public custom domain in Cloudflare. Every PDF request must match a paid purchase record; browser storage and profile flags are not authorization. Firebase Admin credentials and the deployed Firestore rules are required. Previously issued passes without a matching ledger record need purchase reconciliation through a trusted server process. Browsers necessarily receive readable document bytes; these controls prevent unpaid access, not copying by authorized readers.
+PDFs must stay in a private R2 bucket with public URLs disabled. Every PDF request checks Razorpay, including refunds; provider outages fail closed with a retry message. PDF range requests generate provider API reads. Checkout stores an unfinished confirmation locally so retrying confirmation does not initiate a second charge. Purchase access is a bearer pass stored in the buyer's browser; it is not automatically emailed or restored on another device. Support must reconcile a lost pass against the original Razorpay order. Authorized readers necessarily receive document bytes and can copy them.
+
+GitHub Actions runs tests and builds on main and PRs. For Actions-controlled production deployment, configure repository secrets `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID`, and set repository variable `ACTIONS_DEPLOY_ENABLED=true`. Existing Vercel runtime variables remain in Vercel. Disable Vercel automatic Git deployments only after the Actions deployment succeeds, to avoid duplicate deployments. GitHub Pages cannot run these payment APIs.
+
+Run `npm test`, `npm run lint`, and `npm run build` before release. The development PDF under `private/` is ignored and must never enter `public/`, `dist/`, or Git history. Older public commits containing the PDF still require repository privacy/history remediation by an administrator.
 
 ### Building for Production
 
@@ -89,7 +93,7 @@ Production output will be generated inside the `dist/` directory.
 
 ```
 mentico/
-├── public/                 # Static assets, logos, and blueprint PDFs
+├── public/                 # Public static assets and logos (no paid PDFs)
 ├── src/
 │   ├── assets/             # Images and local styles
 │   ├── components/         # Reusable UI components (Navbar, Footer, ProtectedPdfReader, etc.)

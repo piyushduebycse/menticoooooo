@@ -1,4 +1,5 @@
-import { PRODUCT_PRICE_INR } from '../../shared/product.js';
+import { PENDING_PAYMENT_KEY, readPendingPayment, confirmPayment } from '../services/purchase';
+import { PRODUCT_PRICE_INR, PRODUCT_ORIGINAL_PRICE_INR } from '../../shared/product.js';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
@@ -22,7 +23,7 @@ import { trackCheckoutInitiated, trackPurchaseSuccess } from '../services/analyt
 import confetti from 'canvas-confetti';
 
 export default function Product() {
-  const { user, getIdToken, markPurchased } = useAuth();
+  const { user, markPurchased } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [checkoutVisible, setCheckoutVisible] = useState(false);
@@ -44,7 +45,7 @@ export default function Product() {
   })();
 
   const isRevoked = user?.status === 'cancelled' || user?.status === 'refunded' || user?.status === 'failed';
-  const hasPurchased = !isRevoked && Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased);
+  const hasPurchased = !isRevoked && Boolean(storedPass?.accessToken);
 
   const [couponError, setCouponError] = useState('');
   const [paymentNotice, setPaymentNotice] = useState(null);
@@ -70,7 +71,7 @@ export default function Product() {
     } else if (searchParams.get('failed') === 'true' || searchParams.get('error') === 'true') {
       setPaymentNotice({
         type: 'failed',
-        message: 'Payment was not completed. Your account has not been debited and access is locked.',
+        message: 'Payment was not completed. If you were charged, contact support before trying again.',
       });
     }
   }, [searchParams]);
@@ -81,8 +82,24 @@ export default function Product() {
     if (user?.phoneNumber && !buyerPhone) setBuyerPhone(user.phoneNumber);
   }, [user]);
 
-  const originalPrice = 999; // in INR
+  const originalPrice = PRODUCT_ORIGINAL_PRICE_INR; // in INR
   const currentPrice = PRODUCT_PRICE_INR;
+
+  const [pendingPayment, setPendingPayment] = useState(readPendingPayment);
+  const activatePurchase = async (receipt) => {
+    const data = await confirmPayment(receipt);
+    const accessPass = { ...data, hasPurchased: true };
+    try {
+      localStorage.setItem('mentico_access_pass', JSON.stringify(accessPass));
+      localStorage.removeItem(PENDING_PAYMENT_KEY);
+    } catch {}
+    setPendingPayment(null);
+    markPurchased?.(accessPass);
+    trackPurchaseSuccess({ orderId: data.orderId, paymentId: data.paymentId, amount: currentPrice });
+    try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); } catch {}
+    setPurchaseSuccess(true);
+    navigate('/library?openPdf=true', { state: { openPdf: true, fromPayment: true, accessPass } });
+  };
 
   const handlePurchase = async () => {
     setCouponError('');
@@ -90,6 +107,14 @@ export default function Product() {
 
     if (hasPurchased) {
       navigate('/library?openPdf=true', { state: { openPdf: true } });
+      return;
+    }
+
+    if (pendingPayment) {
+      setIsPurchasing(true);
+      try { await activatePurchase(pendingPayment); }
+      catch (err) { setPaymentNotice({ type: 'pending', message: err.message }); }
+      finally { setIsPurchasing(false); }
       return;
     }
 
@@ -109,9 +134,7 @@ export default function Product() {
     setIsPurchasing(true);
 
     try {
-      const token = user ? await getIdToken().catch(() => null) : null;
       const headers = { 'Content-Type': 'application/json' };
-      if (token) headers['Authorization'] = `Bearer ${token}`;
 
       trackCheckoutInitiated({ price: currentPrice, userEmail: trimmedEmail });
 
@@ -156,66 +179,14 @@ export default function Product() {
           phoneNumber: buyerPhone.trim(),
         },
         onSuccess: async (paymentResponse) => {
-          const verifyHeaders = { 'Content-Type': 'application/json' };
-          if (token) verifyHeaders['Authorization'] = `Bearer ${token}`;
-
-          const verifyRes = await fetch('/api/razorpay/verify-payment', {
-            method: 'POST',
-            headers: verifyHeaders,
-            body: JSON.stringify({
-              orderId: paymentResponse.razorpay_order_id,
-              paymentId: paymentResponse.razorpay_payment_id,
-              signature: paymentResponse.razorpay_signature,
-              name: trimmedName,
-              email: trimmedEmail,
-            }),
-          });
-
-          let verifyData;
-          const verifyContentType = verifyRes.headers.get('content-type') || '';
-          if (verifyContentType.includes('application/json')) {
-            verifyData = await verifyRes.json();
-          } else {
-            const textError = await verifyRes.text();
-            throw new Error(textError || `Payment verification failed (Server HTTP ${verifyRes.status}).`);
-          }
-
-          if (!verifyRes.ok || !verifyData.success) {
-            throw new Error(verifyData.error || 'Payment verification failed.');
-          }
-
-          trackPurchaseSuccess({
-            orderId: paymentResponse.razorpay_order_id,
-            amount: currentPrice,
-            paymentId: paymentResponse.razorpay_payment_id,
-          });
-
-          const accessPass = {
-            accessToken: verifyData.accessToken,
-            licenseKey: verifyData.licenseKey,
-            email: verifyData.email || trimmedEmail,
-            name: verifyData.name || trimmedName,
-            orderId: paymentResponse.razorpay_order_id,
-            paymentId: paymentResponse.razorpay_payment_id,
-            hasPurchased: true,
-          };
-
-          try {
-            localStorage.setItem('mentico_access_pass', JSON.stringify(accessPass));
-          } catch {}
-
-          if (typeof markPurchased === 'function') {
-            markPurchased(accessPass);
-          }
-
-          try {
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-          } catch {}
-
-          setPurchaseSuccess(true);
-          navigate('/library?openPdf=true', { state: { openPdf: true, fromPayment: true, accessPass } });
+          const receipt = { orderId: paymentResponse.razorpay_order_id, paymentId: paymentResponse.razorpay_payment_id,
+            signature: paymentResponse.razorpay_signature };
+          try { localStorage.setItem(PENDING_PAYMENT_KEY, JSON.stringify(receipt)); } catch {}
+          setPendingPayment(receipt);
+          await activatePurchase(receipt);
         },
         onFailure: (err) => {
+          if (readPendingPayment()) { setPaymentNotice({ type: 'pending', message: err.message }); return; }
           if (err.isCancelled || err.code === 'PAYMENT_CANCELLED' || err.message?.includes('cancelled') || err.message?.includes('closed before completion')) {
             setPaymentNotice({
               type: 'cancelled',
@@ -225,13 +196,14 @@ export default function Product() {
           } else {
             setPaymentNotice({
               type: 'failed',
-              message: err.message || 'Payment was not completed. Your account has not been debited and access is locked. Please try another payment method.',
+              message: err.message || 'Payment did not complete. If you were charged, contact support before trying again.',
             });
           }
         },
       });
     } catch (err) {
       console.error('[Purchase Error]:', err);
+      if (readPendingPayment()) { setPaymentNotice({ type: 'pending', message: err.message }); return; }
       if (err.isCancelled || err.code === 'PAYMENT_CANCELLED' || err.message?.includes('cancelled') || err.message?.includes('closed before completion')) {
         setPaymentNotice({
           type: 'cancelled',
@@ -778,7 +750,7 @@ export default function Product() {
                           }}
                         >
                           <Lock size={12} color="#16A34A" />
-                          <span>PDF access link will be delivered directly here.</span>
+                          <span>Use this email to identify your purchase.</span>
                         </div>
                       </div>
                     </div>
@@ -796,15 +768,15 @@ export default function Product() {
                         display: 'flex',
                         alignItems: 'flex-start',
                         gap: '0.65rem',
-                        backgroundColor: paymentNotice.type === 'cancelled' ? '#FEF3C7' : '#FEE2E2',
-                        border: `1px solid ${paymentNotice.type === 'cancelled' ? '#F59E0B' : '#EF4444'}`,
-                        color: paymentNotice.type === 'cancelled' ? '#92400E' : '#B91C1C',
+                        backgroundColor: paymentNotice.type !== 'failed' ? '#FEF3C7' : '#FEE2E2',
+                        border: `1px solid ${paymentNotice.type !== 'failed' ? '#F59E0B' : '#EF4444'}`,
+                        color: paymentNotice.type !== 'failed' ? '#92400E' : '#B91C1C',
                       }}
                     >
                       <AlertTriangle size={18} style={{ flexShrink: 0, marginTop: '2px' }} />
                       <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: 700, marginBottom: '2px' }}>
-                          {paymentNotice.type === 'cancelled' ? 'Payment Cancelled' : 'Payment Not Completed'}
+                          {paymentNotice.type === 'pending' ? 'Payment confirmation pending' : paymentNotice.type === 'cancelled' ? 'Payment Cancelled' : 'Payment Not Completed'}
                         </div>
                         <div>{paymentNotice.message}</div>
                       </div>
@@ -852,7 +824,7 @@ export default function Product() {
                     ) : (
                       <>
                         <BookOpen size={18} />
-                        <span>Get Instant Access (₹{currentPrice})</span>
+                        <span>{pendingPayment ? 'Confirm payment & open course' : `Get Instant Access (₹${currentPrice})`}</span>
                         <ArrowRight size={18} />
                       </>
                     )}
@@ -957,7 +929,7 @@ export default function Product() {
                 <span>Redirecting...</span>
               ) : (
                 <>
-                  <span>Get Instant Access</span>
+                  <span>{pendingPayment ? 'Confirm payment' : 'Get Instant Access'}</span>
                   <ArrowRight size={16} />
                 </>
               )}

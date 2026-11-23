@@ -1,8 +1,8 @@
-import { PRODUCT_PRICE_INR } from '../../shared/product.js';
+import { PRODUCT_PRICE_INR, PRODUCT_ORIGINAL_PRICE_INR } from '../../shared/product.js';
 import React from 'react';
 import { X, Lock, CheckCircle2, BookOpen, ArrowRight, Sparkles, Shield, Eye } from 'lucide-react';
 
-export default function PdfHighlightsModal({ isOpen, onClose, onUnlock, currentPrice = PRODUCT_PRICE_INR, originalPrice = 999 }) {
+export default function PdfHighlightsModal({ isOpen, onClose, onUnlock, currentPrice = PRODUCT_PRICE_INR, originalPrice = PRODUCT_ORIGINAL_PRICE_INR }) {
   if (!isOpen) return null;
 
   return (

@@ -44,6 +44,7 @@ export function verifyAccessToken(token) {
   }
 
   const [b64Payload, signature] = parts;
+  if (!/^[a-zA-Z0-9_-]+$/.test(b64Payload) || !/^[a-f0-9]{64}$/.test(signature)) return null;
   let secret;
   try { secret = getSigningSecret(); } catch { return null; }
   const expectedSignature = crypto.createHmac('sha256', secret).update(b64Payload).digest('hex');
@@ -58,8 +59,8 @@ export function verifyAccessToken(token) {
 
     const raw = Buffer.from(b64Payload, 'base64url').toString('utf8');
     const data = JSON.parse(raw);
-    if (!data.email || !data.orderId || !data.paymentId || !Number.isFinite(data.exp)) return null;
-    if (data.exp && data.exp < Math.floor(Date.now() / 1000)) {
+    if (!['email', 'orderId', 'paymentId'].every(key => typeof data[key] === 'string' && data[key]) || !Number.isFinite(data.exp)) return null;
+    if (data.exp && data.exp <= Math.floor(Date.now() / 1000)) {
       return null;
     }
     return data;
