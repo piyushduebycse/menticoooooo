@@ -1,8 +1,9 @@
 import { getRazorpayClient, verifyRazorpayPaymentSignature } from '../_lib/razorpay-admin.js';
 import { getVerifiedPurchase, assertMenticoOrder, validatePurchaseIds, PurchaseError } from '../_lib/payment-fulfillment.js';
 import { createAccessToken } from '../_lib/access-token.js';
+import { isConfirmationMailConfigured, sendConfirmationEmail } from '../_lib/confirmation-mail.js';
 
-export async function handleVerifyPayment(req, res, { getClient = getRazorpayClient } = {}) {
+export async function handleVerifyPayment(req, res, { getClient = getRazorpayClient, mailSender = sendConfirmationEmail } = {}) {
   res.setHeader('Cache-Control', 'private, no-store');
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -26,7 +27,25 @@ export async function handleVerifyPayment(req, res, { getClient = getRazorpayCli
     // Re-fetch authoritative status after capture, including any refund information.
     const purchase = await getVerifiedPurchase({ orderId, paymentId }, { client });
     const accessToken = createAccessToken(purchase);
-    return res.status(200).json({ success: true, verified: true, ...purchase, accessToken,
+
+    // Send confirmation email asynchronously via Resend (failsafe: does not block user fulfillment)
+    let emailSent = false;
+    if (isConfirmationMailConfigured()) {
+      try {
+        await mailSender({
+          email: purchase.email,
+          name: purchase.name,
+          paymentId: purchase.paymentId,
+          licenseKey: purchase.licenseKey,
+          accessToken,
+        });
+        emailSent = true;
+      } catch (mailErr) {
+        console.warn('[Confirmation Email Notice]:', mailErr.message);
+      }
+    }
+
+    return res.status(200).json({ success: true, verified: true, ...purchase, accessToken, emailSent,
       hasPurchased: true, hasPurchasedPdf: true, message: 'Your field guide is ready.' });
   } catch (err) {
     if (!(err instanceof PurchaseError)) console.error('[Verify payment failed]', err.message);
