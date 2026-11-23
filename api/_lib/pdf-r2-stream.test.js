@@ -73,7 +73,7 @@ function createMockResponse() {
 
 test('Allowlist: resolves known book IDs and blocks unknown ones', () => {
   assert.notEqual(resolveBook('social-freedom'), null);
-  assert.equal(resolveBook('social-freedom').r2Key, 'PDF/DOC-20261018-WA0013_compressed-compressed.pdf');
+  assert.equal(resolveBook('social-freedom').r2Key, 'Mentico Super Course.pdf');
   assert.notEqual(resolveBook('blueprint'), null);
   assert.equal(resolveBook('unknown-book'), null);
   assert.equal(resolveBook(''), null);

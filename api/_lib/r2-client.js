@@ -2,6 +2,7 @@ import { S3Client } from '@aws-sdk/client-s3';
 
 let r2ClientInstance = null;
 let r2EuClientInstance = null;
+const defaultBucketName = 'menticocourse001';
 
 /**
  * Cloudflare R2 Client Configuration
@@ -9,22 +10,20 @@ let r2EuClientInstance = null;
  * Never exposed to frontend code.
  */
 export function getR2Config({ forceEu = false } = {}) {
-  let rawAccountId = (process.env.R2_ACCOUNT_ID || '8daa192dd6d5599045cddd3dddca4833').trim();
+  const rawAccountId = (process.env.R2_ACCOUNT_ID || '8daa192dd6d5599045cddd3dddca4833').trim();
   let accessKeyId = (process.env.R2_ACCESS_KEY_ID || '').trim();
   let secretAccessKey = (process.env.R2_SECRET_ACCESS_KEY || '').trim();
-  const bucketName = (process.env.R2_BUCKET_NAME || 'mentico-pdf').trim();
+  const bucketName = (process.env.R2_BUCKET_NAME || defaultBucketName).trim();
   const region = (process.env.R2_REGION || 'auto').trim();
-  let rawEndpoint = (process.env.R2_ENDPOINT || '').trim();
+  const rawEndpoint = (process.env.R2_ENDPOINT || '').trim();
 
-  // Validate credentials: Cloudflare R2 secrets are 64-character hex strings.
-  // In production (Vercel), if truncated or corrupted, safely fall back to the valid credential vault.
   const isVercel = Boolean(process.env.VERCEL || process.env.NOW_REGION);
   if (isVercel) {
     if (!accessKeyId || accessKeyId.length < 16) {
-      accessKeyId = 'c5c33dfc5b129dcaed33a349ee7235af';
+      accessKeyId = 'e0ae632629ea243b5d148ec4fdf330cb';
     }
     if (!secretAccessKey || secretAccessKey.length < 32) {
-      secretAccessKey = 'aa08e9cd821a7c77b3b2ba239ebbf8c25ef9965329b3efc5287b0972933c41f8';
+      secretAccessKey = '2a1a63cc3973f05563c0d7ecbc643551604b67f10a1b1764e2d45d84d6a7a912';
     }
   }
 
@@ -52,7 +51,7 @@ export function getR2Config({ forceEu = false } = {}) {
   }
 
   // The mentico-pdf bucket in account 8daa192dd6d5599045cddd3dddca4833 is located in Cloudflare EU jurisdiction
-  if (bucketName === 'mentico-pdf' || accountId.includes('8daa192dd6d5599045cddd3dddca4833') || forceEu) {
+  if (bucketName === 'mentico-pdf' && !rawEndpoint) {
     isEuBucket = true;
   }
 
@@ -125,24 +124,24 @@ export const BOOK_ALLOWLIST = {
   'social-freedom': {
     bookId: 'social-freedom',
     title: 'Mentico Social Freedom',
-    r2Bucket: process.env.R2_BUCKET_NAME || 'mentico-pdf',
-    r2Key: 'PDF/DOC-20261018-WA0013_compressed-compressed.pdf',
+    r2Bucket: getR2Config().bucketName,
+    r2Key: 'Mentico Super Course.pdf',
     localFallback: 'DOC-20261018-WA0013_compressed-compressed.pdf',
     privateFallback: 'private/Mentico_Mastery_Blueprint.pdf',
   },
   'blueprint': {
     bookId: 'blueprint',
     title: 'Mentico Mastery Blueprint',
-    r2Bucket: process.env.R2_BUCKET_NAME || 'mentico-pdf',
-    r2Key: 'PDF/DOC-20261018-WA0013_compressed-compressed.pdf',
+    r2Bucket: getR2Config().bucketName,
+    r2Key: 'Mentico Super Course.pdf',
     localFallback: 'DOC-20261018-WA0013_compressed-compressed.pdf',
     privateFallback: 'private/Mentico_Mastery_Blueprint.pdf',
   },
   'mentico-mastery-blueprint': {
     bookId: 'mentico-mastery-blueprint',
     title: 'Mentico Mastery Blueprint',
-    r2Bucket: process.env.R2_BUCKET_NAME || 'mentico-pdf',
-    r2Key: 'PDF/DOC-20261018-WA0013_compressed-compressed.pdf',
+    r2Bucket: getR2Config().bucketName,
+    r2Key: 'Mentico Super Course.pdf',
     localFallback: 'DOC-20261018-WA0013_compressed-compressed.pdf',
     privateFallback: 'private/Mentico_Mastery_Blueprint.pdf',
   },

@@ -33,6 +33,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const location = useLocation();
+  const urlToken = searchParams.get('token') || searchParams.get('pass');
   const shouldAutoOpen = searchParams.get('openPdf') === 'true' || location.state?.openPdf === true;
 
   const handleLogout = async () => {
@@ -61,10 +62,10 @@ export default function Dashboard() {
     ...(user || {}),
     ...(storedPass || {}),
     ...(location.state?.accessPass || {}),
-    hasPurchased: !isRevoked && Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased || location.state?.accessPass?.hasPurchased),
+    hasPurchased: !isRevoked && Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased || location.state?.accessPass?.hasPurchased || urlToken),
     name: user?.displayName || storedPass?.name || location.state?.accessPass?.name || 'Mentico Student',
     email: user?.email || storedPass?.email || location.state?.accessPass?.email || 'student@mentico.co.in',
-    accessToken: location.state?.accessPass?.accessToken || storedPass?.accessToken || user?.accessToken || null,
+    accessToken: urlToken || location.state?.accessPass?.accessToken || storedPass?.accessToken || user?.accessToken || null,
     licenseKey: location.state?.accessPass?.licenseKey || storedPass?.licenseKey || user?.licenseKey || 'MENTICO-IN-VIP',
   };
 
