@@ -144,7 +144,7 @@ export const CONFIRMATION_EMAIL_TEMPLATE = `<!DOCTYPE html>
             Total Paid
           </td>
           <td align="right" style="font-size:25px;font-weight:bold;color:#17643b;">
-            &#8377;499.00
+            &#8377;{{{AMOUNT_PAID}}}
           </td>
         </tr>
 
@@ -214,13 +214,15 @@ export const CONFIRMATION_EMAIL_TEMPLATE = `<!DOCTYPE html>
 </body>
 </html>`;
 
-export function renderConfirmationEmail({ name, paymentId, licenseKey, accessToken }) {
+export function renderConfirmationEmail({ name, paymentId, licenseKey, accessToken, amountInPaise }) {
+  const amountPaid = (amountInPaise / 100).toFixed(2);
   const safeName = (name || 'Student').trim();
   const safePaymentId = (paymentId || '').trim();
   const safeLicenseKey = (licenseKey || '').trim();
   const safeToken = encodeURIComponent((accessToken || '').trim());
 
   return CONFIRMATION_EMAIL_TEMPLATE
+    .replace('{{{AMOUNT_PAID}}}', amountPaid)
     .replace('{{{STUDENT_NAME}}}', safeName)
     .replace('{{{PAYMENT_ID}}}', safePaymentId)
     .replace('{{{LICENSE_KEY}}}', safeLicenseKey)
@@ -232,7 +234,7 @@ export function isConfirmationMailConfigured() {
 }
 
 export async function sendConfirmationEmail(
-  { email, name, paymentId, licenseKey, accessToken },
+  { email, name, paymentId, licenseKey, accessToken, amountInPaise },
   { fetcher = fetch } = {}
 ) {
   if (!isConfirmationMailConfigured()) {
@@ -246,7 +248,7 @@ export async function sendConfirmationEmail(
     'Mentico <orders@mentico.co.in>'
   );
 
-  const html = renderConfirmationEmail({ name, paymentId, licenseKey, accessToken });
+  const html = renderConfirmationEmail({ name, paymentId, licenseKey, accessToken, amountInPaise });
 
   const response = await fetcher('https://api.resend.com/emails', {
     method: 'POST',

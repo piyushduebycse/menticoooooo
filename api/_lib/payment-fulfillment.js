@@ -39,6 +39,7 @@ export function assertPaidPurchase({ orderId, paymentId, order, payment, email }
   }
   return {
     orderId, paymentId, email: buyerEmail, name: order.notes.userName || '',
+    amountInPaise: payment.amount,
     uid: order.notes.userId || `buyer_${paymentId}`,
     licenseKey: `MENTICO-IN-${paymentId.slice(4)}-VIP`,
   };

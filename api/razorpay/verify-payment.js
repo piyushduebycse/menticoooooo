@@ -36,6 +36,7 @@ export async function handleVerifyPayment(req, res, { getClient = getRazorpayCli
           email: purchase.email,
           name: purchase.name,
           paymentId: purchase.paymentId,
+          amountInPaise: purchase.amountInPaise,
           licenseKey: purchase.licenseKey,
           accessToken,
         });

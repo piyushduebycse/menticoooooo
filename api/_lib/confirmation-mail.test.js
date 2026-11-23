@@ -13,9 +13,11 @@ test('renderConfirmationEmail: substitutes all variables correctly', () => {
     paymentId: 'pay_test_12345',
     licenseKey: 'MENTICO-IN-TEST-VIP',
     accessToken: 'mtc_test_token_abc',
+    amountInPaise: 24900,
   });
 
   assert.ok(html.includes('Hey Aarav Patel,'));
+  assert.ok(html.includes('&#8377;249.00'));
   assert.ok(html.includes('pay_test_12345'));
   assert.ok(html.includes('MENTICO-IN-TEST-VIP'));
   assert.ok(html.includes('openPdf=true&amp;token=mtc_test_token_abc'));
@@ -48,6 +50,7 @@ test('sendConfirmationEmail: uses Resend API with Idempotency-Key and correct pa
       paymentId: 'pay_test_999',
       licenseKey: 'MENTICO-IN-999-VIP',
       accessToken: 'mtc_signed_access_token_xyz',
+      amountInPaise: 100,
     },
     { fetcher: mockFetcher }
   );
@@ -61,6 +64,7 @@ test('sendConfirmationEmail: uses Resend API with Idempotency-Key and correct pa
   assert.equal(body.to[0], 'student@example.com');
   assert.equal(body.from, 'Mentico <orders@mentico.co.in>');
   assert.ok(body.html.includes('Hey Rohan Sharma,'));
+  assert.ok(body.html.includes('&#8377;1.00'));
   assert.equal(res.id, 'email_mock_resend_id');
 });
 
@@ -144,4 +148,5 @@ test('handleVerifyPayment: dispatches confirmation email upon verified payment',
   assert.equal(sentMailArgs.email, 'buyer@example.com');
   assert.equal(sentMailArgs.name, 'Karan Mehra');
   assert.equal(sentMailArgs.paymentId, 'pay_test12345');
+  assert.equal(sentMailArgs.amountInPaise, 49900);
 });

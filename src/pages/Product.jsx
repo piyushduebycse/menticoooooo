@@ -22,6 +22,8 @@ import { openRazorpayCheckout } from '../services/razorpay';
 import { trackCheckoutInitiated, trackPurchaseSuccess } from '../services/analytics';
 import confetti from 'canvas-confetti';
 
+const courseLoadingNote = '* After purchase, please allow up to 1 minute for the course to load.';
+
 export default function Product() {
   const { user, markPurchased } = useAuth();
   const navigate = useNavigate();
@@ -804,7 +806,7 @@ export default function Product() {
                     className="btn btn-primary btn-lg"
                     style={{
                       width: '100%',
-                      marginBottom: '1rem',
+                      marginBottom: '0.5rem',
                       padding: '1rem 1.5rem',
                       fontSize: '1.05rem',
                       fontWeight: 800,
@@ -831,9 +833,9 @@ export default function Product() {
                     )}
                   </button>
 
-                  <div style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>
-                    Instant Digital PDF Access • One-time payment
-                  </div>
+                  <p style={{ textAlign: 'center', fontSize: '0.78rem', color: 'var(--text-muted)', margin: '0 0 1rem' }}>
+                    {courseLoadingNote}
+                  </p>
                 </>
               )}
 
@@ -867,7 +869,7 @@ export default function Product() {
       {/* ==================================================================
           MOBILE PINNED BOTTOM ACTION BAR
           ================================================================== */}
-      <div className={`mobile-pinned-bottom-bar ${checkoutVisible ? 'checkout-visible' : ''}`} id="mobile-bottom-bar">
+      <div className={`mobile-pinned-bottom-bar ${checkoutVisible ? 'checkout-visible' : ''}`} id="mobile-bottom-bar" style={hasPurchased ? undefined : { flexWrap: 'wrap', rowGap: '0.25rem' }}>
         {hasPurchased ? (
           <>
             <div className="mobile-pinned-pricing-box">
@@ -935,6 +937,9 @@ export default function Product() {
                 </>
               )}
             </button>
+            <p style={{ flexBasis: '100%', margin: 0, textAlign: 'center', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              {courseLoadingNote}
+            </p>
           </>
         )}
       </div>
