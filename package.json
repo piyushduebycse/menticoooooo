@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "oxlint",
-    "test": "node --test api/_lib/pdf-r2-stream.test.js api/_lib/payment-fulfillment.test.js api/_lib/server-auth.test.js",
+    "test": "node --test api/_lib/pdf-r2-stream.test.js api/_lib/payment-fulfillment.test.js api/_lib/server-auth.test.js api/_lib/purchase-recovery.test.js",
     "preview": "vite preview"
   },
   "dependencies": {

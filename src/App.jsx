@@ -17,6 +17,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Login = lazy(() => import('./pages/Login'));
+const RestorePurchase = lazy(() => import('./pages/RestorePurchase'));
 
 // Lightweight page transition loader
 function PageLoadingFallback() {
@@ -51,7 +52,7 @@ function ScrollToTop() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    const titles = { '/': 'Social Freedom', '/purchase': 'Get the course', '/about': 'About Mentico', '/contact': 'Contact & support', '/terms': 'Terms & policies', '/login': 'Member sign in', '/library': 'My library' };
+    const titles = { '/': 'Social Freedom', '/purchase': 'Get the course', '/about': 'About Mentico', '/contact': 'Contact & support', '/terms': 'Terms & policies', '/login': 'Member sign in', '/library': 'My library', '/restore': 'Restore purchase' };
     document.title = `${titles[pathname] || 'Mentico'} · Mentico`;
   }, [pathname]);
 
@@ -72,6 +73,7 @@ function AppLayout() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/restore" element={<RestorePurchase />} />
               <Route path="/about" element={<About />} />
               
               {/* Purchase Route (open to all visitors so they can buy directly) */}

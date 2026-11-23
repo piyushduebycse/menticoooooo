@@ -644,6 +644,7 @@ export default function Product() {
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      <p style={{ fontSize: '.88rem', lineHeight: 1.5 }}>Already purchased? <Link to="/restore" style={{ textDecoration: 'underline', fontWeight: 600 }}>Restore your access</Link> — no need to pay again.</p>
                       {/* Name Input Field */}
                       <div>
                         <label

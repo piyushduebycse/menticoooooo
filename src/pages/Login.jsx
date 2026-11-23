@@ -144,6 +144,7 @@ export default function Login() {
             >
               {tab === 'forgot' ? <KeyRound size={26} /> : <Sparkles size={26} />}
             </div>
+            <p style={{ marginBottom: '1rem', fontSize: '.9rem' }}>Already bought the field guide? <Link to="/restore" style={{ textDecoration: 'underline', fontWeight: 600 }}>Restore your purchase</Link></p>
             <h2 style={{ fontSize: '1.65rem', marginBottom: '0.4rem', fontFamily: 'var(--font-display)' }}>
               {tab === 'login' && 'Sign in to Mentico'}
               {tab === 'signup' && 'Create Your Student Account'}
