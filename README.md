@@ -112,3 +112,9 @@ mentico/
 ## 📄 License
 
 This project is licensed under the MIT License.
+
+### Purchase options and Telegram
+
+`shared/product.js` defines PDF-only (₹299) and PDF + Telegram with mentor guidance (₹499). Orders record `planId` on the server; verification derives benefits from the paid order, never from client flags. Historical orders without a plan remain PDF-only, including historical ₹499 orders. Existing PDF passes continue working.
+
+The ₹499 purchase receives the supplied Telegram invite in checkout confirmation, purchase email, and the library. Library access and recovery recheck the purchase before returning the link. This is the requested shared invite flow, without a bot or per-account approval. Mentor participation is subject to availability. The invite lives only in server code and must not be added to public frontend assets.

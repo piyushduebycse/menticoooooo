@@ -1,3 +1,4 @@
+import PurchasePlans from '../components/PurchasePlans';
 import { PRODUCT_PRICE_INR, PRODUCT_ORIGINAL_PRICE_INR } from '../../shared/product.js';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -258,6 +259,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <div className="mentico-container" id="purchase-options"><PurchasePlans/></div>
 
         {/* 4. What You'll Learn Section */}
         <section

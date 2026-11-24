@@ -1,5 +1,6 @@
+import PurchasePlans from '../components/PurchasePlans';
 import { PENDING_PAYMENT_KEY, readPendingPayment, confirmPayment } from '../services/purchase';
-import { PRODUCT_PRICE_INR, PRODUCT_ORIGINAL_PRICE_INR } from '../../shared/product.js';
+import { getProductPlan, PRODUCT_ORIGINAL_PRICE_INR } from '../../shared/product.js';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
@@ -85,7 +86,9 @@ export default function Product() {
   }, [user]);
 
   const originalPrice = PRODUCT_ORIGINAL_PRICE_INR; // in INR
-  const currentPrice = PRODUCT_PRICE_INR;
+  const [selectedPlan, setSelectedPlan] = useState(() => getProductPlan(searchParams.get('plan'))?.id || 'pdf');
+  const plan = getProductPlan(selectedPlan);
+  const currentPrice = plan.priceInr;
 
   const [pendingPayment, setPendingPayment] = useState(readPendingPayment);
   const activatePurchase = async (receipt) => {
@@ -97,10 +100,10 @@ export default function Product() {
     } catch {}
     setPendingPayment(null);
     markPurchased?.(accessPass);
-    trackPurchaseSuccess({ orderId: data.orderId, paymentId: data.paymentId, amount: currentPrice });
+    trackPurchaseSuccess({ orderId: data.orderId, paymentId: data.paymentId, amount: data.amountInPaise / 100 });
     try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } }); } catch {}
     setPurchaseSuccess(true);
-    navigate('/library?openPdf=true', { state: { openPdf: true, fromPayment: true, accessPass } });
+    navigate(data.hasTelegramAccess ? '/library' : '/library?openPdf=true', { state: { openPdf: !data.hasTelegramAccess, fromPayment: true, accessPass } });
   };
 
   const handlePurchase = async () => {
@@ -147,6 +150,7 @@ export default function Product() {
           name: trimmedName,
           email: trimmedEmail,
           phone: buyerPhone.trim(),
+          planId: selectedPlan,
           displayedAmountInPaise: Math.round(currentPrice * 100),
         }),
       });
@@ -286,6 +290,7 @@ export default function Product() {
         {/* ==================================================================
             MAIN CONTENT & STICKY CHECKOUT GRID
             ================================================================== */}
+        {!hasPurchased && <PurchasePlans selected={selectedPlan} onSelect={setSelectedPlan} disabled={isPurchasing || Boolean(pendingPayment)}/> }
         <div className="product-overview-grid" style={{ alignItems: 'start' }}>
           
           {/* Left Column: What You're Getting, Practice Philosophy & Call to Action */}
@@ -566,7 +571,7 @@ export default function Product() {
                       marginBottom: '1.25rem',
                     }}
                   >
-                    ₹{currentPrice} | One-time payment | Instant Digital PDF Access
+                    ₹{currentPrice} | One-time payment | {plan.hasTelegramAccess ? 'PDF + Telegram & mentor guidance' : 'Instant Digital PDF Access'}
                   </div>
 
                   {/* Price display in INR */}

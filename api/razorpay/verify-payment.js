@@ -1,5 +1,6 @@
 import { getRazorpayClient, verifyRazorpayPaymentSignature } from '../_lib/razorpay-admin.js';
 import { getVerifiedPurchase, assertMenticoOrder, validatePurchaseIds, PurchaseError } from '../_lib/payment-fulfillment.js';
+import { purchaseBenefits } from '../_lib/purchase-benefits.js';
 import { createAccessToken } from '../_lib/access-token.js';
 import { isConfirmationMailConfigured, sendConfirmationEmail } from '../_lib/confirmation-mail.js';
 
@@ -37,6 +38,7 @@ export async function handleVerifyPayment(req, res, { getClient = getRazorpayCli
           name: purchase.name,
           paymentId: purchase.paymentId,
           amountInPaise: purchase.amountInPaise,
+          ...purchaseBenefits(purchase),
           licenseKey: purchase.licenseKey,
           accessToken,
         });
@@ -46,7 +48,7 @@ export async function handleVerifyPayment(req, res, { getClient = getRazorpayCli
       }
     }
 
-    return res.status(200).json({ success: true, verified: true, ...purchase, accessToken, emailSent,
+    return res.status(200).json({ success: true, verified: true, ...purchase, ...purchaseBenefits(purchase), accessToken, emailSent,
       hasPurchased: true, hasPurchasedPdf: true, message: 'Your field guide is ready.' });
   } catch (err) {
     if (!(err instanceof PurchaseError)) console.error('[Verify payment failed]', err.message);

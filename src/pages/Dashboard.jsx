@@ -1,3 +1,4 @@
+import TelegramAccess from '../components/TelegramAccess';
 import React, { useState, useEffect } from 'react';
 import {
   Download,
@@ -126,6 +127,7 @@ export default function Dashboard() {
   return (
     <div className="section" style={{ paddingTop: '2.5rem' }}>
       <div className="container">
+        <TelegramAccess accessToken={effectiveUser.accessToken}/>
         {/* ==================================================================
             DASHBOARD HEADER: STUDENT STATUS & LICENSE KEY
             ================================================================== */}

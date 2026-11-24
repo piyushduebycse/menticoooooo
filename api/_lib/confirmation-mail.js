@@ -214,14 +214,16 @@ export const CONFIRMATION_EMAIL_TEMPLATE = `<!DOCTYPE html>
 </body>
 </html>`;
 
-export function renderConfirmationEmail({ name, paymentId, licenseKey, accessToken, amountInPaise }) {
+export function renderConfirmationEmail({ name, paymentId, licenseKey, accessToken, amountInPaise, telegramInviteUrl, hasTelegramAccess }) {
   const amountPaid = (amountInPaise / 100).toFixed(2);
   const safeName = (name || 'Student').trim();
   const safePaymentId = (paymentId || '').trim();
   const safeLicenseKey = (licenseKey || '').trim();
   const safeToken = encodeURIComponent((accessToken || '').trim());
 
-  return CONFIRMATION_EMAIL_TEMPLATE
+  const telegramSection = hasTelegramAccess && telegramInviteUrl
+    ? `<table role="presentation" width="100%" style="margin-top:24px;background:#faf3e9;border:1px solid #dfcbb8;border-radius:12px"><tr><td style="padding:24px"><h2 style="margin-top:0;color:#4e2313">Your Telegram access is included</h2><p>Join the Mentico community for updates and guidance from the Mentico mentor, subject to availability.</p><p><a href="${telegramInviteUrl}" style="font-weight:bold;color:#4e2313">Join Mentico on Telegram →</a></p><p style="word-break:break-all">Copy and paste this link into Telegram: ${telegramInviteUrl}</p><p style="font-size:12px">Please keep this members-only link private.</p></td></tr></table>` : '';
+  return CONFIRMATION_EMAIL_TEMPLATE.replace('<!-- Course Access -->', telegramSection + '<!-- Course Access -->')
     .replace('{{{AMOUNT_PAID}}}', amountPaid)
     .replace('{{{STUDENT_NAME}}}', safeName)
     .replace('{{{PAYMENT_ID}}}', safePaymentId)
@@ -234,7 +236,7 @@ export function isConfirmationMailConfigured() {
 }
 
 export async function sendConfirmationEmail(
-  { email, name, paymentId, licenseKey, accessToken, amountInPaise },
+  { email, name, paymentId, licenseKey, accessToken, amountInPaise, telegramInviteUrl, hasTelegramAccess },
   { fetcher = fetch } = {}
 ) {
   if (!isConfirmationMailConfigured()) {
@@ -248,7 +250,7 @@ export async function sendConfirmationEmail(
     'Mentico <orders@mentico.co.in>'
   );
 
-  const html = renderConfirmationEmail({ name, paymentId, licenseKey, accessToken, amountInPaise });
+  const html = renderConfirmationEmail({ name, paymentId, licenseKey, accessToken, amountInPaise, telegramInviteUrl, hasTelegramAccess });
 
   const response = await fetcher('https://api.resend.com/emails', {
     method: 'POST',

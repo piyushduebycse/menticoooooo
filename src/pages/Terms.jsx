@@ -1,4 +1,4 @@
-import { PRODUCT_PRICE_INR } from '../../shared/product.js';
+import { PRODUCT_PRICE_INR, PRODUCT_PLANS } from '../../shared/product.js';
 import React from 'react';
 import { Shield, FileText, CheckCircle2, AlertCircle, Mail, Printer } from 'lucide-react';
 
@@ -35,11 +35,12 @@ export default function Terms() {
               marginBottom: '0.5rem',
             }}
           >
-            Social Freedom Course | One-Time Purchase: ₹{PRODUCT_PRICE_INR}
+            PDF: ₹{PRODUCT_PRICE_INR} | PDF + Telegram & mentor guidance: ₹{PRODUCT_PLANS.pdf_mentor.priceInr} | One-time purchase
           </p>
           <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', maxWidth: '620px', margin: '0 auto' }}>
             By purchasing, downloading, or accessing the Mentico Social Freedom Course, you agree to the following Terms &amp; Conditions.
           </p>
+          <p>Mentor participation and guidance are subject to availability. The Telegram plan does not include guaranteed response times or scheduled one-to-one sessions.</p>
         </div>
 
         {/* Action Toolbar */}

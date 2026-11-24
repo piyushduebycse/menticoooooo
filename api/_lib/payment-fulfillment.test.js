@@ -12,7 +12,7 @@ const args = { orderId:order.id, paymentId:payment.id, order, payment };
 const response = () => ({ setHeader(){}, status(code){ this.code=code; return this; }, json(body){this.body=body;return this;} });
 const client = (o=order,p=payment) => ({ orders:{fetch:async()=>o},payments:{fetch:async()=>p} });
 test('catalog keeps regular prices and charges the configured mode price',()=>{
- assert.equal(price.PRODUCT_ORIGINAL_PRICE_INR,799); assert.equal(price.PRODUCT_SALE_PRICE_INR,249); const expectedPrice = price.PRODUCT_TESTING_PRICE_ENABLED ? 1 : 249; assert.equal(price.PRODUCT_PRICE_INR,expectedPrice); assert.equal(price.PRODUCT_AMOUNT_IN_PAISE,expectedPrice * 100);
+ assert.equal(price.PRODUCT_ORIGINAL_PRICE_INR,799); assert.equal(price.PRODUCT_SALE_PRICE_INR,299); const expectedPrice = price.PRODUCT_TESTING_PRICE_ENABLED ? 1 : 299; assert.equal(price.PRODUCT_PRICE_INR,expectedPrice); assert.equal(price.PRODUCT_AMOUNT_IN_PAISE,expectedPrice * 100);
 });
 test('only matching captured, fully paid, unrefunded purchases grant access',()=>{
  assert.equal(assertPaidPurchase(args).email,'buyer@example.com');

@@ -1,3 +1,4 @@
+import { purchaseBenefits } from '../_lib/purchase-benefits.js';
 import { verifyAuthUser } from '../_lib/server-auth.js';
 
 /**
@@ -29,6 +30,7 @@ export default async function handler(req, res) {
       name: authUser.name,
       emailVerified: authUser.emailVerified,
       hasPurchased: authUser.hasPurchased,
+      ...purchaseBenefits(authUser),
     },
     serverVerified: true,
     timestamp: new Date().toISOString(),

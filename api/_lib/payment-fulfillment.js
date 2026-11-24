@@ -1,3 +1,4 @@
+import { getProductPlan } from '../../shared/product.js';
 import { getRazorpayClient } from './razorpay-admin.js';
 
 export class PurchaseError extends Error {
@@ -33,13 +34,19 @@ export function assertPaidPurchase({ orderId, paymentId, order, payment, email }
       order.amount_paid !== order.amount || order.amount_due !== 0) {
     throw new PurchaseError('Payment is awaiting confirmation. Please confirm it again shortly; do not pay again.', 409);
   }
+  // Historical orders without a plan remain PDF-only, even if they cost ₹499.
+  const planId = order.notes.planId || 'pdf';
+  const plan = getProductPlan(planId);
+  if (!plan || (order.notes.planId && order.amount !== plan.amountInPaise)) {
+    throw new PurchaseError('The purchase option does not match the paid amount.');
+  }
   const buyerEmail = order.notes.userEmail.trim().toLowerCase();
   if (email && buyerEmail !== email.trim().toLowerCase()) {
     throw new PurchaseError('The access pass does not match this purchase.');
   }
   return {
     orderId, paymentId, email: buyerEmail, name: order.notes.userName || '',
-    amountInPaise: payment.amount,
+    amountInPaise: payment.amount, planId, hasTelegramAccess: plan.hasTelegramAccess,
     uid: order.notes.userId || `buyer_${paymentId}`,
     licenseKey: `MENTICO-IN-${paymentId.slice(4)}-VIP`,
   };

@@ -1,3 +1,4 @@
+import { purchaseBenefits } from '../_lib/purchase-benefits.js';
 import { verifyRecoveryToken } from '../_lib/recovery-token.js';
 import { getVerifiedPurchase, PurchaseError } from '../_lib/payment-fulfillment.js';
 import { createAccessToken } from '../_lib/access-token.js';
@@ -9,7 +10,7 @@ export async function handleRestore(req, res, { verifyPurchase = getVerifiedPurc
   try {
     // Recheck refunds even if the payment was valid when the email was sent.
     const purchase = await verifyPurchase({ orderId: pass.orderId, paymentId: pass.paymentId, email: pass.email });
-    return res.status(200).json({ success: true, ...purchase, accessToken: createAccessToken(purchase), hasPurchased: true, hasPurchasedPdf: true });
+    return res.status(200).json({ success: true, ...purchase, ...purchaseBenefits(purchase), accessToken: createAccessToken(purchase), hasPurchased: true, hasPurchasedPdf: true });
   } catch (err) {
     return res.status(err instanceof PurchaseError ? err.status : 503).json({ success: false,
       error: err instanceof PurchaseError ? 'This purchase is not currently eligible for access. Contact support if you need help.' : 'We could not confirm your purchase. Keep this link and retry shortly; please do not pay again.' });

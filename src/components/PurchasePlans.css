@@ -1,0 +1,30 @@
+.purchase-plans { margin-block: 12px 36px; color: #341e13; }
+.purchase-plans-intro { margin-bottom: 22px; }
+.purchase-plans-intro h2 { font-family: var(--font-display); font-size: clamp(1.8rem, 5vw, 2.5rem); line-height: 1.12; letter-spacing: -.025em; margin: 16px 0 12px; max-width: 700px; text-wrap: balance; }
+.purchase-plans-intro p { color: #705b4c; line-height: 1.6; }
+.purchase-plan-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }
+.purchase-plan { display: flex; flex-direction: column; padding: clamp(20px,3vw,30px); border: 1px solid #d9c5b1; border-radius: 18px; background: #fffaf3; min-width: 0; }
+.purchase-plan.is-mentor { background: #f4e7d6; }
+.purchase-plan.is-selected { border-color: #673b24; box-shadow: inset 0 0 0 1px #673b24; }
+.purchase-plan-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.purchase-plan h3 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; margin: 0; }
+.purchase-plan-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; margin: 18px 0 20px; }
+.purchase-plan-price span { font-family: var(--font-body); font-size: .8rem; font-weight: 500; color: #705b4c; }
+.purchase-plan ul { list-style: none; padding: 0; margin: 0 0 24px; flex: 1; }
+.purchase-plan li { display: flex; align-items: flex-start; gap: 9px; font-size: .92rem; line-height: 1.6; margin-bottom: 12px; }
+.purchase-plan li svg { flex-shrink: 0; margin-top: 4px; }
+.purchase-plan-select { display: flex; align-items: center; gap: 10px; cursor: pointer; border-radius: 10px; border: 1px solid #ba9980; padding: 14px 12px; font-size: .88rem; font-weight: 700; min-height: 50px; background: #fffaf3; }
+.purchase-plan-select input { width: 18px; height: 18px; accent-color: #4e2313; flex-shrink: 0; }
+.purchase-plan-select:focus-within { outline: 2px solid #673b24; outline-offset: 3px; }
+.purchase-plan-select.is-disabled { opacity: .65; cursor: default; }
+.purchase-plan-note { margin-top: 14px; font-size: .8rem; line-height: 1.6; color: #705b4c; }
+.mentico-card-not-pickup, .mentico-card-not-pickup p, .mentico-card-not-pickup span, .mentico-card-not-pickup li { font-weight: 700; }
+.telegram-access { background: #f4e7d6; border: 1px solid #d9c5b1; border-radius: 18px; padding: clamp(20px,3vw,28px); margin-bottom: 24px; }
+.telegram-access h2 { font-family: var(--font-display); font-size: 1.6rem; line-height: 1.2; margin: 14px 0 12px; }
+.telegram-access p { color: #705b4c; line-height: 1.6; }
+.telegram-access-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-block: 20px 14px; }
+.telegram-access input { width: 100%; min-width: 0; padding: 12px; font: inherit; font-size: 14px; border: 1px solid #ba9980; border-radius: 8px; background: #fffaf3; color: #341e13; }
+.telegram-access label { display: block; margin-bottom: 8px; font-size: .85rem; font-weight: 600; }
+.telegram-access .telegram-access-note { font-size: .8rem; margin-top: 12px; }
+@media(max-width:640px) { .purchase-plan-grid { grid-template-columns: 1fr; gap: 14px; } .purchase-plan .btn { white-space: normal; } .telegram-access-actions .btn { flex: 1 1 100%; } }
+.mentico-card-not-pickup .mentico-compare-item span { font-weight: 700; }
