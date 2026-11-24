@@ -64,6 +64,8 @@ export default function Home() {
       badge: 'Framework',
       title: 'Charisma, Perspective & Connection',
       art: '/images/sneak_peek_1.jpg',
+      width: 576,
+      height: 1024,
       full: '/images/sneak_peek_1.jpg',
     },
     {
@@ -71,6 +73,8 @@ export default function Home() {
       badge: 'A Real Truth',
       title: 'The Belief Cycle & Overcoming Anxiety',
       art: '/images/sneak_peek_2.jpg',
+      width: 682,
+      height: 1024,
       full: '/images/sneak_peek_2.jpg',
     },
     {
@@ -78,6 +82,8 @@ export default function Home() {
       badge: 'Action Guide',
       title: 'Storytelling, Humour & Going Deeper',
       art: '/images/sneak_peek_3.jpg',
+      width: 682,
+      height: 1024,
       full: '/images/sneak_peek_3.jpg',
     },
   ];
@@ -294,6 +300,8 @@ export default function Home() {
               <div>
                 <img
                   src="/images/book_isolated.jpg"
+                  width="400"
+                  height="580"
                   alt="Mentico Social Freedom book cover"
                   className="mentico-inside-book-img"
                 />
@@ -438,6 +446,8 @@ export default function Home() {
                     <div className="mentico-sneak-card-art-wrap">
                       <img
                         src={item.art}
+                        width={item.width}
+                        height={item.height}
                         alt={item.title}
                         className="mentico-sneak-card-art"
                         loading="lazy"
