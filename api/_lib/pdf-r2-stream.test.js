@@ -284,3 +284,12 @@ test('Case H: Server-authorized guest receives range stream', async () => {
   const data = Buffer.concat(res.chunks);
   assert.equal(data.length, 65536);
 });
+
+test('paid download requests use attachment headers and keep HTTP range delivery', async () => {
+  const req = { method: 'HEAD', url: '/api/pdf/social-freedom?download=1', query: { bookId: 'social-freedom', download: '1' }, headers: {} };
+  const res = createMockResponse();
+  await handlePdfStream(req, res, { authVerifier: async () => ({ hasPurchased: true }) });
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.headers['content-disposition'], 'attachment; filename="Mentico-Social-Freedom.pdf"');
+  assert.equal(res.headers['accept-ranges'], 'bytes');
+});

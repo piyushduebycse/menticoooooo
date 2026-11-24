@@ -35,12 +35,12 @@ export default function Terms() {
               marginBottom: '0.5rem',
             }}
           >
-            PDF: ₹{PRODUCT_PRICE_INR} | PDF + Telegram & mentor guidance: ₹{PRODUCT_PLANS.pdf_mentor.priceInr} | One-time purchase
+            PDF: ₹{PRODUCT_PRICE_INR} | Private Community & Support: ₹{PRODUCT_PLANS.pdf_mentor.priceInr} | One-time purchase
           </p>
           <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', maxWidth: '620px', margin: '0 auto' }}>
             By purchasing, downloading, or accessing the Mentico Social Freedom Course, you agree to the following Terms &amp; Conditions.
           </p>
-          <p>Mentor participation and guidance are subject to availability. The Telegram plan does not include guaranteed response times or scheduled one-to-one sessions.</p>
+          <p>Mentor participation and guidance are subject to availability. Private Community & Support does not include guaranteed response times or scheduled one-to-one sessions.</p>
         </div>
 
         {/* Action Toolbar */}
@@ -160,7 +160,7 @@ export default function Terms() {
 
           {/* Section 4 */}
           <div style={{ marginBottom: '2rem' }}>
-            <h2
+            <h2 id="refunds"
               style={{
                 fontSize: '1.25rem',
                 fontWeight: 800,
@@ -321,6 +321,11 @@ export default function Terms() {
 
           <div style={{ height: '2px', backgroundColor: 'var(--border-main)', margin: '2rem 0' }} />
 
+          <section aria-labelledby="privacy" style={{ marginBottom: '2rem' }}>
+            <h2 id="privacy" style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.75rem' }}>Privacy &amp; purchase information</h2>
+            <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>We use your checkout name, email and payment reference to deliver your field guide, send purchase emails, verify access and respond to support requests. Payments are processed by Razorpay; Mentico does not receive or store your full card details. Purchase emails are sent through Resend, and hosting and storage providers support delivery of the website and PDF.</p>
+            <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>Your purchase link is saved in your browser so you can return to your downloads. Contact margmanpath@gmail.com with questions about your purchase information or privacy.</p>
+          </section>
           {/* Copyright & Support */}
           <div
             style={{

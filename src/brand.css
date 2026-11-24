@@ -156,3 +156,9 @@ body[data-menu-open="true"] .mentico-sticky-bar { visibility: hidden !important;
   .product-checkout-card { top: auto !important; }
   .product-details > .card:last-child > div { gap: 12px !important; }
 }
+
+#refunds, #privacy { scroll-margin-top: 100px; }
+/* Checkout no longer has a pinned bar: keep the footer compact. */
+.site-footer { padding: 36px 0 28px; }
+.app-wrapper.landing-mode .site-footer { padding-bottom: calc(92px + env(safe-area-inset-bottom)); }
+.mentico-home.refreshed-home { padding-bottom: 0; }

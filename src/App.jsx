@@ -17,7 +17,6 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Contact = lazy(() => import('./pages/Contact'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Login = lazy(() => import('./pages/Login'));
-const RestorePurchase = lazy(() => import('./pages/RestorePurchase'));
 
 // Lightweight page transition loader
 function PageLoadingFallback() {
@@ -48,13 +47,26 @@ function PageLoadingFallback() {
 
 // Scroll to top helper on route navigation
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
 
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    const titles = { '/': 'Social Freedom', '/purchase': 'Get the course', '/about': 'About Mentico', '/contact': 'Contact & support', '/terms': 'Terms & policies', '/login': 'Member sign in', '/library': 'My library', '/restore': 'Restore purchase' };
+    if (!hash) window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    const titles = { '/': 'Social Freedom', '/purchase': 'Get the course', '/about': 'About Mentico', '/contact': 'Contact & support', '/terms': 'Terms & policies', '/login': 'Member sign in', '/library': 'My downloads' };
     document.title = `${titles[pathname] || 'Mentico'} · Mentico`;
-  }, [pathname]);
+    if (!hash) return;
+    let targetId;
+    try { targetId = decodeURIComponent(hash.slice(1)); } catch { return; }
+    const scroll = () => {
+      const target = document.getElementById(targetId);
+      if (target) { target.scrollIntoView({ block: 'start' }); return true; }
+      return false;
+    };
+    if (scroll()) return;
+    const observer = new MutationObserver(() => { if (scroll()) observer.disconnect(); });
+    observer.observe(document.body, { childList: true, subtree: true });
+    const timeout = setTimeout(() => observer.disconnect(), 3000);
+    return () => { observer.disconnect(); clearTimeout(timeout); };
+  }, [pathname, hash]);
 
   return null;
 }
@@ -73,7 +85,7 @@ function AppLayout() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/restore" element={<RestorePurchase />} />
+              <Route path="/restore" element={<Navigate to="/library" replace />} />
               <Route path="/about" element={<About />} />
               
               {/* Purchase Route (open to all visitors so they can buy directly) */}

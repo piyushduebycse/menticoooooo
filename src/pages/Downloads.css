@@ -1,0 +1,30 @@
+.downloads-page { max-width: 1000px; padding-block: 32px 48px; }
+.downloads-welcome { margin-bottom: 24px; }
+.downloads-welcome .badge-red { display: inline-flex; align-items: center; gap: 7px; }
+.downloads-welcome h1 { font: 800 clamp(36px,6vw,56px)/1.05 var(--font-display); letter-spacing: -.045em; margin: 18px 0 14px; color: #341e13; }
+.downloads-welcome p { font-size: 16px; line-height: 1.6; color: #705b4c; max-width: 590px; }
+.download-book-card { display: grid; grid-template-columns: 180px 1fr; gap: 30px; align-items: center; background: #f5e8d6; border: 1px solid #d4b796; border-radius: 20px; padding: 30px; margin-bottom: 24px; }
+.download-book-card > img { width: 100%; max-height: 280px; object-fit: contain; }
+.downloads-eyebrow { font-size: 10px; letter-spacing: .08em; color: #98613c; font-weight: 700; }
+.download-book-card h2 { font: 700 clamp(25px,4vw,34px)/1.1 var(--font-display); margin: 12px 0; }
+.download-book-card p { font-size: 15px; line-height: 1.65; color: #705b4c; }
+.download-book-badges { display: flex; flex-wrap: wrap; gap: 12px; margin: 18px 0; }
+.download-book-badges span { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
+.download-primary { width: 100%; font-size: 18px; min-height: 60px; margin-block: 4px 12px; white-space: normal; }
+.download-book-card .downloads-fine-print { font-size: 12px; }
+.download-book-card .download-error { background: #ffede4; color: #7c291b; border-radius: 8px; padding: 12px; }
+.download-book-card .download-success { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #385c36; margin-bottom: 12px; }
+.download-success svg { flex-shrink: 0; margin-top: 3px; }
+.download-progress { width: 100%; height: 10px; accent-color: #673b24; margin-bottom: 12px; }
+.downloads-help { display: flex; align-items: flex-start; gap: 14px; padding-block: 12px; }
+.downloads-help > svg { flex-shrink: 0; color: #98613c; margin-top: 3px; }
+.downloads-help h2 { font: 700 21px/1.2 var(--font-display); margin-bottom: 10px; }
+.downloads-help p { font-size: 14px; color: #705b4c; line-height: 1.6; }
+.downloads-help a { display: inline-flex; align-items: center; gap: 7px; margin-top: 12px; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+@media(max-width:640px){ .downloads-page { padding-block: 24px 36px; } .download-book-card { grid-template-columns: 1fr; gap: 20px; padding: 24px 20px; } .download-book-card > img { width: 110px; max-height: 160px; margin-inline: auto; } .download-primary { min-height: 64px; font-size: 17px; } }
+@media(max-width:640px){
+  .download-book-card { display: block; }
+  .download-book-card > img { float: right; width: 76px; height: 108px; margin: 0 0 12px 16px; }
+  .download-book-card h2 { font-size: 24px; }
+  .download-book-badges { clear: both; }
+}

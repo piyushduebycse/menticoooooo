@@ -13,16 +13,7 @@ export function clearMetadataCache() {
   R2_METADATA_CACHE.clear();
 }
 
-/**
- * Vercel Serverless Function: GET & HEAD /api/pdf/[bookId]
- * Streams protected PDFs from Cloudflare R2 using HTTP 206 Partial Content range requests.
- * 
- * Strict Enforcement:
- * 1. Firebase ID Token Verification (via Firebase Admin Auth)
- * 2. Purchase Verification (Firebase Realtime Database & Cloud Firestore)
- * 3. Server-Controlled Book Allowlist (prevents arbitrary storage key access)
- * 4. Byte-Range Streaming (Fast first-page display without full download)
- */
+/** Paid PDF delivery with range support for reliable complete-file downloads. */
 export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser, resolvePublication = resolveBook } = {}) {
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
   res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
@@ -68,6 +59,9 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser,
     });
   }
 
+  const wantsDownload = req.query?.download === '1' || new URL(req.url || '/', 'https://mentico.co.in').searchParams.get('download') === '1';
+  const contentDisposition = `${wantsDownload ? 'attachment' : 'inline'}; filename="Mentico-Social-Freedom.pdf"`;
+  res.setHeader('Content-Disposition', contentDisposition);
   const rangeHeader = req.headers.range || req.headers.Range;
 
   // 5. Cloudflare R2 Delivery (Primary Production Pipeline)
@@ -134,7 +128,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser,
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Length', totalSize);
         res.setHeader('Cache-Control', 'private, no-store, max-age=0');
-        res.setHeader('Content-Disposition', `inline; filename="${book.bookId}.pdf"`);
+        res.setHeader('Content-Disposition', contentDisposition);
         return res.status(200).end();
       }
 
@@ -171,7 +165,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser,
         res.setHeader('Content-Length', chunkSize);
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Cache-Control', 'private, no-store, max-age=0');
-        res.setHeader('Content-Disposition', `inline; filename="${book.bookId}.pdf"`);
+        res.setHeader('Content-Disposition', contentDisposition);
 
         // Stream range data directly to response
         pipeBodyToResponse(r2Response.Body, res);
@@ -191,7 +185,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser,
       res.setHeader('Content-Length', totalSize);
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Cache-Control', 'private, no-store, max-age=0');
-      res.setHeader('Content-Disposition', `inline; filename="${book.bookId}.pdf"`);
+      res.setHeader('Content-Disposition', contentDisposition);
 
       pipeBodyToResponse(r2Response.Body, res);
       return;

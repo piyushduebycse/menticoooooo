@@ -161,10 +161,10 @@ export default function PdfHighlightsModal({ isOpen, onClose, onUnlock, currentP
               170 Additional Pages & Field Cheatsheets Locked
             </div>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: '0 auto 0.75rem', maxWidth: '440px' }}>
-              Modules 3, 4, 5, 6, the 30-Day Social Freedom Challenge, Placement Viva Scripts, and Dating Poise Cheatsheets unlock in the Protected Web Reader upon enrollment.
+              Modules 3, 4, 5, 6, the 30-Day Social Freedom Challenge, Placement Viva Scripts, and Dating Poise Cheatsheets are included in your downloadable field guide after purchase.
             </p>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              <span>✓ Protected Web Reader</span>
+              <span>✓ Downloadable PDF</span>
               <span>✓ Lifetime Access</span>
               <span>✓ 30-Day Refund Guarantee</span>
             </div>

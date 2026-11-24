@@ -27,7 +27,7 @@ export default function TelegramAccess({ accessToken }) {
     catch { setCopyMessage('Select and copy the link from the field below.'); }
   };
   return <section className="telegram-access" aria-labelledby="telegram-access-title">
-    <span className="badge-red">INCLUDED IN YOUR ₹499 PLAN</span><h2 id="telegram-access-title">Your Mentico community is waiting.</h2><p>Join us on Telegram for community access and guidance from the Mentico mentor, subject to availability.</p>
+    <span className="badge-red">INCLUDED IN YOUR ₹499 PLAN</span><h2 id="telegram-access-title">Your Private Community & Support.</h2><p>Join us on Telegram for community access and guidance from the Mentico mentor, subject to availability.</p>
     <div className="telegram-access-actions"><a className="btn btn-primary" href={state.url} target="_blank" rel="noopener noreferrer"><MessageCircle size={18}/>Join on Telegram<ExternalLink size={16}/></a><button className="btn btn-secondary" onClick={copy}><Copy size={17}/>Copy Telegram link</button></div>
     <label htmlFor="telegram-invite">Or copy and paste this link into Telegram</label><input id="telegram-invite" readOnly value={state.url} onFocus={event => event.target.select()}/>
     <p role="status" className="telegram-access-note">{copyMessage || 'Please keep this members-only invite private.'}</p>

@@ -59,7 +59,7 @@ export const CONFIRMATION_EMAIL_TEMPLATE = `<!DOCTYPE html>
       <p style="font-size:15px;line-height:1.8;color:#4b5563;">
         Congratulations on taking the next step in your
         learning journey! Your purchase of the
-        <strong>Mentico Super Course</strong> is confirmed,
+        <strong>Social Freedom Field Guide</strong> is confirmed,
         and your course is ready to explore.
       </p>
 
@@ -69,11 +69,11 @@ export const CONFIRMATION_EMAIL_TEMPLATE = `<!DOCTYPE html>
           <td style="padding:24px;">
 
             <h2 style="margin:0;font-size:21px;color:#111827;">
-              Mentico Super Course
+              Social Freedom Field Guide
             </h2>
 
             <p style="color:#64748b;font-size:13px;margin:8px 0 24px;">
-              Digital Course &bull; Instant Access
+              Downloadable PDF &bull; Lifetime access
             </p>
 
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
@@ -81,7 +81,7 @@ export const CONFIRMATION_EMAIL_TEMPLATE = `<!DOCTYPE html>
                 <td align="center" bgcolor="#17643b" style="border-radius:8px;">
                   <a href="https://www.mentico.co.in/library?openPdf=true&amp;token={{{ACCESS_TOKEN}}}"
                      style="display:block;padding:17px 20px;color:#ffffff;text-decoration:none;font-size:17px;font-weight:bold;border-radius:8px;">
-                    Access Now &rarr;
+                    Download Your PDF &rarr;
                   </a>
                 </td>
               </tr>
@@ -108,7 +108,7 @@ export const CONFIRMATION_EMAIL_TEMPLATE = `<!DOCTYPE html>
             Product
           </td>
           <td align="right" style="font-weight:bold;border-bottom:1px solid #e5e7eb;">
-            Mentico Super Course
+            Social Freedom Field Guide
           </td>
         </tr>
 
@@ -200,7 +200,7 @@ export const CONFIRMATION_EMAIL_TEMPLATE = `<!DOCTYPE html>
       <p style="font-size:11px;line-height:1.8;color:#a3bbab;border-top:1px solid #354039;padding-top:20px;margin-top:24px;">
         &copy; 2026 Mentico. All rights reserved.<br>
         You received this email because you successfully
-        purchased the Mentico Super Course.
+        purchased the Social Freedom Field Guide.
       </p>
 
     </td>
@@ -222,7 +222,7 @@ export function renderConfirmationEmail({ name, paymentId, licenseKey, accessTok
   const safeToken = encodeURIComponent((accessToken || '').trim());
 
   const telegramSection = hasTelegramAccess && telegramInviteUrl
-    ? `<table role="presentation" width="100%" style="margin-top:24px;background:#faf3e9;border:1px solid #dfcbb8;border-radius:12px"><tr><td style="padding:24px"><h2 style="margin-top:0;color:#4e2313">Your Telegram access is included</h2><p>Join the Mentico community for updates and guidance from the Mentico mentor, subject to availability.</p><p><a href="${telegramInviteUrl}" style="font-weight:bold;color:#4e2313">Join Mentico on Telegram →</a></p><p style="word-break:break-all">Copy and paste this link into Telegram: ${telegramInviteUrl}</p><p style="font-size:12px">Please keep this members-only link private.</p></td></tr></table>` : '';
+    ? `<table role="presentation" width="100%" style="margin-top:24px;background:#faf3e9;border:1px solid #dfcbb8;border-radius:12px"><tr><td style="padding:24px"><h2 style="margin-top:0;color:#4e2313">Your Private Community &amp; Support is included</h2><p>Join the Mentico community for updates and guidance from the Mentico mentor, subject to availability.</p><p><a href="${telegramInviteUrl}" style="font-weight:bold;color:#4e2313">Join Mentico on Telegram →</a></p><p style="word-break:break-all">Copy and paste this link into Telegram: ${telegramInviteUrl}</p><p style="font-size:12px">Please keep this members-only link private.</p></td></tr></table>` : '';
   return CONFIRMATION_EMAIL_TEMPLATE.replace('<!-- Course Access -->', telegramSection + '<!-- Course Access -->')
     .replace('{{{AMOUNT_PAID}}}', amountPaid)
     .replace('{{{STUDENT_NAME}}}', safeName)

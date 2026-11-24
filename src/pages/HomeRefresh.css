@@ -1,0 +1,85 @@
+.refreshed-home .home-sections { padding-bottom: 32px; }
+.promise-hero { text-align: center; padding-block: clamp(28px,5vw,56px) 30px; max-width: 1050px; }
+.promise-hero .mentico-label-pill { font-size: clamp(10px,2.8vw,13px); letter-spacing: .045em; padding: 9px 15px; margin-bottom: 20px; }
+.mentico-home .promise-hero h1 { font-family: var(--font-display); font-size: clamp(36px,5.7vw,68px); font-weight: 800; line-height: 1.07; letter-spacing: -.045em; margin: 0 auto 16px; color: #29160e; text-wrap: balance; }
+.promise-hero h1 span { display: block; color: #a3471e; }
+.promise-audience { font-size: 14px; font-weight: 700; color: #673b24; margin: 0 0 10px; }
+.promise-description { max-width: 680px; margin: 0 auto 24px; font-size: clamp(16px,2.2vw,21px); line-height: 1.6; color: #604b3d; }
+.promise-hero .promise-cta { min-height: 56px; padding: 15px 30px; font-size: 18px; width: auto; max-width: 100%; }
+.promise-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; margin-top: 18px; }
+.promise-badges span { display: inline-flex; align-items: center; gap: 6px; background: #f2e7db; border: 1px solid #e4d4c2; border-radius: 7px; padding: 7px 10px; font-size: 11px; font-weight: 600; color: #673b24; }
+.promise-badges svg { flex-shrink: 0; }
+.section-kicker { display: block; font-size: 10px; letter-spacing: .09em; font-weight: 700; color: #98613c; margin-bottom: 12px; }
+.near-top-proof { padding-block: 16px 28px; }
+.near-top-proof-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; }
+.near-top-proof figure { margin: 0; padding: 4px 20px 4px 0; border-right: 1px solid #dfcbb8; }
+.near-top-proof figure:last-child { border: 0; }
+.near-top-proof blockquote { font-size: 14px; line-height: 1.6; color: #50392a; margin: 0 0 10px; }
+.near-top-proof figcaption { font-size: 12px; font-weight: 700; color: #98613c; }
+.pain-outcome { padding-block: 22px 30px; }
+.pain-outcome-list { border-top: 1px solid #dfcbb8; margin-top: 20px; }
+.pain-outcome-list article { display: grid; grid-template-columns: 1fr 24px 1.2fr; gap: 22px; align-items: center; border-bottom: 1px solid #dfcbb8; padding: 20px 0; }
+.pain-outcome-list p { font-size: 16px; line-height: 1.6; margin: 0; }
+.pain-outcome-list p:first-child { color: #806b59; }
+.pain-outcome-list p:last-child { color: #4e2313; font-weight: 600; }
+.pain-outcome-list svg { color: #ad6d40; }
+.refreshed-home .inside-section { margin-bottom: 28px; }
+.refreshed-home .mentico-card-inside { padding: 28px; }
+.refreshed-home .mentico-inside-layout { grid-template-columns: minmax(140px,.6fr) 1.4fr; gap: 32px; align-items: center; }
+.refreshed-home .mentico-inside-book-img { max-height: 300px; width: auto; margin-inline: auto; object-fit: contain; }
+.refreshed-home .mentico-inside-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+.refreshed-home .mentico-inside-item { font-size: 14px; line-height: 1.5; margin: 0; }
+.refreshed-home .mentico-learn-section { margin-bottom: 28px; }
+.refreshed-home .mentico-learn-grid { gap: 10px; }
+.refreshed-home .mentico-learn-card { padding: 18px 14px; }
+.challenge-outcome { display: flex; flex-direction: column; gap: 8px; padding: 18px 20px; background: #f0e3cf; border-left: 3px solid #a56836; border-radius: 0 10px 10px 0; margin-top: 20px; }
+.challenge-outcome strong { font-family: var(--font-display); font-size: 22px; line-height: 1.3; color: #4e2313; }
+.challenge-outcome span { font-size: 13px; line-height: 1.6; color: #705b4c; max-width: 740px; }
+#purchase-options { scroll-margin-top: 100px; }
+.refreshed-home .purchase-plans { padding-block: 8px; margin-bottom: 30px; }
+.refreshed-home .mentico-section-row { margin-bottom: 28px; }
+.refreshed-home .mentico-faq-section { margin-bottom: 28px; }
+.home-access { display: grid; grid-template-columns: 54px 1fr; gap: 16px 20px; padding: 28px; margin-bottom: 28px; border: 1px solid #c9aa88; border-radius: 18px; background: #f0e2cf; }
+.home-access-icon { width: 54px; height: 54px; display: grid; place-items: center; background: #e4cfb1; border-radius: 12px; color: #673b24; }
+.mentico-home .home-access h2 { font-family: var(--font-display); font-size: clamp(24px,4vw,34px); line-height: 1.15; margin-bottom: 12px; }
+.home-access p { font-size: 15px; line-height: 1.6; max-width: 700px; }
+.home-access .btn { grid-column: 2; justify-self: start; }
+.final-invitation { display: flex; justify-content: space-between; gap: 24px; align-items: center; padding-block: 20px 28px; }
+.final-invitation h2 { font: 700 clamp(24px,3vw,34px)/1.15 var(--font-display); margin-bottom: 12px; }
+.final-invitation p { font-size: 12px; line-height: 1.6; }
+@media(max-width:767px){
+  .promise-hero { padding-block: 28px 22px; }
+  .mentico-home .promise-hero h1 { font-size: clamp(32px,8.7vw,46px); line-height: 1.08; margin-bottom: 14px; }
+  .promise-hero .mentico-label-pill { font-size: 9px; padding: 8px 11px; margin-bottom: 20px; }
+  .promise-audience { font-size: 12px; }
+  .promise-description { font-size: 16px; line-height: 1.55; margin-bottom: 20px; }
+  .promise-hero .promise-cta { width: 100%; font-size: 17px; padding-inline: 12px; min-height: 54px; }
+  .promise-badges { gap: 6px; margin-top: 14px; }
+  .promise-badges span { font-size: 9px; padding: 6px 7px; }
+  .promise-badges svg { width: 12px; }
+  .near-top-proof-grid { grid-template-columns: 1fr; gap: 10px; }
+  .near-top-proof figure { padding: 10px 0; border-right: 0; border-bottom: 1px solid #e4d5c3; }
+  .near-top-proof blockquote { font-size: 13px; margin-bottom: 5px; }
+  .near-top-proof { padding-block: 12px 18px; }
+  .pain-outcome { padding-block: 16px 24px; }
+  .pain-outcome-list article { grid-template-columns: 1fr; gap: 8px; padding-block: 16px; }
+  .pain-outcome-list article svg { display: none; }
+  .pain-outcome-list p { font-size: 15px; }
+  .pain-outcome-list p:last-child::before { content: '→ '; color: #a56836; }
+  .refreshed-home .mentico-card-inside { padding: 22px 18px; }
+  .refreshed-home .mentico-inside-layout { grid-template-columns: 90px 1fr; gap: 16px; align-items: start; }
+  .refreshed-home .mentico-inside-book-img { width: 100%; height: auto; }
+  .refreshed-home .mentico-inside-list { grid-template-columns: 1fr; gap: 10px; }
+  .refreshed-home .mentico-inside-item { font-size: 12px; gap: 7px; }
+  .refreshed-home .mentico-inside-item svg { width: 14px; flex-shrink: 0; }
+  .refreshed-home .mentico-learn-card { padding: 14px 10px; gap: 8px; }
+  .refreshed-home .mentico-learn-label { font-size: 13px; }
+  .challenge-outcome { padding: 16px; }
+  .challenge-outcome strong { font-size: 20px; }
+  .home-access { width: calc(100% - 40px); grid-template-columns: 1fr; padding: 24px 20px; }
+  .home-access .btn { grid-column: 1; width: 100%; white-space: normal; }
+  .final-invitation { flex-direction: column; align-items: stretch; gap: 18px; }
+  .final-invitation .mentico-btn-cta { justify-content: center; }
+}
+
+#refunds, #privacy { scroll-margin-top: 100px; }

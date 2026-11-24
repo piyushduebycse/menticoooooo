@@ -73,24 +73,15 @@ export default function ProtectedRoute({ children, requirePurchase = false, gues
                   licenseKey: data.user.licenseKey || 'MENTICO-IN-VIP',
                 })
               );
+              window.dispatchEvent(new Event('mentico:purchase'));
             } catch {}
           }
           setVerification({ loading: false, entitled: isEntitled, error: '' });
         }
       } catch (err) {
         if (!controller.signal.aborted) {
-          // If offline or network error, fallback to valid local pass or user state
-          if ((candidateToken?.startsWith('mtc_') || urlToken) && (pass?.hasPurchased || urlToken)) {
-            setVerification({ loading: false, entitled: true, error: '' });
-          } else if (user?.hasPurchased && !user.status) {
-            setVerification({ loading: false, entitled: true, error: '' });
-          } else {
-            setVerification({
-              loading: false,
-              entitled: false,
-              error: err.message || 'Could not confirm access. Please retry.',
-            });
-          }
+          setVerification({ loading: false, entitled: false,
+            error: err.message || 'Could not confirm your purchase. Please retry.' });
         }
       }
     })();
@@ -113,7 +104,7 @@ export default function ProtectedRoute({ children, requirePurchase = false, gues
       >
         <Spinner size="lg" color="red" />
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-          CONFIRMING READING ACCESS...
+          PREPARING YOUR DOWNLOAD PAGE...
         </p>
       </div>
     );
@@ -145,8 +136,7 @@ export default function ProtectedRoute({ children, requirePurchase = false, gues
 
     // If not logged in and no pass provided, send to login to authenticate their account
     if (!user && !urlToken) {
-      const returnUrl = encodeURIComponent(location.pathname + location.search);
-      return <Navigate to={`/login?redirect=${returnUrl}`} replace />;
+      return <Navigate to="/purchase?denied=true" replace />;
     }
 
     return <Navigate to="/purchase?denied=true" replace />;

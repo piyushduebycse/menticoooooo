@@ -1,438 +1,53 @@
+import { useEffect, useRef, useState } from 'react';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { Download, BookOpen, CheckCircle2, Mail, FileText, ArrowRight } from 'lucide-react';
 import TelegramAccess from '../components/TelegramAccess';
-import React, { useState, useEffect } from 'react';
-import {
-  Download,
-  FileText,
-  CheckCircle2,
-  Lock,
-  ExternalLink,
-  Key,
-  RefreshCw,
-  Sparkles,
-  CheckSquare,
-  Square,
-  Mic,
-  Heart,
-  Eye,
-  X,
-  Maximize2,
-  BookOpen,
-  Shield,
-  LogOut,
-} from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { useSearchParams, useLocation, useNavigate } from 'react-router-dom';
-import Spinner from '../components/Spinner';
-import { DashboardSkeleton } from '../components/SkeletonLoader';
-import ProtectedPdfReader from '../components/ProtectedPdfReader';
-import LearningJourney from '../components/LearningJourney';
-import { getReadingProgress } from '../services/readingProgress';
-import ErrorBoundary from '../components/ErrorBoundary';
+import { downloadPublication } from '../services/downloadPublication';
+import './Downloads.css';
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const location = useLocation();
-  const urlToken = searchParams.get('token') || searchParams.get('pass');
-  const shouldAutoOpen = searchParams.get('openPdf') === 'true' || location.state?.openPdf === true;
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (err) {
-      console.warn('[Dashboard] Logout error:', err);
-    }
-    try {
-      localStorage.removeItem('mentico_access_pass');
-      window.dispatchEvent(new Event('storage'));
-    } catch {}
-    navigate('/');
-  };
-
-  const storedPass = (() => {
-    try {
-      return typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('mentico_access_pass') || '{}') : {};
-    } catch {
-      return {};
-    }
-  })();
-
-  const isRevoked = user?.status === 'cancelled' || user?.status === 'refunded' || user?.status === 'failed';
-  const effectiveUser = {
-    ...(user || {}),
-    ...(storedPass || {}),
-    ...(location.state?.accessPass || {}),
-    hasPurchased: !isRevoked && Boolean(user?.hasPurchased || user?.hasPurchasedPdf || storedPass?.hasPurchased || location.state?.accessPass?.hasPurchased || urlToken),
-    name: user?.displayName || storedPass?.name || location.state?.accessPass?.name || 'Mentico Student',
-    email: user?.email || storedPass?.email || location.state?.accessPass?.email || 'student@mentico.co.in',
-    accessToken: urlToken || location.state?.accessPass?.accessToken || storedPass?.accessToken || user?.accessToken || null,
-    licenseKey: location.state?.accessPass?.licenseKey || storedPass?.licenseKey || user?.licenseKey || 'MENTICO-IN-VIP',
-  };
-
-  const studentId = effectiveUser?.uid || effectiveUser?.email;
-  const [readingProgress, setReadingProgress] = useState(() => getReadingProgress(studentId, 'social-freedom'));
-  const [initialPdfPage, setInitialPdfPage] = useState(1);
-  const [isFetchingData, setIsFetchingData] = useState(false);
-  const [isPdfViewerOpen, setIsPdfViewerOpen] = useState(shouldAutoOpen);
-
-  useEffect(() => {
-    if (shouldAutoOpen) {
-      setIsPdfViewerOpen(true);
-    }
-  }, [shouldAutoOpen]);
-
-  // Synchronize reading progress on mount and when studentId changes
-  useEffect(() => {
-    if (studentId) {
-      setReadingProgress(getReadingProgress(studentId, 'social-freedom'));
-    }
-  }, [studentId]);
-
-  // Listen to cross-component reading progress updates
-  useEffect(() => {
-    const handleProgressEvent = (e) => {
-      if (e.detail) {
-        setReadingProgress(e.detail);
-      }
-    };
-    window.addEventListener('mentico:reading-progress-updated', handleProgressEvent);
-    return () => window.removeEventListener('mentico:reading-progress-updated', handleProgressEvent);
+  const [params] = useSearchParams();
+  const pass = (() => { try { return JSON.parse(localStorage.getItem('mentico_access_pass') || '{}'); } catch { return {}; } })();
+  const accessToken = params.get('token') || params.get('pass') || location.state?.accessPass?.accessToken || pass.accessToken;
+  const [status, setStatus] = useState('idle');
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState('');
+  const controller = useRef(null);
+  const urls = useRef(new Set());
+  useEffect(() => () => {
+    controller.current?.abort();
+    for (const url of urls.current) URL.revokeObjectURL(url);
   }, []);
-
-  const handleResumeReading = (pageNumber = null) => {
-    const target = pageNumber || readingProgress.lastPage || 1;
-    setInitialPdfPage(target);
-    setIsPdfViewerOpen(true);
-  };
-
-  const handleRefresh = () => {
-    setIsFetchingData(true);
-    if (studentId) {
-      setReadingProgress(getReadingProgress(studentId, 'social-freedom'));
+  const download = async () => {
+    if (status === 'downloading') return;
+    setError(''); setStatus('downloading'); setProgress(0);
+    controller.current = new AbortController();
+    try {
+      const blob = await downloadPublication({ accessToken, onProgress: setProgress, signal: controller.current.signal });
+      const url = URL.createObjectURL(blob); urls.current.add(url);
+      const link = document.createElement('a'); link.href = url; link.download = 'Mentico-Social-Freedom.pdf';
+      document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(() => { URL.revokeObjectURL(url); urls.current.delete(url); }, 60000);
+      setStatus('done');
+    } catch (err) {
+      if (err.name !== 'AbortError') { setError(err.message); setStatus('idle'); }
     }
-    setTimeout(() => {
-      setIsFetchingData(false);
-    }, 200);
   };
-
-  if (isFetchingData) {
-    return (
-      <div className="section" style={{ paddingTop: '2.5rem' }}>
-        <DashboardSkeleton />
+  return <section className="downloads-page container-narrow">
+    <div className="downloads-welcome"><span className="badge-red"><CheckCircle2 size={14}/>PURCHASE CONFIRMED</span><h1>Your field guide.<br/>Yours to keep.</h1><p>Download it once. Read it anywhere. Your next small conversation starts here.</p></div>
+    <div className="download-book-card">
+      <img src="/images/book_isolated.jpg" alt="Social Freedom by Mentico field guide"/>
+      <div><span className="downloads-eyebrow">SOCIAL FREEDOM · BY MENTICO</span><h2>Make room for real conversations.</h2><p>A 90-page field guide, practical frameworks and your 30-day challenge. Save your PDF for offline reading or print a copy for personal use.</p>
+        <div className="download-book-badges"><span><FileText size={15}/>Downloadable PDF</span><span><BookOpen size={15}/>Lifetime access</span></div>
+        <button className="btn btn-primary download-primary" onClick={download} disabled={status === 'downloading'}><Download size={22}/>{status === 'downloading' ? `Preparing your PDF… ${progress}%` : status === 'done' ? 'Download PDF again' : 'Download my PDF'}<ArrowRight size={18}/></button>
+        {status === 'downloading' && <progress className="download-progress" value={progress} max={100} aria-label="PDF download progress"/>}
+        {error && <p role="alert" className="download-error">{error}</p>}
+        {status === 'done' && <p role="status" className="download-success"><CheckCircle2 size={17}/>Your PDF is ready. Check your browser’s downloads or your phone’s Files app.</p>}
+        <p className="downloads-fine-print">No special reader needed. Open it in your preferred PDF app.</p>
       </div>
-    );
-  }
-
-  return (
-    <div className="section" style={{ paddingTop: '2.5rem' }}>
-      <div className="container">
-        <TelegramAccess accessToken={effectiveUser.accessToken}/>
-        {/* ==================================================================
-            DASHBOARD HEADER: STUDENT STATUS & LICENSE KEY
-            ================================================================== */}
-        <div
-          className="card card-red-accent dashboard-header-card"
-          style={{
-            marginBottom: '2rem',
-            padding: 'clamp(1.25rem, 3.5vw, 2.25rem)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.25rem',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.25rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-              <div
-                style={{
-                  width: '60px',
-                  height: '60px',
-                  borderRadius: '50%',
-                  backgroundColor: 'var(--red-primary)',
-                  border: '2px solid var(--red-primary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#FFFFFF',
-                  fontFamily: 'var(--font-display)',
-                  fontWeight: 800,
-                  fontSize: '1.35rem',
-                }}
-              >
-                {String(effectiveUser?.name || effectiveUser?.displayName || effectiveUser?.email || 'ST')
-                  .slice(0, 2)
-                  .toUpperCase()}
-              </div>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                  <h2 style={{ fontSize: '1.6rem' }}>{effectiveUser?.name || effectiveUser?.displayName || 'Mentico Student'}</h2>
-                  <span className="badge-red" style={{ fontSize: '0.7rem' }}>
-                    SOCIAL FREEDOM MEMBER
-                  </span>
-                </div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
-                  {effectiveUser?.email || 'student@mentico.co.in'} • Social Freedom by Mentico
-                </div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                onClick={handleRefresh}
-                title="Refresh Cloud Sync"
-              >
-                <RefreshCw size={14} />
-                <span>Sync Vault</span>
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
-                onClick={handleLogout}
-                title="Sign Out of Mentico"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  borderColor: 'var(--border-main)',
-                  color: 'var(--text-secondary)',
-                }}
-              >
-                <LogOut size={14} />
-                <span>Sign Out</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Quick Metrics Sub-strip */}
-          <div
-            className="dashboard-metrics-strip"
-            style={{
-              borderTop: '1px solid var(--border-subtle)',
-              paddingTop: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: '1rem',
-              fontSize: '0.85rem',
-              color: 'var(--text-muted)',
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <Key size={15} color="var(--red-primary)" />
-              <span>Student ID:</span>
-              <code style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-main)', fontWeight: 700 }}>
-                {user?.licenseKey || 'MENTICO-IN-9842-X1'}
-              </code>
-            </div>
-            <div>
-              Program Access: <span style={{ color: 'var(--red-primary)', fontWeight: 700 }}>FULL ACCESS (ACTIVE)</span>
-            </div>
-            <div>
-              Reader Mode: <strong style={{ color: '#16A34A' }}>PROTECTED WEB ACCESS</strong>
-            </div>
-          </div>
-        </div>
-
-        {/* ==================================================================
-            QUICK STATS SUMMARY CARDS
-            ================================================================== */}
-        <div className="dashboard-stats-grid">
-          <div className="card card-solid" style={{ padding: '1.25rem' }}>
-            <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-              BLUEPRINT DELIVERABLE
-            </div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>Official PDF</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--red-primary)', fontWeight: 600 }}>Official High-Res Document</div>
-          </div>
-
-          <div className="card card-solid" style={{ padding: '1.25rem' }}>
-            <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-              READING PROGRESS
-            </div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>
-              {readingProgress.progressPercentage}% Complete
-            </div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
-              {readingProgress.isStarted ? `${readingProgress.lastPage} of ${readingProgress.totalPages} Pages Read` : 'Journey Not Started Yet'}
-            </div>
-          </div>
-
-          <div className="card card-solid" style={{ padding: '1.25rem' }}>
-            <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-              FIELD MANUAL
-            </div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-main)' }}>Practical frameworks</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>90 pages to put into practice</div>
-          </div>
-
-          <div className="card card-solid" style={{ padding: '1.25rem' }}>
-            <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>
-              SPEECH TEMPLATES
-            </div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--red-primary)' }}>Field reference cards</div>
-            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Conversation prompts & exercises</div>
-          </div>
-        </div>
-
-        {/* ==================================================================
-            MAIN CONTENT SPLIT: LEFT (PRIMARY PDF READER) & RIGHT (CHECKLIST)
-            ================================================================== */}
-        <div className="dashboard-main-grid">
-          {/* Left Column: PDF Download Center */}
-          <div className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <div>
-                <h3 style={{ fontSize: '1.4rem' }}>Your Social Freedom field guide</h3>
-                <p style={{ fontSize: '0.88rem' }}>Your complete manual, ready when you are.</p>
-              </div>
-              <span className="badge-red" style={{ fontSize: '0.7rem' }}>
-                DIGITAL PDF MANUAL
-              </span>
-            </div>
-
-            {/* Featured PDF Protected Reader Showcase */}
-            <div className="deliverable-card-inner">
-              {/* PDF Document Icon Visual */}
-              <img src="/images/book_isolated.jpg" alt="Social Freedom by Mentico field guide" className="library-book-cover" loading="lazy" />
-
-              {/* PDF Metadata and CTAs */}
-              <div style={{ flex: 1, minWidth: '220px' }}>
-                <div style={{ fontWeight: 800, fontSize: '1.25rem', marginBottom: '0.35rem' }}>
-                  Social Freedom by Mentico
-                </div>
-                <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.25rem' }}>
-                  Official Course Manual • High-Res Digital PDF • Licensed to:{' '}
-                  <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--red-primary)', fontWeight: 700 }}>
-                    {effectiveUser.name || effectiveUser.email}
-                  </span>
-                </div>
-
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  {/* Primary Protected Reader Button */}
-                  <button
-                    type="button"
-                    className="btn btn-primary"
-                    onClick={() => handleResumeReading(readingProgress.lastPage)}
-                    id="dashboard-open-reader-btn"
-                    style={{ flex: 1, minWidth: '220px', padding: '0.95rem 1.5rem', fontWeight: 800 }}
-                  >
-                    <BookOpen size={18} />
-                    <span>Open your field guide</span>
-                  </button>
-
-                  <div
-                    style={{
-                      width: '100%',
-                      marginTop: '0.5rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      fontSize: '0.76rem',
-                      color: 'var(--text-muted)',
-                      fontFamily: 'var(--font-mono)',
-                    }}
-                  >
-                    <Shield size={14} color="#16A34A" />
-                    <span>Personal reading access • Watermarked for your account</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Additional Secondary Modules */}
-            <h4 style={{ fontSize: '1.05rem', marginBottom: '1rem' }}>Bonus Student Toolkits (Protected View):</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-surface)',
-                  border: '1px solid var(--border-subtle)',
-                  flexWrap: 'wrap',
-                  gap: '0.75rem',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
-                  <FileText size={18} color="var(--red-primary)" style={{ flexShrink: 0 }} />
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>GD & Campus Placement Cheat Sheets</div>
-                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>15 Powerful Group Discussion Openers • Inside Blueprint</div>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => handleResumeReading(readingProgress.lastPage)}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-                >
-                  <Eye size={14} color="var(--red-primary)" />
-                  <span>Read Online</span>
-                </button>
-              </div>
-
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '1rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-surface)',
-                  border: '1px solid var(--border-subtle)',
-                  flexWrap: 'wrap',
-                  gap: '0.75rem',
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minWidth: 0 }}>
-                  <Heart size={18} color="var(--red-primary)" style={{ flexShrink: 0 }} />
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>Social Charisma & Small Talk Framework</div>
-                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>Never run out of things to say • Inside Blueprint</div>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  className="btn btn-secondary btn-sm"
-                  onClick={() => handleResumeReading(readingProgress.lastPage)}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
-                >
-                  <Eye size={14} color="var(--red-primary)" />
-                  <span>Read Online</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Your Learning Journey Section */}
-          <LearningJourney
-            progress={readingProgress}
-            onResumeReading={handleResumeReading}
-          />
-        </div>
-
-      </div>
-
-      {/* ==================================================================
-          IN-APP PDF READER MODAL (DISPLAYS THE OFFICIAL DIGITAL MANUAL)
-          ================================================================== */}
-      {isPdfViewerOpen && (
-        <ErrorBoundary>
-          <ProtectedPdfReader
-            bookId="social-freedom"
-            pdfUrl="/api/pdf/social-freedom"
-            initialPage={initialPdfPage}
-            onProgressUpdate={(updated) => setReadingProgress(updated)}
-            user={effectiveUser}
-            onClose={() => setIsPdfViewerOpen(false)}
-          />
-        </ErrorBoundary>
-      )}
     </div>
-  );
+    <TelegramAccess accessToken={accessToken}/>
+    <div className="downloads-help"><Mail size={22}/><div><h2>Need a hand with your download?</h2><p>Use the purchase link in your confirmation email to return here. If anything goes wrong, contact us with your payment ID—please don’t pay again.</p><Link to="/contact">Contact Mentico support<ArrowRight size={16}/></Link></div></div>
+  </section>;
 }
