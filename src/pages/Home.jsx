@@ -1,6 +1,7 @@
 import PurchasePlans from '../components/PurchasePlans';
 import usePurchaseAccess from '../hooks/usePurchaseAccess';
 import './HomeRefresh.css';
+import './HeroReference.css';
 import { PRODUCT_PRICE_INR, PRODUCT_ORIGINAL_PRICE_INR } from '../../shared/product.js';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -19,7 +20,7 @@ import {
   ChevronLeft,
   ChevronRight,
   BookOpen,
-  ShieldCheck,
+  Zap,
   Download,
 } from 'lucide-react';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
@@ -156,13 +157,25 @@ export default function Home() {
   return (
     <div className="mentico-home refreshed-home" id="top">
       <div className="home-sections">
-        <section className="promise-hero mentico-container" aria-labelledby="promise-title">
-          <span className="mentico-label-pill">A 30-DAY FIELD GUIDE FOR OVERTHINKERS</span>
-          <h1 id="promise-title">Stop overthinking people.<span>Start talking to them.</span></h1>
-          <p className="promise-audience">For people who freeze in social situations.</p>
-          <p className="promise-description">A 90-page field guide and 30-day challenge that turns “what if they judge me?” into one small, real conversation at a time.</p>
-          <button type="button" onClick={handlePurchaseClick} className="mentico-btn-cta promise-cta">Get the Field Guide · ₹{currentPrice}<ArrowRight size={20}/></button>
-          <div className="promise-badges" aria-label="Field guide highlights"><span><Download size={15}/>Instant PDF download</span><span><ShieldCheck size={15}/>No scripts or pickup lines</span><span><Calendar size={15}/>30-day challenge</span></div>
+        <section className="promise-hero reference-hero mentico-container" aria-labelledby="promise-title">
+          <div className="reference-hero-content">
+            <span className="mentico-label-pill">A 30-DAY FIELD GUIDE FOR OVERTHINKERS</span>
+            <h1 id="promise-title" aria-label="How many conversations have you missed because you hesitated?">
+              <span className="hero-question-line">How many conversations</span>
+              <span className="hero-question-line">have you missed because</span>
+              <em className="hero-hesitation">you hesitated?<svg viewBox="0 0 440 28" preserveAspectRatio="none" aria-hidden="true"><path d="M8 21 Q195 -8 430 17 Q252 8 12 27Z" fill="currentColor"/></svg></em>
+            </h1>
+            <div className="hero-brush-promise">
+              <svg className="hero-brush" viewBox="0 0 600 110" preserveAspectRatio="none" aria-hidden="true"><path d="M24 9 77 5 148 7 223 3 314 5 404 2 492 7 565 8 576 15 565 20 591 25 576 31 596 38 581 45 598 53 580 59 593 66 580 74 587 82 567 86 579 95 539 98 464 104 389 101 317 106 244 101 170 104 99 99 34 97 21 90 31 85 9 81 26 74 8 67 22 61 3 53 23 47 12 40 30 34 11 27 32 22 20 16Z" fill="#f8df96"/><path d="M14 28 585 20 577 79 22 87 35 69 10 55Z" fill="#f5d97d" opacity=".35"/></svg>
+              <svg className="hero-promise-rays rays-left" viewBox="0 0 42 65" aria-hidden="true"><path d="m22 9 10 12M6 29l18 7M10 54l17-3"/></svg>
+              <p>Stop overthinking people.<strong>Start talking to them.</strong></p>
+              <svg className="hero-promise-rays rays-right" viewBox="0 0 42 65" aria-hidden="true"><path d="m20 9-10 12m26 8-18 7m14 18-17-3"/></svg>
+            </div>
+            <p className="promise-description">A practical 90-page field guide and 30-day challenge to help you overcome hesitation and build real social confidence through everyday conversations.</p>
+            <button type="button" onClick={handlePurchaseClick} className="mentico-btn-cta promise-cta">Get the Field Guide · ₹{currentPrice}<ArrowRight size={24}/></button>
+            <div className="hero-reference-benefits" aria-label="Field guide highlights"><span><Zap size={22}/><span>Instant access</span></span><span><Layers size={22}/><span>No scripts or pickup lines</span></span><span><Calendar size={22}/><span>30-day challenge included</span></span></div>
+          </div>
+          <svg className="hero-paper-edge" viewBox="0 0 1000 90" preserveAspectRatio="none" aria-hidden="true"><defs><filter id="hero-paper-grain"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter></defs><path d="m0 29 20 6 15-12 18 3 16-13 22 8 15 19 29 3 27 12 24-5 28 16 30-11 25 8 24-6 30 12 18-3 22 7 27-9 30 8 24-6 33 5 22-6 28 2 25-10 24 3 20-8 26 5 20-9 26 1 24-10 23 6 25-10 27 3 19-12 24 5 18-13 24 2 20-10 28 3 20-11 24 4 22-9 32-2V90H0Z" fill="#eddbc0"/><path d="m0 61 25-2 20 7 24-3 29 9 21-5 28 10 25-4 25 7 28-5 23 8 30-2 23 7 30-6 29 7 25-5 26 4 25-6 23 3 28-8 24 4 27-8 26 4 26-10 26 3 23-9 28 2 20-11 27 3 20-11 28 2 20-10 27 2 21-14 29 3 23-12 27 4 26-13 25 5 27-12V90H0Z" fill="#d6b88c" opacity=".66"/><rect width="1000" height="90" filter="url(#hero-paper-grain)" opacity=".09" style={{ mixBlendMode: 'multiply' }}/></svg>
         </section>
 
         <section className="mentico-container near-top-proof" aria-labelledby="proof-title">
