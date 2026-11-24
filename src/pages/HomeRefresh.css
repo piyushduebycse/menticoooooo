@@ -25,10 +25,6 @@
 .pain-outcome-list svg { color: #ad6d40; }
 .refreshed-home .inside-section { margin-bottom: 28px; }
 .refreshed-home .mentico-card-inside { padding: 28px; }
-.refreshed-home .mentico-inside-layout { grid-template-columns: minmax(140px,.6fr) 1.4fr; gap: 32px; align-items: center; }
-.refreshed-home .mentico-inside-book-img { max-height: 300px; width: auto; margin-inline: auto; object-fit: contain; }
-.refreshed-home .mentico-inside-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
-.refreshed-home .mentico-inside-item { font-size: 14px; line-height: 1.5; margin: 0; }
 .refreshed-home .mentico-learn-section { margin-bottom: 28px; }
 .refreshed-home .mentico-learn-grid { gap: 10px; }
 .refreshed-home .mentico-learn-card { padding: 18px 14px; }
@@ -67,11 +63,6 @@
   .pain-outcome-list p { font-size: 15px; }
   .pain-outcome-list p:last-child::before { content: '→ '; color: #a56836; }
   .refreshed-home .mentico-card-inside { padding: 22px 18px; }
-  .refreshed-home .mentico-inside-layout { grid-template-columns: 90px 1fr; gap: 16px; align-items: start; }
-  .refreshed-home .mentico-inside-book-img { width: 100%; height: auto; }
-  .refreshed-home .mentico-inside-list { grid-template-columns: 1fr; gap: 10px; }
-  .refreshed-home .mentico-inside-item { font-size: 12px; gap: 7px; }
-  .refreshed-home .mentico-inside-item svg { width: 14px; flex-shrink: 0; }
   .refreshed-home .mentico-learn-card { padding: 14px 10px; gap: 8px; }
   .refreshed-home .mentico-learn-label { font-size: 13px; }
   .challenge-outcome { padding: 16px; }
@@ -83,3 +74,31 @@
 }
 
 #refunds, #privacy { scroll-margin-top: 100px; }
+/* Preserve the original illustrated content blocks within the new sales sequence. */
+.refreshed-home .near-top-proof .mentico-section-heading { margin-bottom: 20px; }
+.benefits-section { margin-bottom: 28px; }
+.benefits-illustration { max-width: 980px; margin-inline: auto; background: #f7e9dd; border: 1px solid #eadbce; border-radius: 18px; overflow: hidden; }
+.benefits-illustration img { display: block; width: 100%; height: auto; object-fit: contain; }
+.refreshed-home .mentico-who-section { scroll-margin-top: 90px; }
+.refreshed-home .inside-section { scroll-margin-top: 90px; }
+.refreshed-home .mentico-inside-book-img { max-width: 240px; }
+.refreshed-home .mentico-inside-list { display: flex; flex-direction: column; gap: 12px; }
+.refreshed-home .mentico-inside-item { font-size: 16px; line-height: 1.55; }
+.refreshed-home .mentico-inside-layout { gap: 28px; }
+@media(max-width:767px){
+  .refreshed-home .mentico-inside-layout { grid-template-columns: 1fr; gap: 24px; }
+  .refreshed-home .mentico-inside-book-img { max-width: 240px; width: 100%; }
+  .refreshed-home .mentico-inside-item { font-size: 16px; line-height: 1.6; }
+  .refreshed-home .mentico-who-card { min-width: 0; }
+  .refreshed-home .mentico-who-card-body { min-width: 0; }
+  .benefits-illustration { border-radius: 14px; }
+}
+@media(max-width:359px){
+  .refreshed-home .mentico-who-card { gap: 12px; padding: 14px 12px; }
+  .refreshed-home .mentico-who-card-img { width: 86px; height: 64px; }
+  .refreshed-home .mentico-who-card-title { font-size: 17px; }
+  .refreshed-home .mentico-who-card-desc { font-size: 14px; }
+}
+@media(max-width:767px){
+  .refreshed-home .mentico-who-heading { max-width: 20ch; margin-inline: auto; }
+}

@@ -160,18 +160,131 @@ export default function Home() {
         </section>
 
         <section className="mentico-container near-top-proof" aria-labelledby="proof-title">
-          <div className="section-kicker" id="proof-title">LESS OVERTHINKING. MORE REAL CONVERSATIONS.</div>
+          <h2 className="mentico-section-heading" id="proof-title">Real People. Real Progress.</h2>
           <div className="near-top-proof-grid">{testimonialsList.map(review => <figure key={review.id}><blockquote>{review.quote}</blockquote><figcaption>{review.author}</figcaption></figure>)}</div>
         </section>
 
-        <section className="mentico-container pain-outcome" id="problem" aria-labelledby="problem-title">
-          <span className="section-kicker">DOES THIS SOUND FAMILIAR?</span><h2 className="mentico-section-heading" id="problem-title">You have something to say.<br/>Then the moment passes.</h2>
-          <div className="pain-outcome-list">{[
-            ['Small talk goes nowhere.', 'Ask one thoughtful question and find a natural next step.'],
-            ['You rehearse saying hello, then walk away.', 'Take a low-pressure first step without waiting to feel perfectly confident.'],
-            ['In a group, you stay quiet and overthink it later.', 'Join in with one observation or question, in a way that feels like you.'],
-          ].map(([pain,outcome]) => <article key={pain}><p>{pain}</p><ArrowRight size={20} aria-hidden="true"/><p>{outcome}</p></article>)}</div>
+        {/* 5. Problem: Does This Sound Familiar? */}
+        <section id="problem" className="mentico-container" style={{ marginBottom: '36px' }}>
+          <div className="mentico-card-familiar mentico-card-familiar-full">
+            <img
+              src="/images/familiar_thinking_man.jpg"
+              alt="Thoughtful man reflecting in warm lighting"
+              className="mentico-card-familiar-bg"
+            />
+            <div className="mentico-card-familiar-content">
+              <h3 className="mentico-card-familiar-title">Does This Sound Familiar?</h3>
+              <ul className="mentico-familiar-list mentico-familiar-list-2col">
+                <li className="mentico-familiar-item">
+                  <Check className="mentico-check-icon" size={18} />
+                  <span>You overthink before approaching someone.</span>
+                </li>
+                <li className="mentico-familiar-item">
+                  <Check className="mentico-check-icon" size={18} />
+                  <span>You struggle to start or keep conversations.</span>
+                </li>
+                <li className="mentico-familiar-item">
+                  <Check className="mentico-check-icon" size={18} />
+                  <span>You worry about what others think.</span>
+                </li>
+                <li className="mentico-familiar-item">
+                  <Check className="mentico-check-icon" size={18} />
+                  <span>You avoid social situations.</span>
+                </li>
+                <li className="mentico-familiar-item">
+                  <Check className="mentico-check-icon" size={18} />
+                  <span>You want to express interest but fear rejection.</span>
+                </li>
+                <li className="mentico-familiar-item">
+                  <Check className="mentico-check-icon" size={18} />
+                  <span>You feel stuck, even though you want more connections.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
         </section>
+
+        {/* 6. Audience Identification: Who Should Read Social Freedom? */}
+        <section className="mentico-who-section" id="who-should-read">
+          <div className="mentico-container">
+            <div className="mentico-who-header">
+              <h2 className="mentico-who-heading">
+                Who Should Read <span className="mentico-who-heading-accent">Social Freedom?</span>
+              </h2>
+              <p className="mentico-who-subtitle">
+                If you relate to any of these, this book is for you.
+              </p>
+              <div className="mentico-who-divider" />
+            </div>
+
+            <div className="mentico-who-cards">
+              {/* Card 1: Students and young adults */}
+              <div className="mentico-who-card">
+                <img
+                  src="/images/who_students_custom.jpg?v=20261118"
+                  alt="Students and young adults"
+                  className="mentico-who-card-img"
+                  loading="lazy"
+                />
+                <div className="mentico-who-card-body">
+                  <h3 className="mentico-who-card-title">Students and young adults</h3>
+                  <p className="mentico-who-card-desc">
+                    Who want to become more socially comfortable.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 2: Working professionals */}
+              <div className="mentico-who-card">
+                <img
+                  src="/images/who_professionals_custom.jpg?v=20261118"
+                  alt="Working professionals"
+                  className="mentico-who-card-img"
+                  loading="lazy"
+                />
+                <div className="mentico-who-card-body">
+                  <h3 className="mentico-who-card-title">Working professionals</h3>
+                  <p className="mentico-who-card-desc">
+                    Who want to improve communication and networking.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 3: Overthinkers and introverts */}
+              <div className="mentico-who-card">
+                <img
+                  src="/images/who_introverts_custom.jpg?v=20261118"
+                  alt="Overthinkers and introverts"
+                  className="mentico-who-card-img"
+                  loading="lazy"
+                />
+                <div className="mentico-who-card-body">
+                  <h3 className="mentico-who-card-title">Overthinkers and introverts</h3>
+                  <p className="mentico-who-card-desc">
+                    Who want to participate more comfortably in social situations.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 4: People starting afresh */}
+              <div className="mentico-who-card">
+                <img
+                  src="/images/who_afresh_custom.jpg?v=20261118"
+                  alt="People starting afresh"
+                  className="mentico-who-card-img"
+                  loading="lazy"
+                />
+                <div className="mentico-who-card-body">
+                  <h3 className="mentico-who-card-title">People starting afresh</h3>
+                  <p className="mentico-who-card-desc">
+                    Who want to expand their social circle and make new connections.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
 <section className="mentico-container inside-section" id="whats-inside">
           {/* Card: What's Inside? */}
           <div className="mentico-card-inside">
@@ -229,6 +342,10 @@ export default function Home() {
 
 
 </section>
+        <section className="mentico-container benefits-section" aria-label="What Social Freedom helps you practise">
+          <div className="benefits-illustration"><img src="/images/hero_social_freedom_journey.jpg" width="1024" height="664" alt="Calm overthinking and social anxiety, build confidence, learn practical conversation skills, handle rejection, create meaningful connections and become more socially expressive" loading="lazy"/></div>
+        </section>
+
         {/* 4. What You'll Learn Section */}
         <section
           id="what-youll-learn"
@@ -278,115 +395,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* 7. Action / Solution: The 30-Day Social Freedom Challenge */}
-        <section className="mentico-container" style={{ marginBottom: '36px' }} id="challenge">
-          <div className="mentico-card-challenge mentico-card-challenge-full">
-            <div>
-              <h2 className="mentico-section-heading" style={{ marginBottom: '6px' }}>
-                The 30-Day Social Freedom Challenge
-              </h2>
-              <p className="mentico-section-subheading">
-                10–15 minutes a day. Small actions, repeated until starting feels less daunting.
-              </p>
-            </div>
-
-            <div className="challenge-outcome"><strong>Aim for 60–90 small conversations in 30 days.</strong><span>That’s 2–3 everyday starts a day: a hello, one question, a short exchange. It’s a practice goal, not a guaranteed result. Build at your own pace.</span></div>
-            <div className="mentico-challenge-timeline">
-              {[
-                { phase: '01', days: 'Days 1–10', title: 'PRESENCE & SMALL ACTIONS', description: 'Get comfortable being present. Take small steps and start simple conversations.' },
-                { phase: '02', days: 'Days 11–20', title: 'BUILD MOMENTUM', description: 'Go deeper in conversations, join groups and explore new social situations.' },
-                { phase: '03', days: 'Days 21–30', title: 'PUT IT INTO PRACTICE', description: 'Handle uncertainty, build meaningful connections and reflect on your progress.' },
-              ].map((phase) => (
-                <article className="mentico-timeline-step" key={phase.phase}>
-                  <span className="mentico-phase-number" aria-hidden="true">{phase.phase}</span>
-                  <div>
-                    <span className="mentico-timeline-pill">PHASE {phase.phase} · {phase.days}</span>
-                    <h3 className="mentico-timeline-title">{phase.title}</h3>
-                    <p className="mentico-timeline-desc">{phase.description}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-
-        <div className="mentico-container" id="purchase-options"><PurchasePlans/></div>
-        {/* 6. Section Pair: Not a Pickup-Line Book vs The Confidence Formula */}
-        <div className="mentico-container mentico-section-row">
-          {/* Card: This is NOT a Pickup-Line Book */}
-          <div className="mentico-card-not-pickup">
-            <h2 className="mentico-section-heading">
-              This is <span className="mentico-highlight-not">NOT</span> a Pickup-Line Book
-            </h2>
-
-            <div className="mentico-compare-grid">
-              <div className="mentico-compare-col">
-                <div className="mentico-compare-item">
-                  <X className="mentico-cross-icon" size={18} />
-                  <span>No scripts.</span>
-                </div>
-                <div className="mentico-compare-item">
-                  <X className="mentico-cross-icon" size={18} />
-                  <span>No manipulation.</span>
-                </div>
-                <div className="mentico-compare-item">
-                  <X className="mentico-cross-icon" size={18} />
-                  <span>No fake personality.</span>
-                </div>
-                <div className="mentico-compare-item">
-                  <X className="mentico-cross-icon" size={18} />
-                  <span>No guaranteed dates.</span>
-                </div>
-                <div className="mentico-compare-item">
-                  <X className="mentico-cross-icon" size={18} />
-                  <span>No tricks or shortcuts.</span>
-                </div>
-              </div>
-
-              <div className="mentico-compare-col">
-                <div className="mentico-compare-item">
-                  <Check className="mentico-check-green" size={18} />
-                  <span>A practical, ethical system.</span>
-                </div>
-                <div className="mentico-compare-item">
-                  <Check className="mentico-check-green" size={18} />
-                  <span>Real-world strategies.</span>
-                </div>
-                <div className="mentico-compare-item">
-                  <Check className="mentico-check-green" size={18} />
-                  <span>Respect for boundaries.</span>
-                </div>
-                <div className="mentico-compare-item">
-                  <Check className="mentico-check-green" size={18} />
-                  <span>Focus on genuine connections.</span>
-                </div>
-                <div className="mentico-compare-item">
-                  <Check className="mentico-check-green" size={18} />
-                  <span>Works for everyday life, not just dating.</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mentico-card-formula">
-            <span className="mentico-formula-eyebrow">THE CONFIDENCE FORMULA</span>
-            <h2 className="mentico-section-heading">Give your courage a receipt.</h2>
-            <p className="mentico-formula-intro">Every small conversation gives you something overthinking never can: proof you can handle it.</p>
-            <ol className="mentico-proof-loop">
-              {[
-                ['01', 'Make the first move', 'Ask a question. Say hello. Give yourself one small moment to try.'],
-                ['02', 'Let reality answer', 'Notice what actually happened, rather than the outcome you imagined.'],
-                ['03', 'Keep the evidence', 'Write down what you handled, what you learned and what you would try again.'],
-                ['04', 'Raise the stakes a little', 'Take that proof into your next conversation. Confidence grows through practice.'],
-              ].map(([number, title, description]) => (
-                <li key={number}><span className="mentico-proof-number">{number}</span><div><h3>{title}</h3><p>{description}</p></div></li>
-              ))}
-            </ol>
-            <p className="mentico-formula-note">One hello → one real experience → one reason to try again.</p>
-          </div>
-        </div>
 
         {/* 8. Section Pair: A Sneak Peek Inside vs This Book is for You If... */}
         <div className="mentico-container mentico-section-row">
@@ -496,6 +504,115 @@ export default function Home() {
           </div>
         </div>
 
+
+        {/* 7. Action / Solution: The 30-Day Social Freedom Challenge */}
+        <section className="mentico-container" style={{ marginBottom: '36px' }} id="challenge">
+          <div className="mentico-card-challenge mentico-card-challenge-full">
+            <div>
+              <h2 className="mentico-section-heading" style={{ marginBottom: '6px' }}>
+                The 30-Day Social Freedom Challenge
+              </h2>
+              <p className="mentico-section-subheading">
+                10–15 minutes a day. Small actions, repeated until starting feels less daunting.
+              </p>
+            </div>
+
+            <div className="challenge-outcome"><strong>Aim for 60–90 small conversations in 30 days.</strong><span>That’s 2–3 everyday starts a day: a hello, one question, a short exchange. It’s a practice goal, not a guaranteed result. Build at your own pace.</span></div>
+            <div className="mentico-challenge-timeline">
+              {[
+                { phase: '01', days: 'Days 1–10', title: 'PRESENCE & SMALL ACTIONS', description: 'Get comfortable being present. Take small steps and start simple conversations.' },
+                { phase: '02', days: 'Days 11–20', title: 'BUILD MOMENTUM', description: 'Go deeper in conversations, join groups and explore new social situations.' },
+                { phase: '03', days: 'Days 21–30', title: 'PUT IT INTO PRACTICE', description: 'Handle uncertainty, build meaningful connections and reflect on your progress.' },
+              ].map((phase) => (
+                <article className="mentico-timeline-step" key={phase.phase}>
+                  <span className="mentico-phase-number" aria-hidden="true">{phase.phase}</span>
+                  <div>
+                    <span className="mentico-timeline-pill">PHASE {phase.phase} · {phase.days}</span>
+                    <h3 className="mentico-timeline-title">{phase.title}</h3>
+                    <p className="mentico-timeline-desc">{phase.description}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+
+        <div className="mentico-container" id="purchase-options"><PurchasePlans/></div>
+        {/* 6. Section Pair: Not a Pickup-Line Book vs The Confidence Formula */}
+        <div className="mentico-container mentico-section-row">
+          {/* Card: This is NOT a Pickup-Line Book */}
+          <div className="mentico-card-not-pickup">
+            <h2 className="mentico-section-heading">
+              This is <span className="mentico-highlight-not">NOT</span> a Pickup-Line Book
+            </h2>
+
+            <div className="mentico-compare-grid">
+              <div className="mentico-compare-col">
+                <div className="mentico-compare-item">
+                  <X className="mentico-cross-icon" size={18} />
+                  <span>No scripts.</span>
+                </div>
+                <div className="mentico-compare-item">
+                  <X className="mentico-cross-icon" size={18} />
+                  <span>No manipulation.</span>
+                </div>
+                <div className="mentico-compare-item">
+                  <X className="mentico-cross-icon" size={18} />
+                  <span>No fake personality.</span>
+                </div>
+                <div className="mentico-compare-item">
+                  <X className="mentico-cross-icon" size={18} />
+                  <span>No guaranteed dates.</span>
+                </div>
+                <div className="mentico-compare-item">
+                  <X className="mentico-cross-icon" size={18} />
+                  <span>No tricks or shortcuts.</span>
+                </div>
+              </div>
+
+              <div className="mentico-compare-col">
+                <div className="mentico-compare-item">
+                  <Check className="mentico-check-green" size={18} />
+                  <span>A practical, ethical system.</span>
+                </div>
+                <div className="mentico-compare-item">
+                  <Check className="mentico-check-green" size={18} />
+                  <span>Real-world strategies.</span>
+                </div>
+                <div className="mentico-compare-item">
+                  <Check className="mentico-check-green" size={18} />
+                  <span>Respect for boundaries.</span>
+                </div>
+                <div className="mentico-compare-item">
+                  <Check className="mentico-check-green" size={18} />
+                  <span>Focus on genuine connections.</span>
+                </div>
+                <div className="mentico-compare-item">
+                  <Check className="mentico-check-green" size={18} />
+                  <span>Works for everyday life, not just dating.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mentico-card-formula">
+            <span className="mentico-formula-eyebrow">THE CONFIDENCE FORMULA</span>
+            <h2 className="mentico-section-heading">Give your courage a receipt.</h2>
+            <p className="mentico-formula-intro">Every small conversation gives you something overthinking never can: proof you can handle it.</p>
+            <ol className="mentico-proof-loop">
+              {[
+                ['01', 'Make the first move', 'Ask a question. Say hello. Give yourself one small moment to try.'],
+                ['02', 'Let reality answer', 'Notice what actually happened, rather than the outcome you imagined.'],
+                ['03', 'Keep the evidence', 'Write down what you handled, what you learned and what you would try again.'],
+                ['04', 'Raise the stakes a little', 'Take that proof into your next conversation. Confidence grows through practice.'],
+              ].map(([number, title, description]) => (
+                <li key={number}><span className="mentico-proof-number">{number}</span><div><h3>{title}</h3><p>{description}</p></div></li>
+              ))}
+            </ol>
+            <p className="mentico-formula-note">One hello → one real experience → one reason to try again.</p>
+          </div>
+        </div>
 
         <section className="mentico-container home-access" aria-labelledby="home-access-title">
           <div className="home-access-icon"><BookOpen size={28}/></div>
