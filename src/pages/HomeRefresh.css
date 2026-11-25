@@ -124,3 +124,19 @@
 }
 .refreshed-home .mentico-timeline-pill, .refreshed-home #challenge .mentico-section-subheading, .refreshed-home .challenge-outcome span { font-weight: 700; color: #513726; }
 @media(max-width:767px){ .refreshed-home .final-invitation-art { width: 100%; max-width: none; padding-inline: 0; } }
+/* A single purchase action with a compact, interchangeable price toggle. */
+.bottom-plan-bar .mentico-sticky-bar-inner { gap: 16px; }
+.bottom-plan-choice { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.bottom-plan-toggle { display: flex; gap: 3px; padding: 3px; background: #eee2d3; border: 1px solid #d6bea6; border-radius: 11px; }
+.bottom-plan-toggle label { position: relative; display: grid; place-items: center; min-width: 68px; min-height: 40px; padding: 7px 14px; border-radius: 8px; color: #673b24; cursor: pointer; font-size: 15px; font-weight: 800; line-height: 1; }
+.bottom-plan-toggle label.is-selected { background: #673b24; color: #fffaf3; box-shadow: 0 1px 3px #4e231320; }
+.bottom-plan-toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.bottom-plan-toggle label:focus-within { outline: 2px solid #a4552d; outline-offset: 3px; }
+.bottom-plan-caption { font-size: 11px; line-height: 1.3; font-weight: 700; color: #673b24; padding-left: 2px; }
+.bottom-plan-bar .mentico-sticky-btn { min-height: 48px; padding-inline: 26px; }
+@media(max-width:767px){
+  .bottom-plan-bar .mentico-sticky-bar-inner { gap: 12px; }
+  .bottom-plan-toggle label { min-width: 62px; min-height: 38px; padding: 7px 12px; font-size: 14px; }
+  .bottom-plan-bar .mentico-sticky-btn { padding-inline: 20px; font-size: 14px; }
+  .bottom-plan-caption { font-size: 10px; }
+}

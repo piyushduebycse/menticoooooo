@@ -3,7 +3,7 @@ import PurchasePlans from '../components/PurchasePlans';
 import usePurchaseAccess from '../hooks/usePurchaseAccess';
 import './HomeRefresh.css';
 import './HeroReference.css';
-import { PRODUCT_PRICE_INR, PRODUCT_ORIGINAL_PRICE_INR } from '../../shared/product.js';
+import { PRODUCT_PRICE_INR, PRODUCT_PLANS } from '../../shared/product.js';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -32,9 +32,10 @@ export default function Home() {
   const { access } = usePurchaseAccess();
   const hasPurchased = Boolean(access);
 
-  const originalPrice = PRODUCT_ORIGINAL_PRICE_INR;
   const currentPrice = PRODUCT_PRICE_INR;
 
+  const [bottomPlanId, setBottomPlanId] = useState('pdf');
+  const bottomPlan = PRODUCT_PLANS[bottomPlanId];
   const [showStickyBar, setShowStickyBar] = useState(false);
   const [activeFaq, setActiveFaq] = useState(null);
   const [carouselIndex, setCarouselIndex] = useState(0);
@@ -718,7 +719,13 @@ export default function Home() {
         </div>
       )}
 
-      {showStickyBar && <aside className="mentico-sticky-bar is-visible" aria-label="Field guide purchase"><div className="mentico-sticky-bar-inner"><div className="mentico-sticky-pricing"><div className="mentico-sticky-price-row"><span className="mentico-sticky-title">Social Freedom</span><span className="mentico-sticky-price">₹{currentPrice}</span><span className="mentico-sticky-original-price">₹{originalPrice}</span></div><span className="mentico-sticky-sublabel">Downloadable Course · Lifetime access</span></div><button type="button" onClick={handlePurchaseClick} className="mentico-sticky-btn">Choose my plan<ArrowRight size={16}/></button></div></aside>}
+      {showStickyBar && <aside className="mentico-sticky-bar bottom-plan-bar is-visible" aria-label="Field guide purchase"><div className="mentico-sticky-bar-inner">
+        <div className="bottom-plan-choice"><div className="bottom-plan-toggle" role="radiogroup" aria-label="Bottom bar purchase option">
+          {Object.values(PRODUCT_PLANS).map(plan => <label key={plan.id} className={bottomPlanId === plan.id ? 'is-selected' : ''}><input type="radio" name="bottom-purchase-plan" value={plan.id} checked={bottomPlanId === plan.id} onChange={() => setBottomPlanId(plan.id)} aria-label={`₹${plan.priceInr} — ${plan.name}`}/><span>₹{plan.priceInr}</span></label>)}
+        </div><span className="bottom-plan-caption" aria-live="polite">{bottomPlan.hasTelegramAccess ? 'Guide + community' : 'Field guide only'}</span></div>
+        <button type="button" onClick={() => navigate(`/purchase?plan=${bottomPlanId}#checkout-card`)} className="mentico-sticky-btn" aria-label={`Continue with ${bottomPlan.name} for ₹${bottomPlan.priceInr}`}>Continue<ArrowRight size={17}/></button>
+      </div></aside>}
+
     </div>
   );
 }
