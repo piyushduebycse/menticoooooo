@@ -64,13 +64,10 @@ export default function PurchasePlans({ selected, onSelect, disabled = false }) 
           <strong>₹{plan.priceInr.toLocaleString('en-IN')}</strong>
           <span>Discounted price · one-time payment</span>
         </div>
-        {plan.hasTelegramAccess && <p className="purchase-plan-upgrade">Everything in the ₹299 Field Guide, plus:</p>}
         <ul>
-          {!plan.hasTelegramAccess && <>
             <li><Check size={17} aria-hidden="true"/><span>Comprehensive downloadable Social Freedom Course</span></li>
             <li><Check size={17} aria-hidden="true"/><span>30-day challenge, practical frameworks & exercises</span></li>
             <li><Check size={17} aria-hidden="true"/><span>Read offline on your phone, tablet or laptop</span></li>
-          </>}
           {communityBenefits.map(benefit => plan.hasTelegramAccess ? (
             <li key={benefit}><Check size={17} aria-hidden="true"/><span>{benefit}</span></li>
           ) : (
