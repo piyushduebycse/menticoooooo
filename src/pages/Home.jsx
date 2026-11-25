@@ -721,7 +721,7 @@ export default function Home() {
 
       {showStickyBar && <aside className="mentico-sticky-bar bottom-plan-bar is-visible" aria-label="Field guide purchase"><div className="mentico-sticky-bar-inner">
         <div className="bottom-plan-choice"><div className="bottom-plan-toggle" role="radiogroup" aria-label="Bottom bar purchase option">
-          {Object.values(PRODUCT_PLANS).map(plan => <label key={plan.id} className={bottomPlanId === plan.id ? 'is-selected' : ''}><input type="radio" name="bottom-purchase-plan" value={plan.id} checked={bottomPlanId === plan.id} onChange={() => setBottomPlanId(plan.id)} aria-label={`₹${plan.priceInr} — ${plan.name}`}/><span className="bottom-option-name">{plan.hasTelegramAccess ? '+ Community' : 'Field Guide'}</span><strong className="bottom-option-price">₹{plan.priceInr}</strong></label>)}
+          {Object.values(PRODUCT_PLANS).map(plan => <label key={plan.id} className={bottomPlanId === plan.id ? 'is-selected' : ''}><input type="radio" name="bottom-purchase-plan" value={plan.id} checked={bottomPlanId === plan.id} onChange={() => setBottomPlanId(plan.id)} aria-label={`₹${plan.priceInr} — ${plan.hasTelegramAccess ? 'Field Guide + community' : plan.name}`}/><span className="bottom-option-name">{plan.hasTelegramAccess ? 'Field Guide + community' : 'Field Guide'}</span><strong className="bottom-option-price">₹{plan.priceInr}</strong></label>)}
         </div></div>
         <button type="button" onClick={() => navigate(`/purchase?plan=${bottomPlanId}#checkout-card`)} className="mentico-sticky-btn" title="Continue to checkout" aria-label={`Continue with ${bottomPlan.name} for ₹${bottomPlan.priceInr}`}><ArrowRight size={23}/></button>
       </div></aside>}

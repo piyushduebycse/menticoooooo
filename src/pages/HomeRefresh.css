@@ -130,7 +130,7 @@
 .bottom-plan-choice { flex: 1; min-width: 0; }
 .bottom-plan-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
 .bottom-plan-toggle label { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-width: 0; min-height: 55px; padding: 7px 8px; border: 1px solid transparent; border-radius: 16px; color: #7b614f; cursor: pointer; transition: background-color .18s, border-color .18s, color .18s; }
-.bottom-option-name { font-size: 11px; font-weight: 600; line-height: 1.15; white-space: nowrap; }
+.bottom-option-name { font-size: 11px; font-weight: 600; line-height: 1.15; white-space: normal; text-align: center; }
 .bottom-option-price { font-family: var(--font-display); font-size: 21px; line-height: 1; font-weight: 700; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
 .bottom-plan-toggle label.is-selected { color: #4e2313; background: #f0e1ce; border-color: #d9b995; }
 .bottom-plan-toggle label.is-selected .bottom-option-name { font-weight: 700; }
@@ -140,3 +140,5 @@
 .bottom-plan-bar .mentico-sticky-btn:hover { background: #6c3219; }
 @media(min-width:768px){ .bottom-option-name { font-size: 12px; } .bottom-option-price { font-size: 23px; } }
 @media(prefers-reduced-motion:reduce){ .bottom-plan-toggle label { transition: none; } }
+
+@media(max-width:767px){ .bottom-plan-toggle .bottom-option-name { display: flex; align-items: center; justify-content: center; min-height: 2.3em; } }
