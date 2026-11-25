@@ -1011,7 +1011,7 @@ body[data-menu-open="true"] .mentico-header {
 
 .mentico-sneak-items {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   width: 100%;
 }
@@ -1137,6 +1137,7 @@ body[data-menu-open="true"] .mentico-header {
   gap: 12px;
   font-family: var(--font-body);
   font-size: 15px;
+  font-weight: 700;
   line-height: 1.45;
   color: #4A3A30;
 }

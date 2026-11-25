@@ -456,7 +456,7 @@ export const firebaseAuthService = {
     return true;
   },
 
-  // Cache the verified checkout response for UI display; the server authorizes PDF access.
+  // Cache the verified checkout response for UI display; the server authorizes Course access.
   savePurchase: async (uid, purchaseData = {}) => {
     const enrichedData = {
       hasPurchased: true,

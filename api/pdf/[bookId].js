@@ -13,7 +13,7 @@ export function clearMetadataCache() {
   R2_METADATA_CACHE.clear();
 }
 
-/** Paid PDF delivery with range support for reliable complete-file downloads. */
+/** Paid Course delivery with range support for reliable complete-file downloads. */
 export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser, resolvePublication = resolveBook } = {}) {
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
   res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
@@ -192,7 +192,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser,
     } catch (r2Err) {
       console.error('[R2 Storage Error]:', r2Err);
       if (r2Err.name === 'NoSuchKey' || r2Err.$metadata?.httpStatusCode === 404) {
-        return res.status(404).json({ success: false, error: 'PDF file was not found in R2 storage.' });
+        return res.status(404).json({ success: false, error: 'The Course file was not found.' });
       }
       return res.status(500).json({ success: false, error: 'Failed to stream document from Cloudflare R2.' });
     }
@@ -219,7 +219,7 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser,
   if (!resolvedLocalPath) {
     return res.status(500).json({
       success: false,
-      error: 'Cloudflare R2 credentials (R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT) are not configured, and local PDF fallback was not found.',
+      error: 'Cloudflare R2 credentials (R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_ENDPOINT) are not configured, and local Course fallback was not found.',
     });
   }
 
@@ -283,8 +283,8 @@ export async function handlePdfStream(req, res, { authVerifier = verifyAuthUser,
       stream.destroy();
     });
   } catch (fsErr) {
-    console.error('[Local PDF Stream Error]:', fsErr);
-    return res.status(500).json({ success: false, error: 'Failed to stream local PDF file.' });
+    console.error('[Local Course Stream Error]:', fsErr);
+    return res.status(500).json({ success: false, error: 'Failed to stream local Course file.' });
   }
 }
 

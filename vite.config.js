@@ -108,7 +108,7 @@ export default defineConfig(({ mode }) => {
         const publicDir = path.resolve(__dirname, 'public');
         const files = fs.readdirSync(publicDir, { recursive: true });
         if (files.some((file) => /\.pdf$/i.test(file))) {
-          throw new Error('Paid PDFs must remain in private storage, never public assets.');
+          throw new Error('Paid Courses must remain in private storage, never public assets.');
         }
       },
     }],

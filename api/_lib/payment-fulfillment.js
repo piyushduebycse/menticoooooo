@@ -34,7 +34,7 @@ export function assertPaidPurchase({ orderId, paymentId, order, payment, email }
       order.amount_paid !== order.amount || order.amount_due !== 0) {
     throw new PurchaseError('Payment is awaiting confirmation. Please confirm it again shortly; do not pay again.', 409);
   }
-  // Historical orders without a plan remain PDF-only, even if they cost ₹499.
+  // Historical orders without a plan retain Course access only, even if they cost ₹499.
   const planId = order.notes.planId || 'pdf';
   const plan = getProductPlan(planId);
   if (!plan || (order.notes.planId && order.amount !== plan.amountInPaise)) {

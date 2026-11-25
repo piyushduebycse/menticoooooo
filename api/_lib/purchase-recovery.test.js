@@ -13,7 +13,7 @@ const response = () => ({ headers: {}, setHeader(k,v) { this.headers[k]=v; }, st
 const req = body => ({method:'POST',body});
 const client = (p=payment,o=order) => ({ payments: {fetch:async()=>p}, orders:{fetch:async()=>o} });
 function setup() { process.env.RAZORPAY_KEY_SECRET = 'fixture-secret-only'; }
-test('recovery tokens expire, resist tampering, and cannot be used as PDF access passes',()=>{
+test('recovery tokens expire, resist tampering, and cannot be used as Course access passes',()=>{
  setup(); const now=Date.now(); const token=createRecoveryToken(purchase,now); assert.equal(verifyRecoveryToken(token,now).email,purchase.email);
  assert.equal(createRecoveryToken(purchase,now),token);
  for(const invalid of [token+'bad',token.replace('mtcr_','mtc_'),'garbage',createAccessToken(purchase)]) assert.equal(verifyRecoveryToken(invalid,now),null);

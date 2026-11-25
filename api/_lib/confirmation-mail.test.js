@@ -20,7 +20,9 @@ test('renderConfirmationEmail: substitutes all variables correctly', () => {
   assert.ok(html.includes('&#8377;249.00'));
   assert.ok(html.includes('pay_test_12345'));
   assert.ok(html.includes('MENTICO-IN-TEST-VIP'));
-  assert.ok(html.includes('openPdf=true&amp;token=mtc_test_token_abc'));
+  assert.ok(html.includes('Downloadable Course &bull; Lifetime access'));
+  assert.ok(html.includes('Download Your Course &rarr;'));
+  assert.ok(html.includes('/library?token=mtc_test_token_abc'));
   assert.ok(!html.includes('{{{STUDENT_NAME}}}'));
   assert.ok(!html.includes('{{{PAYMENT_ID}}}'));
   assert.ok(!html.includes('{{{LICENSE_KEY}}}'));

@@ -48,7 +48,7 @@ export async function openRazorpayCheckout({ order, user, onSuccess, onFailure }
       amount: order.amount,
       currency: order.currency || 'INR',
       name: 'Mentico',
-      description: order.productName || 'Mentico - Social Freedom (PDF Manual)',
+      description: order.productName || 'Mentico - Social Freedom Course',
       image: '/mentico-badge-logo.png',
       order_id: order.orderId,
       prefill: {

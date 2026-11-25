@@ -38,13 +38,13 @@ export default function Dashboard() {
     <div className="downloads-welcome"><span className="badge-red"><CheckCircle2 size={14}/>PURCHASE CONFIRMED</span><h1>Your field guide.<br/>Yours to keep.</h1><p>Download it once. Read it anywhere. Your next small conversation starts here.</p></div>
     <div className="download-book-card">
       <img src="/images/book_isolated.jpg" alt="Social Freedom by Mentico field guide"/>
-      <div><span className="downloads-eyebrow">SOCIAL FREEDOM · BY MENTICO</span><h2>Make room for real conversations.</h2><p>A 90-page field guide, practical frameworks and your 30-day challenge. Save your PDF for offline reading or print a copy for personal use.</p>
-        <div className="download-book-badges"><span><FileText size={15}/>Downloadable PDF</span><span><BookOpen size={15}/>Lifetime access</span></div>
-        <button className="btn btn-primary download-primary" onClick={download} disabled={status === 'downloading'}><Download size={22}/>{status === 'downloading' ? `Preparing your PDF… ${progress}%` : status === 'done' ? 'Download PDF again' : 'Download my PDF'}<ArrowRight size={18}/></button>
-        {status === 'downloading' && <progress className="download-progress" value={progress} max={100} aria-label="PDF download progress"/>}
+      <div><span className="downloads-eyebrow">SOCIAL FREEDOM · BY MENTICO</span><h2>Make room for real conversations.</h2><p>A 90-page field guide, practical frameworks and your 30-day challenge. Save your Course for offline reading or print a copy for personal use.</p>
+        <div className="download-book-badges"><span><FileText size={15}/>Downloadable Course</span><span><BookOpen size={15}/>Lifetime access</span></div>
+        <button className="btn btn-primary download-primary" onClick={download} disabled={status === 'downloading'}><Download size={22}/>{status === 'downloading' ? `Preparing your Course… ${progress}%` : status === 'done' ? 'Download Course again' : 'Download my Course'}<ArrowRight size={18}/></button>
+        {status === 'downloading' && <progress className="download-progress" value={progress} max={100} aria-label="Course download progress"/>}
         {error && <p role="alert" className="download-error">{error}</p>}
-        {status === 'done' && <p role="status" className="download-success"><CheckCircle2 size={17}/>Your PDF is ready. Check your browser’s downloads or your phone’s Files app.</p>}
-        <p className="downloads-fine-print">No special reader needed. Open it in your preferred PDF app.</p>
+        {status === 'done' && <p role="status" className="download-success"><CheckCircle2 size={17}/>Your Course is ready. Check your browser’s downloads or your phone’s Files app.</p>}
+        <p className="downloads-fine-print">Open your Course from your downloads to read it offline.</p>
       </div>
     </div>
     <TelegramAccess accessToken={accessToken}/>

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { downloadPublication } from '../../src/services/downloadPublication.js';
-test('complete downloadable PDF is assembled exactly from bounded authenticated chunks',async()=>{
+test('complete downloadable Course is assembled exactly from bounded authenticated chunks',async()=>{
  const data=Buffer.alloc(1024*1024+731,65);data.write('%PDF-1.7\n');let calls=0;const progress=[];
  const blob=await downloadPublication({accessToken:'dummy-pass',onProgress:value=>progress.push(value),fetcher:async(url,options)=>{
   calls++;assert.equal(url,'/api/pdf/social-freedom?download=1');assert.equal(options.headers.Authorization,'Bearer dummy-pass');

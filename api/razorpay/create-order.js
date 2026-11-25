@@ -25,7 +25,7 @@ export async function handleCreateOrder(req, res, { getClient = getRazorpayClien
       receipt: `mtc_${crypto.randomBytes(12).toString('hex')}`,
       partial_payment: false,
       notes: {
-        planId: plan.id, productId: 'social-freedom', productName: 'Mentico - Social Freedom (PDF Field Manual)',
+        planId: plan.id, productId: 'social-freedom', productName: 'Mentico - Social Freedom Course',
         userName: name.trim(), userEmail: email.trim().toLowerCase(),
         userPhone: typeof phone === 'string' ? phone.trim().slice(0, 30) : '',
       },

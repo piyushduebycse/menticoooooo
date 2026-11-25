@@ -11,7 +11,7 @@ export async function downloadPublication({ accessToken, onProgress = () => {}, 
   const metadata = await fetcher(DOWNLOAD_URL, { method: 'HEAD', headers, signal });
   if (!metadata.ok) throw await downloadError(metadata);
   const size = Number(metadata.headers.get('Content-Length'));
-  if (!Number.isSafeInteger(size) || size < 1 || size > 100 * 1024 * 1024) throw new Error('We could not prepare the PDF. Please retry or contact support.');
+  if (!Number.isSafeInteger(size) || size < 1 || size > 100 * 1024 * 1024) throw new Error('We could not prepare the Course. Please retry or contact support.');
   // Small range requests avoid serverless response-size limits for the complete book.
   const chunks = [], chunkSize = 1024 * 1024;
   onProgress(0);
@@ -19,9 +19,9 @@ export async function downloadPublication({ accessToken, onProgress = () => {}, 
     const end = Math.min(start + chunkSize - 1, size - 1);
     const response = await fetcher(DOWNLOAD_URL, { headers: { ...headers, Range: `bytes=${start}-${end}` }, signal });
     if (!response.ok) throw await downloadError(response);
-    if (response.status !== 206 || response.headers.get('Content-Range') !== `bytes ${start}-${end}/${size}`) throw new Error('The PDF download was interrupted. Please retry.');
+    if (response.status !== 206 || response.headers.get('Content-Range') !== `bytes ${start}-${end}/${size}`) throw new Error('The Course download was interrupted. Please retry.');
     const chunk = await response.arrayBuffer();
-    if (chunk.byteLength !== end - start + 1) throw new Error('The PDF download was incomplete. Please retry.');
+    if (chunk.byteLength !== end - start + 1) throw new Error('The Course download was incomplete. Please retry.');
     chunks.push(chunk);
     onProgress(Math.round((end + 1) / size * 100));
   }

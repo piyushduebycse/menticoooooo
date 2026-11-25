@@ -73,15 +73,15 @@ export const CONFIRMATION_EMAIL_TEMPLATE = `<!DOCTYPE html>
             </h2>
 
             <p style="color:#64748b;font-size:13px;margin:8px 0 24px;">
-              Downloadable PDF &bull; Lifetime access
+              Downloadable Course &bull; Lifetime access
             </p>
 
             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
               <tr>
                 <td align="center" bgcolor="#17643b" style="border-radius:8px;">
-                  <a href="https://www.mentico.co.in/library?openPdf=true&amp;token={{{ACCESS_TOKEN}}}"
+                  <a href="https://www.mentico.co.in/library?token={{{ACCESS_TOKEN}}}"
                      style="display:block;padding:17px 20px;color:#ffffff;text-decoration:none;font-size:17px;font-weight:bold;border-radius:8px;">
-                    Download Your PDF &rarr;
+                    Download Your Course &rarr;
                   </a>
                 </td>
               </tr>

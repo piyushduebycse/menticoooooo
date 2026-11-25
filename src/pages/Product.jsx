@@ -1,6 +1,6 @@
 import PurchasePlans from '../components/PurchasePlans';
 import { PENDING_PAYMENT_KEY, readPendingPayment, confirmPayment } from '../services/purchase';
-import { getProductPlan, PRODUCT_ORIGINAL_PRICE_INR } from '../../shared/product.js';
+import { getProductPlan } from '../../shared/product.js';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle2, ArrowRight, BookOpen } from 'lucide-react';
@@ -64,7 +64,6 @@ export default function Product() {
     if (user?.phoneNumber && !buyerPhone) setBuyerPhone(user.phoneNumber);
   }, [user]);
 
-  const originalPrice = PRODUCT_ORIGINAL_PRICE_INR; // in INR
   const [selectedPlan, setSelectedPlan] = useState(() => getProductPlan(searchParams.get('plan'))?.id || 'pdf');
   const plan = getProductPlan(selectedPlan);
   const currentPrice = plan.priceInr;
@@ -206,24 +205,24 @@ export default function Product() {
   };
 
   return <section className="purchase-page container">
-    <header className="checkout-intro"><span className="badge-red">SOCIAL FREEDOM · BY MENTICO</span><h1>One small step.<br/>More real conversations.</h1><p>Choose your field guide, pay once, and download your PDF. Start practising today.</p></header>
-    {hasPurchased ? <div className="checkout-owned card"><CheckCircle2 size={30}/><h2>Your field guide is ready.</h2><p>You’ve already purchased. Open your download page to save the PDF and see everything included in your plan.</p><Link className="btn btn-primary" to="/library"><BookOpen size={20}/>Open my downloads<ArrowRight size={18}/></Link></div> : <>
+    <header className="checkout-intro"><span className="badge-red">SOCIAL FREEDOM · BY MENTICO</span><h1>One small step.<br/>More real conversations.</h1><p>Choose your field guide, pay once, and download your Course. Start practising today.</p></header>
+    {hasPurchased ? <div className="checkout-owned card"><CheckCircle2 size={30}/><h2>Your field guide is ready.</h2><p>You’ve already purchased. Open your download page to save the Course and see everything included in your plan.</p><Link className="btn btn-primary" to="/library"><BookOpen size={20}/>Open my downloads<ArrowRight size={18}/></Link></div> : <>
       <PurchasePlans selected={selectedPlan} onSelect={setSelectedPlan} disabled={isPurchasing || Boolean(pendingPayment)}/>
       <div className="checkout-layout">
         <div className="checkout-form-card" id="checkout-card">
-          <div className="checkout-order-heading"><div><span className="checkout-eyebrow">YOUR SELECTED PLAN</span><h2>{plan.name}</h2></div><div className="checkout-total"><strong>₹{currentPrice}</strong><del>₹{originalPrice}</del></div></div>
+          <div className="checkout-order-heading"><div><span className="checkout-eyebrow">YOUR SELECTED PLAN</span><h2>{plan.name}</h2></div><div className="checkout-total"><strong>₹{currentPrice}</strong><del aria-label={`Original price ₹${plan.originalPriceInr.toLocaleString('en-IN')}`}>₹{plan.originalPriceInr.toLocaleString('en-IN')}</del></div></div>
           <form onSubmit={event => { event.preventDefault(); handlePurchase(); }}>
             <label htmlFor="checkout-buyer-name">Full name</label><input id="checkout-buyer-name" type="text" autoComplete="name" placeholder="Your name" value={buyerName} onChange={event => setBuyerName(event.target.value)} maxLength={120} required={!pendingPayment} disabled={isPurchasing}/>
             <label htmlFor="checkout-buyer-email">Purchase email</label><input id="checkout-buyer-email" type="email" autoComplete="email" placeholder="you@example.com" value={buyerEmail} onChange={event => setBuyerEmail(event.target.value)} maxLength={254} required={!pendingPayment} disabled={isPurchasing}/>
             <p className="checkout-email-hint">Your purchase confirmation and download link go here. Please check the spelling.</p>
             {couponError && <p className="checkout-notice checkout-notice-error" role="alert">{couponError}</p>}
             {paymentNotice && <div className={`checkout-notice ${paymentNotice.type === 'pending' ? '' : 'checkout-notice-error'}`} role="alert"><strong>{paymentNotice.type === 'pending' ? 'Payment confirmation pending' : paymentNotice.type === 'cancelled' ? 'Payment cancelled' : 'Payment not completed'}</strong><p>{paymentNotice.message}</p></div>}
-            <button type="submit" className="btn btn-primary checkout-pay-button" disabled={isPurchasing}>{isPurchasing ? <><Spinner size="sm"/>Confirming…</> : <>{pendingPayment ? 'Confirm payment & get my PDF' : `Pay ₹${currentPrice} & get my PDF`}<ArrowRight size={20}/></>}</button>
+            <button type="submit" className="btn btn-primary checkout-pay-button" disabled={isPurchasing}>{isPurchasing ? <><Spinner size="sm"/>Confirming…</> : <>{pendingPayment ? 'Confirm payment & get my Course' : `Pay ₹${currentPrice} & get my Course`}<ArrowRight size={20}/></>}</button>
             <p className="checkout-no-refunds">Instant digital delivery. No refunds after access is provided, except where required by law. <Link to="/terms#refunds">Read the policy</Link>.</p>
           </form>
           <PaymentMethods/>
         </div>
-        <aside className="checkout-summary"><img src="/images/book_isolated.jpg" alt="Social Freedom by Mentico"/><h2>Yours to read.<br/>Yours to practise.</h2><ul><li><CheckCircle2 size={17}/>90-page downloadable PDF</li><li><CheckCircle2 size={17}/>30-day social confidence challenge</li><li><CheckCircle2 size={17}/>Read offline or print for personal use</li><li><CheckCircle2 size={17}/>Lifetime access to your field guide</li>{plan.hasTelegramAccess && <><li><CheckCircle2 size={17}/>Private Telegram community</li><li><CheckCircle2 size={17}/>Mentor guidance, subject to availability</li></>}</ul><p>Already purchased? Open the download link in your confirmation email. <Link to="/contact">Need help?</Link></p></aside>
+        <aside className="checkout-summary"><img src="/images/book_isolated.jpg" alt="Social Freedom by Mentico"/><h2>Yours to read.<br/>Yours to practise.</h2><ul><li><CheckCircle2 size={17}/>90-page downloadable Course</li><li><CheckCircle2 size={17}/>30-day social confidence challenge</li><li><CheckCircle2 size={17}/>Read offline or print for personal use</li><li><CheckCircle2 size={17}/>Lifetime access to your field guide</li>{plan.hasTelegramAccess && <><li><CheckCircle2 size={17}/>Private Telegram community</li><li><CheckCircle2 size={17}/>Mentor guidance, subject to availability</li></>}</ul><p>Already purchased? Open the download link in your confirmation email. <Link to="/contact">Need help?</Link></p></aside>
       </div>
     </>}
   </section>;

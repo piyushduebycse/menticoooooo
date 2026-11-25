@@ -189,7 +189,7 @@ test('Case E: Valid HTTP Range request returns 206 Partial Content with Content-
 
   const receivedData = Buffer.concat(res.chunks);
   assert.equal(receivedData.length, 65536);
-  // Verify PDF magic bytes '%PDF-'
+  // Verify the file format signature '%PDF-'
   assert.equal(receivedData.subarray(0, 5).toString('ascii'), '%PDF-');
 });
 

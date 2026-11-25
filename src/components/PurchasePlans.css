@@ -8,11 +8,15 @@
 .purchase-plan.is-selected { border-color: #673b24; box-shadow: inset 0 0 0 1px #673b24; }
 .purchase-plan-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .purchase-plan h3 { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; margin: 0; }
-.purchase-plan-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; margin: 18px 0 20px; }
-.purchase-plan-price span { font-family: var(--font-body); font-size: .8rem; font-weight: 500; color: #705b4c; }
+.purchase-plan-price { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 12px; row-gap: 4px; margin: 18px 0 20px; color: #341e13; }
+.purchase-plan-price del { font-size: 1rem; font-weight: 600; color: #705b4c; }
+.purchase-plan-price strong { font-family: var(--font-display); font-size: 2.5rem; font-weight: 800; line-height: 1; }
+.purchase-plan-price > span { flex-basis: 100%; font-size: .8rem; }
 .purchase-plan ul { list-style: none; padding: 0; margin: 0 0 24px; flex: 1; }
 .purchase-plan li { display: flex; align-items: flex-start; gap: 9px; font-size: .92rem; line-height: 1.6; margin-bottom: 12px; }
 .purchase-plan li svg { flex-shrink: 0; margin-top: 4px; }
+.purchase-plan li.purchase-plan-excluded { color: #9c241e; }
+.purchase-plan-excluded small { display: inline-block; margin-inline-start: 4px; padding: 1px 6px; border-radius: 4px; background: #f9e2dd; font-size: .75rem; font-weight: 700; }
 .purchase-plan-select { display: flex; align-items: center; gap: 10px; cursor: pointer; border-radius: 10px; border: 1px solid #ba9980; padding: 14px 12px; font-size: .88rem; font-weight: 700; min-height: 50px; background: #fffaf3; }
 .purchase-plan-select input { width: 18px; height: 18px; accent-color: #4e2313; flex-shrink: 0; }
 .purchase-plan-select:focus-within { outline: 2px solid #673b24; outline-offset: 3px; }
@@ -30,36 +34,36 @@
 .mentico-card-not-pickup .mentico-compare-item span { font-weight: 700; }
 .purchase-plan { position: relative; }
 .purchase-plan.is-mentor { border-color: #a66a44; }
-.purchase-plan-popular { align-self: flex-start; font-size: .65rem; font-weight: 800; letter-spacing: .1em; background: #673b24; color: #fff8ee; border-radius: 6px; padding: 5px 9px; margin-bottom: 14px; }
+.purchase-plan-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; }
+.purchase-plan-discount, .purchase-plan-popular { font-size: .65rem; font-weight: 800; letter-spacing: .08em; line-height: 1.4; color: #fff8ee; padding: 5px 9px; }
+.purchase-plan-discount { border-radius: 999px; background: #8e3518; }
+.purchase-plan-popular { border-radius: 6px; background: #673b24; }
 .purchase-plan-upgrade { font-size: .84rem; font-weight: 600; line-height: 1.6; color: #673b24; margin: -6px 0 18px; }
 .purchase-plan-assurance { font-size: .69rem; line-height: 1.5; color: #705b4c; margin: 12px 0 0; }
 .purchase-plan-note { font-size: .7rem; max-width: 780px; }
 .purchase-plan-note a { text-decoration: underline; text-underline-offset: 3px; }
 .purchase-plan-heading h3 { text-wrap: balance; }
-.purchase-plan-price { color: #341e13; }
 .purchase-plans.is-selecting .purchase-plans-intro .badge-red, .purchase-plans.is-selecting .purchase-plans-intro > p { display: none; }
 .purchase-plans.is-selecting .purchase-plans-intro h2 { font-size: 25px; margin-top: 0; }
 .purchase-plans.is-selecting .purchase-plan { padding: 22px; }
 .purchase-plans.is-selecting .purchase-plan-heading h3 { font-size: 20px; }
-.purchase-plans.is-selecting .purchase-plan-price { margin-block: 14px; font-size: 32px; }
+.purchase-plans.is-selecting .purchase-plan-price { margin-block: 14px; }
+.purchase-plans.is-selecting .purchase-plan-price strong { font-size: 32px; }
 .purchase-plans.is-selecting .purchase-plan-assurance { display: none; }
 .purchase-plans.is-selecting .purchase-plan li { font-size: 13px; margin-bottom: 8px; }
 .purchase-plans.is-selecting .purchase-plan ul { margin-bottom: 16px; }
-.purchase-plans.is-selecting .purchase-plan-popular { position: absolute; top: -11px; left: 20px; margin: 0; font-size: 9px; padding: 4px 8px; }
 .purchase-plans.is-selecting .purchase-plan.is-selected .purchase-plan-select { background: #673b24; color: #fffaf3; border-color: #673b24; }
 @media(max-width:640px){
   .purchase-plans.is-selecting .purchase-plan-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
   .purchase-plans.is-selecting .purchase-plan { padding: 19px 12px 12px; border-radius: 13px; }
   .purchase-plans.is-selecting .purchase-plan-heading h3 { font-size: 17px; line-height: 1.15; min-height: 60px; }
   .purchase-plans.is-selecting .purchase-plan-heading > svg { display: none; }
-  .purchase-plans.is-selecting .purchase-plan-price { display: block; font-size: 30px; margin-block: 10px; }
-  .purchase-plans.is-selecting .purchase-plan-price > span { display: block; font-size: 9px; margin-top: 5px; }
+  .purchase-plans.is-selecting .purchase-plan-price { margin-block: 10px; }
   .purchase-plans.is-selecting .purchase-plan li { font-size: 11px; gap: 5px; line-height: 1.5; margin-bottom: 8px; }
   .purchase-plans.is-selecting .purchase-plan li svg { width: 12px; height: 12px; margin-top: 2px; }
   .purchase-plans.is-selecting .purchase-plan-upgrade { font-size: 10px; margin: 0 0 9px; }
   .purchase-plans.is-selecting .purchase-plan-select { font-size: 11px; padding: 10px 7px; gap: 6px; min-height: 44px; }
   .purchase-plans.is-selecting .purchase-plan-select input { width: 15px; height: 15px; }
-  .purchase-plans.is-selecting .purchase-plan-popular { left: 10px; font-size: 8px; letter-spacing: .04em; }
   .purchase-plans.is-selecting .purchase-plan-note { font-size: 10px; }
 }
 /* Bold, readable plan details; mobile plans are a swipeable comparison. */
@@ -80,12 +84,11 @@
   .pricing-slider-controls button:disabled { opacity: .35; cursor: default; }
   .purchase-plans.is-selecting .purchase-plan { padding: 25px 20px 20px; }
   .purchase-plans.is-selecting .purchase-plan-heading h3 { font-size: 23px; min-height: 0; }
-  .purchase-plans.is-selecting .purchase-plan-price { font-size: 35px; }
+  .purchase-plans.is-selecting .purchase-plan-price strong { font-size: 35px; }
   .purchase-plans.is-selecting .purchase-plan-price > span { font-size: 12px; }
   .purchase-plans.is-selecting .purchase-plan li { font-size: 14px; line-height: 1.6; gap: 8px; }
   .purchase-plans.is-selecting .purchase-plan li svg { width: 16px; height: 16px; margin-top: 3px; }
   .purchase-plans.is-selecting .purchase-plan-upgrade { font-size: 13px; line-height: 1.6; }
   .purchase-plans.is-selecting .purchase-plan-select { font-size: 14px; padding: 12px; }
-  .purchase-plans.is-selecting .purchase-plan-popular { font-size: 10px; left: 20px; }
   .purchase-plans .purchase-plan-note { font-size: 11px; line-height: 1.6; }
 }

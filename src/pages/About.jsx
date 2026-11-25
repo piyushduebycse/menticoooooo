@@ -148,7 +148,7 @@ export default function About() {
           {/* Navigation CTA */}
           <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
             <Link
-              to={hasPurchased ? '/library?openPdf=true' : '/purchase'}
+              to={hasPurchased ? '/library' : '/purchase'}
               className="btn btn-primary"
               style={{
                 display: 'inline-flex',

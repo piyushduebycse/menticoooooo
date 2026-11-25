@@ -63,9 +63,9 @@ This roadmap outlines everything required to transition **Mentico** from a devel
 
 ---
 
-### Phase 3: Secure PDF Cloud Storage & Streaming 📄 `[HIGH PRIORITY]`
-*Currently, the raw PDF is inside [public/Mentico_Mastery_Blueprint.pdf](file:///e:/Mentico/public/Mentico_Mastery_Blueprint.pdf), accessible to anyone who enters the direct URL.*
-- [ ] **Move PDF to Firebase Cloud Storage**:
+### Phase 3: Secure Course Cloud Storage & Streaming 📄 `[HIGH PRIORITY]`
+*Currently, the raw Course is inside [public/Mentico_Mastery_Blueprint.pdf](file:///e:/Mentico/public/Mentico_Mastery_Blueprint.pdf), accessible to anyone who enters the direct URL.*
+- [ ] **Move Course to Firebase Cloud Storage**:
   - Upload the file to private storage bucket: `gs://mentico-prod.firebasestorage.app/vault/blueprint.pdf`.
   - Remove the file from `public/` so it is not statically hosted by Vercel.
 - [ ] **Apply Storage Security Rules**:
@@ -82,7 +82,7 @@ This roadmap outlines everything required to transition **Mentico** from a devel
   }
   ```
 - [ ] **Connect Blob Stream to Reader**:
-  - In [ProtectedPdfReader.jsx](file:///e:/Mentico/src/components/ProtectedPdfReader.jsx), fetch the PDF binary via Firebase Storage SDK / authenticated memory Blob instead of a static URL.
+  - In [ProtectedPdfReader.jsx](file:///e:/Mentico/src/components/ProtectedPdfReader.jsx), fetch the Course binary via Firebase Storage SDK / authenticated memory Blob instead of a static URL.
 
 ---
 
@@ -212,7 +212,7 @@ To maximize sales and student retention once you begin driving traffic:
 
 ### 3. VIP Community Access (Telegram / Discord)
 * Include an exclusive invite link inside the student's [Dashboard](file:///e:/Mentico/src/pages/Dashboard.jsx) upon successful payment.
-* Building a private peer community increases perceived value far beyond a standalone PDF guide and reduces refund requests to near zero.
+* Building a private peer community increases perceived value far beyond a standalone Course guide and reduces refund requests to near zero.
 
 ### 4. Post-Purchase WhatsApp Automated Delivery
 * Using a WhatsApp Business API (like Wati, Interakt, or AiSensy):

@@ -84,7 +84,7 @@ export function DashboardSkeleton() {
         ))}
       </div>
 
-      {/* Main Grid: Left PDF Downloader & Right Curriculum */}
+      {/* Main Grid: Left Course Downloader & Right Curriculum */}
       <div
         style={{
           display: 'grid',

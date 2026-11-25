@@ -53,7 +53,12 @@ export default function Home() {
   }, []);
 
   const handlePurchaseClick = () => {
-    document.getElementById('purchase-options')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
+    const purchaseOptions = document.getElementById('purchase-options');
+    const mobile = window.matchMedia('(max-width: 767px)').matches;
+    const planGrid = mobile ? purchaseOptions?.querySelector('.purchase-plan-grid') : null;
+    const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
+
+    (planGrid ?? purchaseOptions)?.scrollIntoView({ behavior, block: planGrid ? 'end' : 'start', inline: 'nearest' });
   };
 
   const toggleFaq = (index) => {
@@ -62,22 +67,32 @@ export default function Home() {
 
   const sneakPeekItems = [
     {
-      id: 2,
-      badge: 'A Real Truth',
-      title: 'The Belief Cycle & Overcoming Anxiety',
-      art: '/images/sneak_peek_2.jpg',
-      width: 682,
+      badge: 'Lesson 25',
+      title: 'Storytelling',
+      image: '/images/sneak-peek-storytelling.webp',
+      width: 762,
       height: 1024,
-      full: '/images/sneak_peek_2.jpg',
     },
     {
-      id: 3,
-      badge: 'Action Guide',
-      title: 'Storytelling, Humour & Going Deeper',
-      art: '/images/sneak_peek_3.jpg',
-      width: 682,
+      badge: 'Lessons 26–27',
+      title: 'Humour & Playfulness / Going Deeper',
+      image: '/images/sneak-peek-humour-and-going-deeper.webp',
+      width: 773,
       height: 1024,
-      full: '/images/sneak_peek_3.jpg',
+    },
+    {
+      badge: 'Lessons 28–29',
+      title: 'Threads & Thread Cutting',
+      image: '/images/sneak-peek-threads-and-thread-cutting.webp',
+      width: 1169,
+      height: 1280,
+    },
+    {
+      badge: 'Real-Life Examples',
+      title: 'Threads in Conversation',
+      image: '/images/sneak-peek-thread-examples.webp',
+      width: 1169,
+      height: 1280,
     },
   ];
 
@@ -114,7 +129,7 @@ export default function Home() {
     { question: 'Will this work for introverts?', answer: "Yes. Social Freedom isn’t about becoming louder or more outgoing. It’s about getting comfortable participating in ways that suit you. The 30-day challenge starts with small, low-pressure actions, like saying hello or asking one question, and builds at your own pace. It’s designed for introverts and overthinkers." },
     { question: 'How long does it take?', answer: "The guide is 90 pages and most people read it in a few sittings. The 30-day challenge asks for 10–15 minutes a day of small real-world actions. Many readers notice a shift in how they feel about starting conversations within the first couple of weeks, but it’s practice, not a quick fix, so results depend on how much you apply it." },
     { question: 'Is it manipulative?', answer: "No, the opposite. There are no scripts, pickup lines, tricks or fake personas. Social Freedom teaches you to read reciprocity, respect boundaries and express interest honestly, so connections are mutual and genuine. It works for friendships, networking and everyday life, not just dating." },
-    { question: 'How will I receive the field guide?', answer: 'After successful payment, you’ll see a download page with a prominent Download PDF button. Your confirmation email also includes a link to your purchase. Save the PDF to read offline, on any device, or print it for personal use.' },
+    { question: 'How will I receive the field guide?', answer: 'After successful payment, you’ll see a download page with a prominent Download Course button. Your confirmation email also includes a link to your purchase. Save the Course to read offline, on any device, or print it for personal use.' },
     { question: 'What does Private Community & Support include?', answer: 'The ₹499 plan includes everything in the ₹299 field guide, plus the private Mentico Telegram community and guidance from the Mentico mentor, subject to availability. You’ll get the Telegram join link after payment and in your confirmation email. There are no guaranteed response times or scheduled one-to-one sessions.' },
     { question: 'Will this guarantee dates or relationships?', answer: 'No. Other people’s feelings and choices are their own. The guide helps you practise starting conversations, listening, respecting boundaries and handling different outcomes. Progress depends on practice, and individual results vary.' },
     { question: 'Can I get a refund?', answer: 'Purchases are non-refundable once access to the digital field guide is provided, except where required by law. If your payment succeeded but you cannot download the book, contact support with your payment ID before purchasing again.' },
@@ -142,11 +157,6 @@ export default function Home() {
             <div className="hero-reference-benefits" aria-label="Field guide highlights"><span><Zap size={22}/><span>Instant access</span></span><span><Layers size={22}/><span>No scripts or pickup lines</span></span><span><Calendar size={22}/><span>30-day challenge included</span></span></div>
           </div>
           <svg className="hero-paper-edge" viewBox="0 0 1000 90" preserveAspectRatio="none" aria-hidden="true"><defs><filter id="hero-paper-grain"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter></defs><path d="m0 29 20 6 15-12 18 3 16-13 22 8 15 19 29 3 27 12 24-5 28 16 30-11 25 8 24-6 30 12 18-3 22 7 27-9 30 8 24-6 33 5 22-6 28 2 25-10 24 3 20-8 26 5 20-9 26 1 24-10 23 6 25-10 27 3 19-12 24 5 18-13 24 2 20-10 28 3 20-11 24 4 22-9 32-2V90H0Z" fill="#eddbc0"/><path d="m0 61 25-2 20 7 24-3 29 9 21-5 28 10 25-4 25 7 28-5 23 8 30-2 23 7 30-6 29 7 25-5 26 4 25-6 23 3 28-8 24 4 27-8 26 4 26-10 26 3 23-9 28 2 20-11 27 3 20-11 28 2 20-10 27 2 21-14 29 3 23-12 27 4 26-13 25 5 27-12V90H0Z" fill="#d6b88c" opacity=".66"/><rect width="1000" height="90" filter="url(#hero-paper-grain)" opacity=".09" style={{ mixBlendMode: 'multiply' }}/></svg>
-        </section>
-
-        <section className="mentico-container near-top-proof" aria-labelledby="proof-title">
-          <h2 className="mentico-section-heading" id="proof-title">Real People. Real Progress.</h2>
-          <ChatTestimonials/>
         </section>
 
         {/* 5. Problem: Does This Sound Familiar? */}
@@ -187,6 +197,11 @@ export default function Home() {
               </ul>
             </div>
           </div>
+        </section>
+
+        <section className="mentico-container near-top-proof" aria-labelledby="proof-title">
+          <h2 className="mentico-section-heading" id="proof-title">Real People. Real Progress.</h2>
+          <ChatTestimonials/>
         </section>
 
         {/* 6. Audience Identification: Who Should Read Social Freedom? */}
@@ -406,7 +421,7 @@ export default function Home() {
               >
                 {sneakPeekItems.map((item, idx) => (
                   <div
-                    key={item.id}
+                    key={item.image}
                     className={`mentico-sneak-card ${idx === carouselIndex ? 'is-active' : ''}`}
                     onClick={() => setLightboxImage(item)}
                     role="button"
@@ -424,7 +439,7 @@ export default function Home() {
                     </div>
                     <div className="mentico-sneak-card-art-wrap">
                       <img
-                        src={item.art}
+                        src={item.image}
                         width={item.width}
                         height={item.height}
                         alt={item.title}
@@ -590,9 +605,12 @@ export default function Home() {
 
         <section className="mentico-container home-access" aria-labelledby="home-access-title">
           <div className="home-access-icon"><BookOpen size={28}/></div>
-          <div><span className="section-kicker">YOUR FIELD GUIDE, YOURS TO KEEP</span><h2 id="home-access-title">{hasPurchased ? 'Your next chapter is ready.' : 'Already purchased? Your email has your download link.'}</h2><p>{hasPurchased ? 'Download Social Freedom and read it on your phone, laptop or offline—whenever you’re ready.' : 'Open the purchase link in your confirmation email to download your PDF. If it hasn’t arrived, check spam or contact us with your payment ID. Please don’t pay again.'}</p></div>
+          <div><span className="section-kicker">YOUR FIELD GUIDE, YOURS TO KEEP</span><h2 id="home-access-title">{hasPurchased ? 'Your next chapter is ready.' : 'Already purchased? Your email has your download link.'}</h2><p>{hasPurchased ? 'Download Social Freedom and read it on your phone, laptop or offline—whenever you’re ready.' : 'Open the purchase link in your confirmation email to download your Course. If it hasn’t arrived, check spam or contact us with your payment ID. Please don’t pay again.'}</p></div>
           {hasPurchased ? <button className="btn btn-primary" onClick={() => navigate('/library')}><Download size={18}/>Open my downloads</button> : <button className="btn btn-secondary" onClick={() => navigate('/contact')}>Get help with my purchase<ArrowRight size={16}/></button>}
         </section>
+
+        <section className="mentico-container final-invitation-art"><button type="button" onClick={handlePurchaseClick} aria-label="Start my Social Freedom journey — choose a plan"><img src="/images/start-social-freedom.jpg" width="1080" height="952" alt="Your next chapter starts here. Stop watching opportunities pass because you hesitated. Start talking to people. Instant access, 90-page field guide, 30-day challenge and lifetime access." loading="lazy"/></button></section>
+
         {/* 9. Frequently Asked Questions */}
         <section id="faq" className="mentico-container mentico-faq-section">
           <div className="mentico-faq-card">
@@ -620,9 +638,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-
-        <section className="mentico-container final-invitation-art"><button type="button" onClick={handlePurchaseClick} aria-label="Start my Social Freedom journey — choose a plan"><img src="/images/start-social-freedom.jpg" width="1080" height="952" alt="Your next chapter starts here. Stop watching opportunities pass because you hesitated. Start talking to people. Instant access, 90-page field guide, 30-day challenge and lifetime access." loading="lazy"/></button></section>
       </div>
       {/* Lightbox Modal for Full Preview Spread */}
       {lightboxImage && (
@@ -646,7 +661,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => {
-                  const currentIdx = sneakPeekItems.findIndex((it) => it.id === lightboxImage.id);
+                  const currentIdx = sneakPeekItems.findIndex((item) => item.image === lightboxImage.image);
                   const prevIdx = (currentIdx - 1 + sneakPeekItems.length) % sneakPeekItems.length;
                   setLightboxImage(sneakPeekItems[prevIdx]);
                 }}
@@ -658,7 +673,7 @@ export default function Home() {
               </button>
 
               <img
-                src={lightboxImage.full}
+                src={lightboxImage.image}
                 alt={lightboxImage.title}
                 className="mentico-lightbox-img"
               />
@@ -666,7 +681,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => {
-                  const currentIdx = sneakPeekItems.findIndex((it) => it.id === lightboxImage.id);
+                  const currentIdx = sneakPeekItems.findIndex((item) => item.image === lightboxImage.image);
                   const nextIdx = (currentIdx + 1) % sneakPeekItems.length;
                   setLightboxImage(sneakPeekItems[nextIdx]);
                 }}
@@ -683,7 +698,7 @@ export default function Home() {
                   {lightboxImage.title}
                 </strong>
                 <span style={{ fontSize: '13.5px', color: 'var(--color-body)' }}>
-                  Complete field guide preview spread • Click arrows to view chapters
+                  Course preview · Use the arrows to browse pages
                 </span>
               </div>
               <button
@@ -703,7 +718,7 @@ export default function Home() {
         </div>
       )}
 
-      {showStickyBar && <aside className="mentico-sticky-bar is-visible" aria-label="Field guide purchase"><div className="mentico-sticky-bar-inner"><div className="mentico-sticky-pricing"><div className="mentico-sticky-price-row"><span className="mentico-sticky-title">Social Freedom</span><span className="mentico-sticky-price">₹{currentPrice}</span><span className="mentico-sticky-original-price">₹{originalPrice}</span></div><span className="mentico-sticky-sublabel">Downloadable PDF · Lifetime access</span></div><button type="button" onClick={handlePurchaseClick} className="mentico-sticky-btn">Choose my plan<ArrowRight size={16}/></button></div></aside>}
+      {showStickyBar && <aside className="mentico-sticky-bar is-visible" aria-label="Field guide purchase"><div className="mentico-sticky-bar-inner"><div className="mentico-sticky-pricing"><div className="mentico-sticky-price-row"><span className="mentico-sticky-title">Social Freedom</span><span className="mentico-sticky-price">₹{currentPrice}</span><span className="mentico-sticky-original-price">₹{originalPrice}</span></div><span className="mentico-sticky-sublabel">Downloadable Course · Lifetime access</span></div><button type="button" onClick={handlePurchaseClick} className="mentico-sticky-btn">Choose my plan<ArrowRight size={16}/></button></div></aside>}
     </div>
   );
 }

@@ -35,7 +35,7 @@ export default function Terms() {
               marginBottom: '0.5rem',
             }}
           >
-            PDF: ₹{PRODUCT_PRICE_INR} | Private Community & Support: ₹{PRODUCT_PLANS.pdf_mentor.priceInr} | One-time purchase
+            Course: ₹{PRODUCT_PRICE_INR} | Private Community & Support: ₹{PRODUCT_PLANS.pdf_mentor.priceInr} | One-time purchase
           </p>
           <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', maxWidth: '620px', margin: '0 auto' }}>
             By purchasing, downloading, or accessing the Mentico Social Freedom Course, you agree to the following Terms &amp; Conditions.
@@ -109,7 +109,7 @@ export default function Terms() {
               <span style={{ color: 'var(--red-primary)' }}>2.</span> Intellectual Property Rights
             </h2>
             <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
-              All course materials, including PDFs, written content, frameworks, exercises, illustrations, strategies, and other resources, are the intellectual property of Mentico.
+              All course materials, including downloadable course files, written content, frameworks, exercises, illustrations, strategies, and other resources, are the intellectual property of Mentico.
             </p>
             <p style={{ fontSize: '0.92rem', fontWeight: 600, color: 'var(--text-main)', marginBottom: '0.5rem' }}>
               No part of this course may be:
@@ -323,7 +323,7 @@ export default function Terms() {
 
           <section aria-labelledby="privacy" style={{ marginBottom: '2rem' }}>
             <h2 id="privacy" style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.75rem' }}>Privacy &amp; purchase information</h2>
-            <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>We use your checkout name, email and payment reference to deliver your field guide, send purchase emails, verify access and respond to support requests. Payments are processed by Razorpay; Mentico does not receive or store your full card details. Purchase emails are sent through Resend, and hosting and storage providers support delivery of the website and PDF.</p>
+            <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>We use your checkout name, email and payment reference to deliver your field guide, send purchase emails, verify access and respond to support requests. Payments are processed by Razorpay; Mentico does not receive or store your full card details. Purchase emails are sent through Resend, and hosting and storage providers support delivery of the website and Course.</p>
             <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>Your purchase link is saved in your browser so you can return to your downloads. Contact margmanpath@gmail.com with questions about your purchase information or privacy.</p>
           </section>
           {/* Copyright & Support */}

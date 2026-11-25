@@ -25,7 +25,7 @@ try {
     pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
   }
 } catch (e) {
-  console.warn('[PDF Reader] Notice: workerSrc top-level initialization deferred:', e?.message);
+  console.warn('[Course Reader] Notice: workerSrc top-level initialization deferred:', e?.message);
 }
 
 export default function ProtectedPdfReader({
@@ -183,7 +183,7 @@ export default function ProtectedPdfReader({
     };
   }, [triggerDrmWarning]);
 
-  // Resolved PDF Endpoint (R2 Stream via Vercel Serverless Function)
+  // Resolved Course Endpoint (R2 Stream via Vercel Serverless Function)
   const resolvedUrl = bookId ? `/api/pdf/${bookId}` : pdfUrl;
 
   // Range-Optimized PDF.js Document Loading
@@ -234,7 +234,7 @@ export default function ProtectedPdfReader({
         setIsLoading(false);
       } catch (err) {
         if (!isMounted) return;
-        console.error('[PDF Reader Load Error]:', err);
+        console.error('[Course Reader Load Error]:', err);
         setIsLoading(false);
         const errMsg = String(err?.message || '');
         if (
@@ -249,7 +249,7 @@ export default function ProtectedPdfReader({
           setIsAccessDenied(true);
           setLoadError('Access Denied: A verified active purchase is required to view this publication.');
         } else {
-          setLoadError(err.message || 'Error loading protected PDF document from vault.');
+          setLoadError(err.message || 'Unable to load the Course. Please retry.');
         }
       }
     }

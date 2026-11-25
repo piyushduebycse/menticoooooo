@@ -1,6 +1,6 @@
 # Mentico Platform — Security, Authorization & DRM Architecture 🛡️
 
-This document outlines the security architecture implemented in the Mentico platform, detailing how user authorization is enforced, how multiple sessions/logging are synchronized, and how the intellectual property of the digital resources (PDF Blueprints) is protected via multi-layered Digital Rights Management (DRM).
+This document outlines the security architecture implemented in the Mentico platform, detailing how user authorization is enforced, how multiple sessions/logging are synchronized, and how the intellectual property of the digital resources (Course materials) is protected via multi-layered Digital Rights Management (DRM).
 
 ---
 
@@ -79,14 +79,14 @@ To prevent session hijacking, orphaned logins, and account misuse across devices
 
 ---
 
-## 3. PDF Privacy & Anti-Piracy Protection (DRM)
+## 3. Course Privacy & Anti-Piracy Protection (DRM)
 
-The PDF reader (`src/components/ProtectedPdfReader.jsx`) is engineered to prevent copying, unauthorized redistribution, printing, and direct downloading through a **5-Layer DRM Architecture**:
+The Course reader (`src/components/ProtectedPdfReader.jsx`) is engineered to prevent copying, unauthorized redistribution, printing, and direct downloading through a **5-Layer DRM Architecture**:
 
 ### Layer 1: In-Memory Canvas Rendering (No Direct Embeds)
 * Standard `<embed>`, `<iframe>`, or direct `<a href="...pdf">` elements are strictly avoided, as native browsers equip them with "Save As", "Print", "Download", and URL inspection tools.
 * Mozilla's `pdfjs-dist` worker fetches the document stream directly in memory and renders vector page geometry onto an **HTML5 `<canvas>` element**.
-* The raw PDF file path is never directly exposed to the DOM as a downloadable resource.
+* The raw Course file path is never directly exposed to the DOM as a downloadable resource.
 
 ### Layer 2: Forensic Pixel Watermark (Baked into Canvas Context)
 * In `drawCanvasWatermark()` (`ProtectedPdfReader.jsx`), user-specific identity information is drawn directly onto the 2D canvas bitmap:
@@ -96,7 +96,7 @@ The PDF reader (`src/components/ProtectedPdfReader.jsx`) is engineered to preven
 * **Tamper-Proof Graphic Layer**:
   * Rotated at a `-25°` angle across dynamic grid coordinates spanning the entire canvas.
   * Rendered at `rgba(220, 38, 38, 0.14)` using a monospace font.
-  * **Why it cannot be stripped**: Because it is drawn directly onto the image pixels alongside the PDF content, it **cannot be removed or hidden using Developer Tools, ad-blockers, or DOM inspection**.
+  * **Why it cannot be stripped**: Because it is drawn directly onto the image pixels alongside the Course content, it **cannot be removed or hidden using Developer Tools, ad-blockers, or DOM inspection**.
 
 ### Layer 3: Floating DOM Watermark Overlay
 * Positioned directly above the canvas container is an overlay (`.reader-watermark-overlay`) configured with:
@@ -136,7 +136,7 @@ The PDF reader (`src/components/ProtectedPdfReader.jsx`) is engineered to preven
 | **Database Access Control** | Per-user document authorization rules (`request.auth.uid == userId`) | Cloud Firestore Security Rules |
 | **Session Synchronization** | Real-time cross-tab logout and state synchronization | `src/services/firebase.js` (`storage` event) |
 | **Credential Safety** | Short-lived JWTs, automated refresh, zero plaintext passwords | Firebase Authentication Engine |
-| **PDF Rendering** | In-memory binary parsing into HTML5 Canvas (no direct download) | `src/components/ProtectedPdfReader.jsx` |
+| **Course Rendering** | In-memory binary parsing into HTML5 Canvas (no direct download) | `src/components/ProtectedPdfReader.jsx` |
 | **Pixel Watermark** | Email and license key stamped directly into canvas bitmap pixels | `src/components/ProtectedPdfReader.jsx` (`drawCanvasWatermark`) |
 | **Screen Capture Shield** | Diagonal unselectable floating DOM watermark overlay | `src/index.css` (`.reader-watermark-overlay`) |
 | **Piracy Interception** | Suppresses Right-Click, Print (`Ctrl+P`), Save (`Ctrl+S`), Source (`Ctrl+U`) | `src/components/ProtectedPdfReader.jsx` (`handleKeyDown`) |

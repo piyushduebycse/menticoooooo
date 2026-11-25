@@ -13,7 +13,7 @@ const res=()=>({setHeader(){},status(code){this.code=code;return this;},json(bod
 const order=(planId,amount=planId==='pdf_mentor'?49900:29900)=>({id:'order_plan1',amount,amount_paid:amount,amount_due:0,status:'paid',currency:'INR',notes:{productId:'social-freedom',userEmail:'buyer@example.com',userName:'Buyer',...(planId?{planId}:{})}});
 const payment=o=>({id:'pay_plan1',order_id:o.id,amount:o.amount,currency:'INR',status:'captured',captured:true,amount_refunded:0,refund_status:null});
 const paid=o=>assertPaidPurchase({orderId:o.id,paymentId:'pay_plan1',order:o,payment:payment(o)});
-test('catalog has ₹299 PDF and ₹499 mentor plan; unknown/prototype plans are rejected',()=>{
+test('catalog has ₹299 Course and ₹499 mentor plan; unknown/prototype plans are rejected',()=>{
  assert.equal(PRODUCT_PLANS.pdf.amountInPaise,29900);assert.equal(PRODUCT_PLANS.pdf_mentor.amountInPaise,49900);
  for(const id of ['__proto__','constructor','bad',null,{},1])assert.equal(getProductPlan(id),null);
 });
@@ -21,7 +21,7 @@ test('server creates correct plan amount and notes, never trusting client price'
  for(const planId of ['pdf','pdf_mentor']){let created;const r=res();await handleCreateOrder({method:'POST',body:{name:'Buyer',email:'buyer@example.com',planId,displayedAmountInPaise:PRODUCT_PLANS[planId].amountInPaise}},r,{getClient:()=>({key_id:'dummy',orders:{create:async value=>{created=value;return {id:'order_plan1',...value};}}})});assert.equal(r.code,200);assert.equal(created.amount,PRODUCT_PLANS[planId].amountInPaise);assert.equal(created.notes.planId,planId);}
  for(const [planId,amount,code] of [['pdf_mentor',29900,409],['pdf',49900,409],['bad',49900,400]]){const r=res();await handleCreateOrder({method:'POST',body:{name:'Buyer',email:'buyer@example.com',planId,displayedAmountInPaise:amount}},r,{getClient:()=>assert.fail('must not create')});assert.equal(r.code,code);}
 });
-test('only an explicitly tagged ₹499 mentor purchase receives the invite; old ₹499 buyers stay PDF-only',()=>{
+test('only an explicitly tagged ₹499 mentor purchase receives the invite; old ₹499 buyers keep Course access only',()=>{
  const mentor=paid(order('pdf_mentor'));assert.match(purchaseBenefits(mentor).telegramInviteUrl,/^https:\/\/t\.me\//);
  for(const o of [order('pdf'),order(undefined,49900),order(undefined,100),order(undefined,24900)]){assert.equal(purchaseBenefits(paid(o)).telegramInviteUrl,undefined);assert.equal(paid(o).hasTelegramAccess,false);}
  for(const o of [order('pdf_mentor',29900),order('unknown',49900),order('pdf',100)])assert.throws(()=>paid(o));

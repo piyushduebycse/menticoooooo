@@ -199,7 +199,7 @@ export default function LearningJourney({
             </div>
 
             <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-              The Mentico Mastery Blueprint (PDF) • Chapter {currentChapterNumber}
+              The Mentico Mastery Blueprint (Course) • Chapter {currentChapterNumber}
             </div>
 
             <button
