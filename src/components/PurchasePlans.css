@@ -62,3 +62,30 @@
   .purchase-plans.is-selecting .purchase-plan-popular { left: 10px; font-size: 8px; letter-spacing: .04em; }
   .purchase-plans.is-selecting .purchase-plan-note { font-size: 10px; }
 }
+/* Bold, readable plan details; mobile plans are a swipeable comparison. */
+.purchase-plan-grid { position: relative; }
+.purchase-plan li, .purchase-plan-upgrade, .purchase-plan-price > span, .purchase-plans-intro > p { font-weight: 700; color: #513726; }
+.purchase-plan-assurance { font-weight: 600; }
+.pricing-slider-tabs, .pricing-slider-controls { display: none; }
+@media(max-width:767px){
+  .purchase-plans .purchase-plan-grid, .purchase-plans.is-selecting .purchase-plan-grid { display: grid; grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: calc(100% - 24px); overflow-x: auto; gap: 14px; padding: 12px 2px 8px; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; align-items: stretch; }
+  .purchase-plan-grid::-webkit-scrollbar { display: none; }
+  .purchase-plan { scroll-snap-align: start; scroll-snap-stop: always; }
+  .pricing-slider-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .pricing-slider-tabs button { min-height: 44px; border-radius: 9px; border: 1px solid #c9aa88; padding: 8px; background: #fffaf3; color: #673b24; font-size: 12px; font-weight: 700; }
+  .pricing-slider-tabs button[aria-pressed="true"] { color: #fffaf3; background: #673b24; border-color: #673b24; }
+  .pricing-slider-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+  .pricing-slider-controls .btn { min-height: 44px; min-width: 44px; padding: 8px; }
+  .pricing-slider-controls > span { color: #673b24; font-weight: 700; font-size: 12px; }
+  .pricing-slider-controls button:disabled { opacity: .35; cursor: default; }
+  .purchase-plans.is-selecting .purchase-plan { padding: 25px 20px 20px; }
+  .purchase-plans.is-selecting .purchase-plan-heading h3 { font-size: 23px; min-height: 0; }
+  .purchase-plans.is-selecting .purchase-plan-price { font-size: 35px; }
+  .purchase-plans.is-selecting .purchase-plan-price > span { font-size: 12px; }
+  .purchase-plans.is-selecting .purchase-plan li { font-size: 14px; line-height: 1.6; gap: 8px; }
+  .purchase-plans.is-selecting .purchase-plan li svg { width: 16px; height: 16px; margin-top: 3px; }
+  .purchase-plans.is-selecting .purchase-plan-upgrade { font-size: 13px; line-height: 1.6; }
+  .purchase-plans.is-selecting .purchase-plan-select { font-size: 14px; padding: 12px; }
+  .purchase-plans.is-selecting .purchase-plan-popular { font-size: 10px; left: 20px; }
+  .purchase-plans .purchase-plan-note { font-size: 11px; line-height: 1.6; }
+}

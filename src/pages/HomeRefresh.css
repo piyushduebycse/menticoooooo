@@ -102,3 +102,22 @@
 @media(max-width:767px){
   .refreshed-home .mentico-who-heading { max-width: 20ch; margin-inline: auto; }
 }
+/* Reader-supplied artwork and the requested stronger mobile text hierarchy. */
+.refreshed-home .mentico-inside-item, .refreshed-home .mentico-timeline-desc, .refreshed-home .home-access p { font-weight: 700; color: #513726; }
+.refreshed-home .mentico-timeline-title { font-weight: 800; }
+.refreshed-home .mentico-timeline-desc { font-size: 16px; line-height: 1.65; }
+.refreshed-home .home-access .section-kicker { font-weight: 800; }
+.mentico-card-formula.formula-artwork { margin: 0; padding: 0; align-self: start; overflow: hidden; }
+.formula-artwork img { display: block; width: 100%; height: auto; }
+.final-invitation-art { padding-block: 0 28px; max-width: 1080px; }
+.final-invitation-art button { display: block; width: 100%; padding: 0; border: 0; background: transparent; border-radius: 18px; overflow: hidden; cursor: pointer; }
+.final-invitation-art img { display: block; width: 100%; height: auto; }
+@media(max-width:767px){
+  .refreshed-home .benefits-section { width: 100%; max-width: none; padding-inline: 0; }
+  .refreshed-home .benefits-illustration { max-width: none; border: 0; border-radius: 0; }
+  .refreshed-home .benefits-illustration img { width: 100%; }
+  .final-invitation-art { width: 100%; padding-inline: 0; }
+  .final-invitation-art button { border-radius: 0; }
+}
+.refreshed-home .mentico-timeline-pill, .refreshed-home #challenge .mentico-section-subheading, .refreshed-home .challenge-outcome span { font-weight: 700; color: #513726; }
+@media(max-width:767px){ .refreshed-home .final-invitation-art { width: 100%; max-width: none; padding-inline: 0; } }

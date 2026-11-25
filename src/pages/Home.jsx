@@ -1,3 +1,4 @@
+import ChatTestimonials from '../components/ChatTestimonials';
 import PurchasePlans from '../components/PurchasePlans';
 import usePurchaseAccess from '../hooks/usePurchaseAccess';
 import './HomeRefresh.css';
@@ -61,15 +62,6 @@ export default function Home() {
 
   const sneakPeekItems = [
     {
-      id: 1,
-      badge: 'Framework',
-      title: 'Charisma, Perspective & Connection',
-      art: '/images/sneak_peek_1.jpg',
-      width: 576,
-      height: 1024,
-      full: '/images/sneak_peek_1.jpg',
-    },
-    {
       id: 2,
       badge: 'A Real Truth',
       title: 'The Belief Cycle & Overcoming Anxiety',
@@ -118,35 +110,9 @@ export default function Home() {
     touchStartXRef.current = null;
   };
 
-  const initialTestimonials = [
-    {
-      id: 1,
-      author: '— Amit, 26',
-      quote:
-        '"This helped me stop overthinking and actually start talking to people. The 30-day challenge is super practical."',
-      avatar: '/images/testimonial_avatar_1.jpg',
-    },
-    {
-      id: 2,
-      author: '— Rohan, 24',
-      quote:
-        '"I feel more confident in social situations and conversations that I actually enjoy now. It\'s not theory, it\'s real life."',
-      avatar: '/images/testimonial_avatar_2.jpg',
-    },
-    {
-      id: 3,
-      author: '— Karan, 28',
-      quote:
-        '"Not just about dating, this improved my overall social life. Very practical and well-structured."',
-      avatar: '/images/testimonial_avatar_3.jpg',
-    },
-  ];
-
-  const testimonialsList = initialTestimonials;
-
   const faqItems = [
     { question: 'Will this work for introverts?', answer: "Yes. Social Freedom isn’t about becoming louder or more outgoing. It’s about getting comfortable participating in ways that suit you. The 30-day challenge starts with small, low-pressure actions, like saying hello or asking one question, and builds at your own pace. It’s designed for introverts and overthinkers." },
-    { question: 'How long does it take?', answer: "The guide is 90 pages, so you can read it in a few sittings or work through it gradually. The 30-day challenge asks for 10–15 minutes a day of small real-world actions. The aim is to make starting conversations feel more manageable through practice. It isn’t a quick fix; results depend on how consistently you apply it." },
+    { question: 'How long does it take?', answer: "The guide is 90 pages and most people read it in a few sittings. The 30-day challenge asks for 10–15 minutes a day of small real-world actions. Many readers notice a shift in how they feel about starting conversations within the first couple of weeks, but it’s practice, not a quick fix, so results depend on how much you apply it." },
     { question: 'Is it manipulative?', answer: "No, the opposite. There are no scripts, pickup lines, tricks or fake personas. Social Freedom teaches you to read reciprocity, respect boundaries and express interest honestly, so connections are mutual and genuine. It works for friendships, networking and everyday life, not just dating." },
     { question: 'How will I receive the field guide?', answer: 'After successful payment, you’ll see a download page with a prominent Download PDF button. Your confirmation email also includes a link to your purchase. Save the PDF to read offline, on any device, or print it for personal use.' },
     { question: 'What does Private Community & Support include?', answer: 'The ₹499 plan includes everything in the ₹299 field guide, plus the private Mentico Telegram community and guidance from the Mentico mentor, subject to availability. You’ll get the Telegram join link after payment and in your confirmation email. There are no guaranteed response times or scheduled one-to-one sessions.' },
@@ -180,7 +146,7 @@ export default function Home() {
 
         <section className="mentico-container near-top-proof" aria-labelledby="proof-title">
           <h2 className="mentico-section-heading" id="proof-title">Real People. Real Progress.</h2>
-          <div className="near-top-proof-grid">{testimonialsList.map(review => <figure key={review.id}><blockquote>{review.quote}</blockquote><figcaption>{review.author}</figcaption></figure>)}</div>
+          <ChatTestimonials/>
         </section>
 
         {/* 5. Problem: Does This Sound Familiar? */}
@@ -364,7 +330,7 @@ export default function Home() {
 
 </section>
         <section className="mentico-container benefits-section" aria-label="What Social Freedom helps you practise">
-          <div className="benefits-illustration"><img src="/images/hero_social_freedom_journey.jpg" width="1024" height="664" alt="Calm overthinking and social anxiety, build confidence, learn practical conversation skills, handle rejection, create meaningful connections and become more socially expressive" loading="lazy"/></div>
+          <div className="benefits-illustration"><img src="/images/social-freedom-benefits.jpg" width="1280" height="829" alt="Calm overthinking and social anxiety, build confidence, learn practical conversation skills, handle rejection, create meaningful connections and become more socially expressive" loading="lazy"/></div>
         </section>
 
         {/* 4. What You'll Learn Section */}
@@ -619,22 +585,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mentico-card-formula">
-            <span className="mentico-formula-eyebrow">THE CONFIDENCE FORMULA</span>
-            <h2 className="mentico-section-heading">Give your courage a receipt.</h2>
-            <p className="mentico-formula-intro">Every small conversation gives you something overthinking never can: proof you can handle it.</p>
-            <ol className="mentico-proof-loop">
-              {[
-                ['01', 'Make the first move', 'Ask a question. Say hello. Give yourself one small moment to try.'],
-                ['02', 'Let reality answer', 'Notice what actually happened, rather than the outcome you imagined.'],
-                ['03', 'Keep the evidence', 'Write down what you handled, what you learned and what you would try again.'],
-                ['04', 'Raise the stakes a little', 'Take that proof into your next conversation. Confidence grows through practice.'],
-              ].map(([number, title, description]) => (
-                <li key={number}><span className="mentico-proof-number">{number}</span><div><h3>{title}</h3><p>{description}</p></div></li>
-              ))}
-            </ol>
-            <p className="mentico-formula-note">One hello → one real experience → one reason to try again.</p>
-          </div>
+          <figure className="mentico-card-formula formula-artwork"><img src="/images/confidence-formula.jpg" width="1024" height="895" alt="The confidence formula: turn small interactions into lasting confidence. Make the first move, let reality answer, and build momentum. A practical step-by-step system to stop overthinking, take action and feel comfortable in social situations." loading="lazy"/></figure>
         </div>
 
         <section className="mentico-container home-access" aria-labelledby="home-access-title">
@@ -671,7 +622,7 @@ export default function Home() {
         </section>
 
 
-        <section className="mentico-container final-invitation"><div><span className="section-kicker">START SMALL. KEEP GOING.</span><h2>One hello can be your first step.</h2><p>Instant access · 90 pages · 30-day challenge · Lifetime access</p></div><button className="mentico-btn-cta" onClick={handlePurchaseClick}>Choose my field guide<ArrowRight size={18}/></button></section>
+        <section className="mentico-container final-invitation-art"><button type="button" onClick={handlePurchaseClick} aria-label="Start my Social Freedom journey — choose a plan"><img src="/images/start-social-freedom.jpg" width="1080" height="952" alt="Your next chapter starts here. Stop watching opportunities pass because you hesitated. Start talking to people. Instant access, 90-page field guide, 30-day challenge and lifetime access." loading="lazy"/></button></section>
       </div>
       {/* Lightbox Modal for Full Preview Spread */}
       {lightboxImage && (

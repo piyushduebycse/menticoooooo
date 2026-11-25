@@ -1,0 +1,19 @@
+.chat-proof-intro { font-size: 13px; line-height: 1.6; color: #705b4c; margin: -4px 0 18px; font-weight: 600; }
+.chat-testimonial-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 16px; align-items: start; }
+.near-top-proof .chat-testimonial-card { margin: 0; padding: 0; border: 1px solid #d9c5b1; background: #fffaf3; border-radius: 14px; overflow: hidden; }
+.chat-testimonial-card a { display: block; position: relative; background: #0b0b0e; }
+.chat-testimonial-card img { display: block; width: 100%; height: auto; object-fit: contain; }
+.chat-enlarge { display: flex; justify-content: center; align-items: center; gap: 6px; padding: 9px; color: #fffaf3; font-size: 12px; font-weight: 700; }
+.near-top-proof .chat-testimonial-card figcaption { display: flex; flex-direction: column; gap: 6px; padding: 15px; color: #4e2313; }
+.chat-testimonial-card figcaption strong { font-size: 14px; line-height: 1.5; }
+.chat-testimonial-card figcaption > span { font-size: 11px; color: #705b4c; }
+.chat-testimonial-controls { display: none; }
+@media(max-width:767px){
+  .chat-testimonial-grid { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: calc(100% - 22px); overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; padding-block: 3px 8px; }
+  .chat-testimonial-grid::-webkit-scrollbar { display: none; }
+  .chat-testimonial-card { scroll-snap-align: start; }
+  .chat-testimonial-controls { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 8px; }
+  .chat-testimonial-controls .btn { min-width: 44px; min-height: 44px; padding: 8px; }
+  .chat-testimonial-controls > span { font-size: 12px; font-weight: 700; color: #673b24; }
+}
+.chat-testimonial-card img { aspect-ratio: 1169 / 1280; object-fit: contain; }

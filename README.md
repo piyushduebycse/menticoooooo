@@ -115,8 +115,10 @@ This project is licensed under the MIT License.
 
 ### Purchase and download experience
 
-The homepage leads with the promise, three existing testimonials, everyday situations, contents, the 30-day challenge, and then pricing. The ₹299 Field Guide includes the downloadable PDF; ₹499 Private Community & Support adds Telegram access and mentor guidance subject to availability. The server verifies `planId` and payment amount; historical purchases retain PDF access.
+The homepage leads with the promise, three supplied redacted reader chat screenshots, everyday situations, contents, the 30-day challenge, and then pricing. The ₹299 Field Guide includes the downloadable PDF; ₹499 Private Community & Support adds Telegram access and mentor guidance subject to availability. The server verifies `planId` and payment amount; historical purchases retain PDF access.
 
 After payment, the customer sees a download page and purchase confetti. The PDF is downloaded as a complete file in authenticated 1 MiB range requests to stay within hosting response limits, then saved using the browser's download mechanism. There is no restricted browser reader or screenshot blocking in this flow. Downloaded files can be opened offline or printed for personal use. The existing purchase-email link opens the same download page. The restore-purchase form has been removed from navigation and routing; legacy server recovery APIs remain for backwards compatibility. Customer-support email remains margmanpath@gmail.com by the owner's instruction.
 
 The ₹499 customer's download page and confirmation email include the supplied shared Telegram invite; no bot is used. The public pricing cards do not contain the invite.
+
+The mobile pricing comparison uses swipeable cards with plan tabs, previous/next controls and keyboard arrows. Checkout tabs select the corresponding server-priced plan. The confidence and final call-to-action sections use the supplied image assets; the first Charisma preview has been removed.
