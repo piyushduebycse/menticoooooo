@@ -222,7 +222,7 @@ export default function Product() {
           </form>
           <PaymentMethods/>
         </div>
-        <aside className="checkout-summary"><img src="/images/book_isolated.jpg" alt="Social Freedom by Mentico"/><h2>Yours to read.<br/>Yours to practise.</h2><ul><li><CheckCircle2 size={17}/>90-page downloadable Course</li><li><CheckCircle2 size={17}/>30-day social confidence challenge</li><li><CheckCircle2 size={17}/>Read offline or print for personal use</li><li><CheckCircle2 size={17}/>Lifetime access to your field guide</li>{plan.hasTelegramAccess && <><li><CheckCircle2 size={17}/>Private Telegram community</li><li><CheckCircle2 size={17}/>Mentor guidance, subject to availability</li></>}</ul><p>Already purchased? Open the download link in your confirmation email. <Link to="/contact">Need help?</Link></p></aside>
+        <aside className="checkout-summary"><img src="/images/book_isolated.jpg" alt="Social Freedom by Mentico"/><h2>Yours to read.<br/>Yours to practise.</h2><ul><li><CheckCircle2 size={17}/>Comprehensive downloadable Course</li><li><CheckCircle2 size={17}/>30-day social confidence challenge</li><li><CheckCircle2 size={17}/>Read offline or print for personal use</li><li><CheckCircle2 size={17}/>Lifetime access to your field guide</li>{plan.hasTelegramAccess && <><li><CheckCircle2 size={17}/>Private Telegram community</li><li><CheckCircle2 size={17}/>Mentor guidance, subject to availability</li></>}</ul><p>Already purchased? Open the download link in your confirmation email. <Link to="/contact">Need help?</Link></p></aside>
       </div>
     </>}
   </section>;

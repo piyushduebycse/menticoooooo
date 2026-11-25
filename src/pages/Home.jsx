@@ -127,7 +127,7 @@ export default function Home() {
 
   const faqItems = [
     { question: 'Will this work for introverts?', answer: "Yes. Social Freedom isn’t about becoming louder or more outgoing. It’s about getting comfortable participating in ways that suit you. The 30-day challenge starts with small, low-pressure actions, like saying hello or asking one question, and builds at your own pace. It’s designed for introverts and overthinkers." },
-    { question: 'How long does it take?', answer: "The guide is 90 pages and most people read it in a few sittings. The 30-day challenge asks for 10–15 minutes a day of small real-world actions. Many readers notice a shift in how they feel about starting conversations within the first couple of weeks, but it’s practice, not a quick fix, so results depend on how much you apply it." },
+    { question: 'How long does it take?', answer: "The comprehensive guide can be read in a few sittings. The 30-day challenge asks for 10–15 minutes a day of small real-world actions. Many readers notice a shift in how they feel about starting conversations within the first couple of weeks, but it’s practice, not a quick fix, so results depend on how much you apply it." },
     { question: 'Is it manipulative?', answer: "No, the opposite. There are no scripts, pickup lines, tricks or fake personas. Social Freedom teaches you to read reciprocity, respect boundaries and express interest honestly, so connections are mutual and genuine. It works for friendships, networking and everyday life, not just dating." },
     { question: 'How will I receive the field guide?', answer: 'After successful payment, you’ll see a download page with a prominent Download Course button. Your confirmation email also includes a link to your purchase. Save the Course to read offline, on any device, or print it for personal use.' },
     { question: 'What does Private Community & Support include?', answer: 'The ₹499 plan includes everything in the ₹299 field guide, plus the private Mentico Telegram community and guidance from the Mentico mentor, subject to availability. You’ll get the Telegram join link after payment and in your confirmation email. There are no guaranteed response times or scheduled one-to-one sessions.' },
@@ -152,7 +152,7 @@ export default function Home() {
               <p>Stop overthinking people.<strong>Start talking to them.</strong></p>
               <svg className="hero-promise-rays rays-right" viewBox="0 0 42 65" aria-hidden="true"><path d="m20 9-10 12m26 8-18 7m14 18-17-3"/></svg>
             </div>
-            <p className="promise-description">A practical 90-page field guide and 30-day challenge to help you overcome hesitation and build real social confidence through everyday conversations.</p>
+            <p className="promise-description">A comprehensive field guide and 30-day challenge to help you overcome hesitation and build real social confidence through everyday conversations.</p>
             <button type="button" onClick={handlePurchaseClick} className="mentico-btn-cta promise-cta">Get the Field Guide · ₹{currentPrice}<ArrowRight size={24}/></button>
             <div className="hero-reference-benefits" aria-label="Field guide highlights"><span><Zap size={22}/><span>Instant access</span></span><span><Layers size={22}/><span>No scripts or pickup lines</span></span><span><Calendar size={22}/><span>30-day challenge included</span></span></div>
           </div>
@@ -304,7 +304,7 @@ export default function Home() {
               <ul className="mentico-inside-list">
                 <li className="mentico-inside-item">
                   <Check className="mentico-check-green" size={18} />
-                  <span>90 pages of practical content</span>
+                  <span>Comprehensive practical content</span>
                 </li>
                 <li className="mentico-inside-item">
                   <Check className="mentico-check-green" size={18} />
@@ -609,7 +609,7 @@ export default function Home() {
           {hasPurchased ? <button className="btn btn-primary" onClick={() => navigate('/library')}><Download size={18}/>Open my downloads</button> : <button className="btn btn-secondary" onClick={() => navigate('/contact')}>Get help with my purchase<ArrowRight size={16}/></button>}
         </section>
 
-        <section className="mentico-container final-invitation-art"><button type="button" onClick={handlePurchaseClick} aria-label="Start my Social Freedom journey — choose a plan"><img src="/images/start-social-freedom.jpg" width="1080" height="952" alt="Your next chapter starts here. Stop watching opportunities pass because you hesitated. Start talking to people. Instant access, 90-page field guide, 30-day challenge and lifetime access." loading="lazy"/></button></section>
+        <section className="mentico-container final-invitation-art"><button type="button" onClick={handlePurchaseClick} aria-label="Start my Social Freedom journey — choose a plan"><img src="/images/start-social-freedom.jpg" width="1080" height="952" alt="Your next chapter starts here. Stop watching opportunities pass because you hesitated. Start talking to people. Instant access, comprehensive field guide, 30-day challenge and lifetime access." loading="lazy"/></button></section>
 
         {/* 9. Frequently Asked Questions */}
         <section id="faq" className="mentico-container mentico-faq-section">

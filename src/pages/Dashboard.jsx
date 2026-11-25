@@ -38,7 +38,7 @@ export default function Dashboard() {
     <div className="downloads-welcome"><span className="badge-red"><CheckCircle2 size={14}/>PURCHASE CONFIRMED</span><h1>Your field guide.<br/>Yours to keep.</h1><p>Download it once. Read it anywhere. Your next small conversation starts here.</p></div>
     <div className="download-book-card">
       <img src="/images/book_isolated.jpg" alt="Social Freedom by Mentico field guide"/>
-      <div><span className="downloads-eyebrow">SOCIAL FREEDOM · BY MENTICO</span><h2>Make room for real conversations.</h2><p>A 90-page field guide, practical frameworks and your 30-day challenge. Save your Course for offline reading or print a copy for personal use.</p>
+      <div><span className="downloads-eyebrow">SOCIAL FREEDOM · BY MENTICO</span><h2>Make room for real conversations.</h2><p>A comprehensive field guide, practical frameworks and your 30-day challenge. Save your Course for offline reading or print a copy for personal use.</p>
         <div className="download-book-badges"><span><FileText size={15}/>Downloadable Course</span><span><BookOpen size={15}/>Lifetime access</span></div>
         <button className="btn btn-primary download-primary" onClick={download} disabled={status === 'downloading'}><Download size={22}/>{status === 'downloading' ? `Preparing your Course… ${progress}%` : status === 'done' ? 'Download Course again' : 'Download my Course'}<ArrowRight size={18}/></button>
         {status === 'downloading' && <progress className="download-progress" value={progress} max={100} aria-label="Course download progress"/>}
