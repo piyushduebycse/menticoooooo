@@ -35,7 +35,9 @@ export default function ChatTestimonials() {
     if (!playing) return;
     const grid = gridRef.current;
     const timer = window.setInterval(() => {
-      if (document.hidden || grid.scrollWidth <= grid.clientWidth || grid.matches(':focus-within, :active') ||
+      // Touch can leave the region focused after a swipe. Only keyboard focus
+      // should pause autoplay until focus leaves; touch pauses are temporary.
+      if (document.hidden || grid.scrollWidth <= grid.clientWidth || grid.matches(':focus-visible, :active') || grid.querySelector(':focus-visible') ||
         performance.now() - lastInteraction.current < AUTO_SCROLL_DELAY) return;
 
       const bounds = grid.getBoundingClientRect();

@@ -74,7 +74,7 @@ export default function PurchasePlans({ selected, onSelect, disabled = false }) 
             <li key={benefit} className="purchase-plan-excluded"><X size={17} aria-hidden="true"/><span>{benefit} <small>Not included</small></span></li>
           ))}
         </ul>
-        {selecting ? <label className={`purchase-plan-select ${disabled ? 'is-disabled' : ''}`}><input type="radio" name="purchase-plan" value={plan.id} aria-label={plan.hasTelegramAccess ? 'Choose Field Guide + Community — ₹499' : 'Choose the Field Guide — ₹299'} checked={selected === plan.id} onChange={() => onSelect(plan.id)} disabled={disabled}/><span>{selected === plan.id ? 'Selected' : 'Choose plan'}</span></label> : <Link className="btn btn-primary" to={`/purchase?plan=${plan.id}#checkout-card`}>{plan.hasTelegramAccess ? 'Get Field Guide + Community' : 'Get the Field Guide'}<ArrowRight size={16}/></Link>}
+        {selecting ? <label className={`purchase-plan-select ${disabled ? 'is-disabled' : ''}`}><input type="radio" name="purchase-plan" value={plan.id} aria-label={plan.hasTelegramAccess ? 'Choose Field Guide + Community — ₹499' : 'Choose Field Guide — ₹299'} checked={selected === plan.id} onChange={() => onSelect(plan.id)} disabled={disabled}/><span>{selected === plan.id ? 'Selected' : 'Choose plan'}</span></label> : <Link className="btn btn-primary" to={`/purchase?plan=${plan.id}#checkout-card`}>{plan.hasTelegramAccess ? 'Get Field Guide + Community' : 'Get Field Guide'}<ArrowRight size={16}/></Link>}
         <p className="purchase-plan-assurance">UPI, cards, wallets · No refunds after access is provided.*</p>
       </div>)}
     </div>
