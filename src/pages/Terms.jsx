@@ -35,12 +35,12 @@ export default function Terms() {
               marginBottom: '0.5rem',
             }}
           >
-            Course: ₹{PRODUCT_PRICE_INR} | Private Community & Support: ₹{PRODUCT_PLANS.pdf_mentor.priceInr} | One-time purchase
+            Course: ₹{PRODUCT_PRICE_INR} | Field Guide + Community: ₹{PRODUCT_PLANS.pdf_mentor.priceInr} | One-time purchase
           </p>
           <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', maxWidth: '620px', margin: '0 auto' }}>
             By purchasing, downloading, or accessing the Mentico Social Freedom Course, you agree to the following Terms &amp; Conditions.
           </p>
-          <p>Mentor participation and guidance are subject to availability. Private Community & Support does not include guaranteed response times or scheduled one-to-one sessions.</p>
+          <p>Mentor participation and guidance are subject to availability. Field Guide + Community does not include guaranteed response times or scheduled one-to-one sessions.</p>
         </div>
 
         {/* Action Toolbar */}
