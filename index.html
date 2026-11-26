@@ -15,8 +15,38 @@
     <!-- Razorpay Checkout Gateway Preconnect -->
     <link rel="preconnect" href="https://api.razorpay.com">
     <link rel="preconnect" href="https://checkout.razorpay.com">
+    <!-- Meta Pixel -->
+    <script>
+      (function (window, document) {
+        if (window.fbq) return;
+
+        const pixel = window.fbq = function () {
+          if (pixel.callMethod) {
+            pixel.callMethod.apply(pixel, arguments);
+          } else {
+            pixel.queue.push(arguments);
+          }
+        };
+        if (!window._fbq) window._fbq = pixel;
+        pixel.push = pixel;
+        pixel.loaded = true;
+        pixel.version = '2.0';
+        pixel.queue = [];
+
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://connect.facebook.net/en_US/fbevents.js';
+        document.head.appendChild(script);
+      })(window, document);
+      window.fbq('init', '1339509294966597');
+      window.fbq('track', 'PageView');
+    </script>
   </head>
   <body>
+    <noscript>
+      <img width="1" height="1" style="display:none" alt=""
+        src="https://www.facebook.com/tr?id=1339509294966597&amp;ev=PageView&amp;noscript=1" />
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
